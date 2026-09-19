@@ -3,6 +3,7 @@ import type { PluginApiDeclaration } from 'obsidian-dev-utils/obsidian/plugin/pl
 import { OpenDemoVaultCommandHandler } from 'obsidian-dev-utils/obsidian/command-handlers/open-demo-vault-command-handler';
 import { PluginBase } from 'obsidian-dev-utils/obsidian/plugin/plugin';
 
+import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
 import {
@@ -37,13 +38,22 @@ export class Plugin extends PluginBase {
   }
 
   protected override async onloadImpl(): Promise<void> {
+    const communityPluginEventsComponent = this.addChild(
+      new CommunityPluginEventsComponent({
+        app: this.app
+      })
+    );
+
     const corePluginEventsComponent = this.addChild(
       new CorePluginEventsComponent({
         app: this.app
       })
     );
 
-    this.moreEventsApi = new MoreEventsApiImpl({ corePluginEventsComponent });
+    this.moreEventsApi = new MoreEventsApiImpl({
+      communityPluginEventsComponent,
+      corePluginEventsComponent
+    });
 
     await this.commandHandlerComponent.registerCommandHandlers(() => [
       new OpenDemoVaultCommandHandler({

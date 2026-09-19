@@ -21,7 +21,7 @@ registerDemoVaultCoverageSuite({
     sourcePath: 'api.d.ts'
   }],
   nonTrivialGuard: {
-    expectDemoNote: '02 For plugin developers.md',
+    expectDemoNote: '03 For plugin developers.md',
     expectMember: 'getEnabledCorePluginIds',
     interfaceName: 'MoreEventsApi',
     sourcePath: 'api.d.ts'

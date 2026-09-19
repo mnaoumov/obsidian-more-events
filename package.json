@@ -1,7 +1,7 @@
 {
   "name": "more-events",
   "version": "0.0.0",
-  "description": "Publishes named, typed workspace events for core plugins being enabled and disabled, so other plugins can react without patching internals.",
+  "description": "Publishes named, typed workspace events for core and community plugins being enabled and disabled, so other plugins can react without patching internals.",
   "keywords": [],
   "homepage": "https://github.com/mnaoumov/obsidian-more-events#readme",
   "bugs": "https://github.com/mnaoumov/obsidian-more-events/issues",
