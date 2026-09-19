@@ -12,7 +12,9 @@ Prior-art gate, 2026-09-19: the 7808-entry community registry holds nothing comp
 
 ## Current state
 
-**Built, not released, and not listed.** The events, the API, the demo vault and the README are in place, with unit tests at 100%. There is no GitHub remote yet, so `lint:md` reports a 404 on every `github.com/mnaoumov/obsidian-more-events` link until one exists — expected, not a defect.
+**Built, not released, and not listed.** The events, the API, the demo vault and the README are in place, with unit tests at 100% and a behavioral desktop integration suite that disables and re-enables the Canvas core plugin against a real Obsidian and asserts exactly one event of each kind arrives, naming that plugin. There is no GitHub remote yet, so `lint:md` reports a 404 on every `github.com/mnaoumov/obsidian-more-events` link until one exists — expected, not a defect, and the only red gate.
+
+**`src/core-plugin-events.desktop.integration.test.ts` is the one test that can fail for the right reason.** Everything else here runs against mocks, while this plugin's whole premise is a claim about the real app. It is desktop-only deliberately: the component touches nothing platform-specific, and `plugin.android.integration.test.ts` already proves the plugin loads on Android, so an Android leg would buy an emulator run and no coverage.
 
 ## The seam, measured rather than assumed
 
