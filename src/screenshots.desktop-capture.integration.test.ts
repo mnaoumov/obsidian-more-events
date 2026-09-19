@@ -15,7 +15,7 @@
  * picture of what the plugin does — it publishes an event, and something else reacts — and it is the same
  * two `app.workspace.on(...)` calls the README's snippet and the demo vault's buttons make. The captions
  * say so: they credit the listening plugin, never a UI this one does not have. A DevTools console showing
- * the events arrive was the other candidate and is not capturable, since `captureObsidianScreenshot`
+ * the events arrive was the other candidate and cannot be photographed, since `captureObsidianScreenshot`
  * photographs the Obsidian window and DevTools is a separate one.
  *
  * **The notices are raised with duration `0`.** A capture is not a demonstration: the default 5s notice
@@ -221,7 +221,7 @@ async function stageCommunityPluginEvent(): Promise<string[]> {
 
         await sleep(SETTLE_DELAY_IN_MILLISECONDS);
 
-        return [...document.querySelectorAll('.notice')].map((noticeEl) => noticeEl.textContent ?? '');
+        return [...document.querySelectorAll('.notice')].map((noticeEl) => noticeEl.textContent);
       } finally {
         app.workspace.offref(enabledRef);
       }
@@ -297,7 +297,7 @@ async function stageCorePluginEvent(): Promise<string[]> {
 
         await sleep(SETTLE_DELAY_IN_MILLISECONDS);
 
-        return [...document.querySelectorAll('.notice')].map((noticeEl) => noticeEl.textContent ?? '');
+        return [...document.querySelectorAll('.notice')].map((noticeEl) => noticeEl.textContent);
       } finally {
         app.workspace.offref(enabledRef);
       }

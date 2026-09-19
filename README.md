@@ -6,7 +6,24 @@ A plugin that reacts to another plugin — one of [Obsidian](https://obsidian.md
 
 This plugin does the patching for nobody, by not patching at all. It watches the signals Obsidian already sends, works out what actually changed, and re-publishes it on `app.workspace` as four named, typed, per-plugin events any plugin can listen for with no dependency beyond `obsidian` itself.
 
-**It has no user interface.** Nothing to configure, nothing to click: install it, and the events are there for the plugins that need them.
+**It has no user interface.** Nothing to configure, nothing to click: install it, and the events are there for the plugins that need them. So the screenshots below are of *another* plugin reacting — a listener raising a notice as a plugin is toggled in Settings, which is the only thing here there is to see.
+
+<!-- markdownlint-disable MD033 -->
+
+<a href="https://github.com/mnaoumov/obsidian-more-events/blob/HEAD/images/screenshots/screenshot-desktop-1.png"><img src="images/screenshots/screenshot-desktop-1.png" alt="Canvas enabled in Settings — a listening plugin is told" width="600"></a>
+
+<details>
+<summary>More screenshots</summary>
+
+<div>
+<a href="https://github.com/mnaoumov/obsidian-more-events/blob/HEAD/images/screenshots/screenshot-desktop-2.png"><img src="images/screenshots/screenshot-desktop-2.png" alt="Any community plugin too, named the moment it loads" width="600"></a>
+<a href="https://github.com/mnaoumov/obsidian-more-events/blob/HEAD/images/screenshots/screenshot-mobile-1.png"><img src="images/screenshots/screenshot-mobile-1.png" alt="Canvas enabled in Settings — a listening plugin is told" width="270"></a>
+<a href="https://github.com/mnaoumov/obsidian-more-events/blob/HEAD/images/screenshots/screenshot-mobile-2.png"><img src="images/screenshots/screenshot-mobile-2.png" alt="Any community plugin too, named the moment it loads" width="270"></a>
+</div>
+
+</details>
+
+<!-- markdownlint-enable MD033 -->
 
 ## Demo vault
 
