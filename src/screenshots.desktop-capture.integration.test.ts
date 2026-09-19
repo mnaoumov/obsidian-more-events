@@ -32,6 +32,15 @@
  * itself would unload the component doing the publishing, and toggling whatever else the harness installed
  * would make the frame depend on the run. `enablePluginAndSave` rather than `enablePlugin`, because the
  * row's toggle in the photographed tab reads from the persisted list.
+ *
+ * **Every shot hides the vault name first, and that is what makes a re-run produce the same bytes.** The
+ * harness opens a temporary vault called `temp-vault-<random>`, Obsidian prints that name in the
+ * vault-switcher row at the bottom of the left sidedock, and the caption band drawn over that strip is
+ * near-opaque rather than opaque — so the random suffix bled through at about 6 % brightness and made
+ * `images/screenshots/screenshot-desktop-1.png` differ on every capture. Invisible to a reader, but it
+ * meant `npm run capture:screenshots` always left a dirty tree and no reviewer could tell a real change
+ * from noise. Measured as 349 differing pixels in one box, `x:153-197 y:774-783`, which is exactly the
+ * width of the six random characters.
  */
 
 import type { InternalPluginNameType } from '@obsidian-typings/obsidian-public-latest';
@@ -138,6 +147,40 @@ describe('desktop store screenshots', () => {
 });
 
 /**
+ * Hides every element that displays the vault's name, so the frame does not depend on the random suffix
+ * of the harness's temporary vault.
+ *
+ * Keyed on `app.vault.getName()` rather than on a class of Obsidian's chrome, deliberately: the varying
+ * thing is the DATA, and the row that renders it has moved between Obsidian versions before. Obsidian's
+ * own `hide()` rather than an inline `style.visibility` or an injected stylesheet, because those are what
+ * `obsidianmd/no-static-styles-assignment` and `obsidianmd/no-forbidden-elements` respectively refuse; the
+ * row it collapses sits under the caption band either way, so nothing a reader sees moves.
+ *
+ * Re-applied before every shot rather than once in `beforeAll`, because a re-render of the sidedock
+ * between the two shots would otherwise put the name back. Hiding leaves the text in place, so the second
+ * call still finds what the first one hid.
+ *
+ * @returns The number of elements hidden. The caller asserts it is non-zero: an Obsidian that renames or
+ * relocates the row should fail this suite loudly, not quietly go back to rewriting the PNGs.
+ */
+async function hideVaultName(): Promise<number> {
+  return await evalInObsidian({
+    callback({ app }): number {
+      const vaultName = app.vault.getName();
+      const vaultNameEls = [...document.querySelectorAll('*')]
+        .filter((el): el is HTMLElement => el.instanceOf(HTMLElement) && el.childElementCount === 0 && el.textContent === vaultName);
+
+      for (const vaultNameEl of vaultNameEls) {
+        vaultNameEl.hide();
+      }
+
+      return vaultNameEls.length;
+    },
+    vaultPath: vaultPath()
+  });
+}
+
+/**
  * Captures the window, captions it, and writes it as
  * `images/screenshots/screenshot-desktop-<index>.png`.
  *
@@ -145,6 +188,8 @@ describe('desktop store screenshots', () => {
  * @param caption - The caption drawn across the bottom of the frame.
  */
 async function shoot(index: number, caption: string): Promise<void> {
+  expect(await hideVaultName()).toBeGreaterThan(0);
+
   const bytes = await captureObsidianScreenshot({
     heightInPixels: HEIGHT_IN_PIXELS,
     vaultPath: vaultPath(),
