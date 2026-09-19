@@ -30,6 +30,7 @@
     "rakudo",
     "reimplementation",
     "Seedable",
+    "sidedock",
     "smol",
     "templater",
     "tsbuildinfo",
