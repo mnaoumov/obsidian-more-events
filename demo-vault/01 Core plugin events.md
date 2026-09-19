@@ -12,7 +12,7 @@ Start listening. This registers the same two handlers a plugin would register in
 ---
 caption: Start listening
 ---
-require('/demoSetup.ts').startListening(app);
+require('/demoSetup.ts').startListeningToCorePlugins(app);
 ```
 
 Manual equivalent: the two `app.workspace.on(...)` calls from your own plugin.
@@ -32,7 +32,7 @@ A notice should say **Enabled: Canvas (canvas)** or **Disabled: Canvas (canvas)*
 ---
 caption: Stop listening
 ---
-require('/demoSetup.ts').stopListening();
+require('/demoSetup.ts').stopListeningToCorePlugins();
 ```
 
 Manual equivalent: unloading the component that registered the handlers, which a plugin gets for free when it is disabled.
@@ -45,6 +45,6 @@ Manual equivalent: unloading the component that registered the handlers, which a
 
 ## What they deliberately do not promise
 
-- **Nothing fires for the core plugins that were already enabled when More Events loaded.** Nothing changed, so nothing is announced. The starting state comes from the API instead — see [02 For plugin developers](<./02 For plugin developers.md>).
+- **Nothing fires for the core plugins that were already enabled when More Events loaded.** Nothing changed, so nothing is announced. The starting state comes from the API instead — see [03 For plugin developers](<./03 For plugin developers.md>).
 - **They do not say whether the user did it.** Obsidian's underlying signal fires identically for a toggle in Settings and for a plugin enabling something programmatically, and the only way to tell them apart is to patch the internals this plugin exists to stop everybody patching.
-- **Community plugins are not covered.** `obsidian-dev-utils` already broadcasts `obsidian-dev-utils:plugin-loaded` and `obsidian-dev-utils:plugin-unloaded` for every plugin built on it.
+- **Community plugins are not covered by *these two*.** They have a manager of their own and a pair of events of their own — see [02 Community plugin events](<./02 Community plugin events.md>).

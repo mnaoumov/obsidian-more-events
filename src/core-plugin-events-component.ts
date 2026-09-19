@@ -2,25 +2,15 @@ import type {
   InternalPlugin,
   InternalPluginInstance
 } from '@obsidian-typings/obsidian-public-latest';
-import type { App } from 'obsidian';
+import type { EventRef } from 'obsidian';
 
 import { castTo } from 'obsidian-dev-utils/object-utils';
-import { ComponentEx } from 'obsidian-dev-utils/obsidian/components/component-ex';
 
 import {
   CORE_PLUGIN_DISABLED_EVENT_NAME,
   CORE_PLUGIN_ENABLED_EVENT_NAME
 } from './more-events-api.ts';
-
-/**
- * Parameters for the {@link CorePluginEventsComponent} constructor.
- */
-export interface CorePluginEventsComponentConstructorParams {
-  /**
-   * The Obsidian application instance.
-   */
-  readonly app: App;
-}
+import { PluginEventsComponentBase } from './plugin-events-component-base.ts';
 
 /**
  * A core plugin read generically — the shape every entry of `app.internalPlugins.plugins` has, with the
@@ -34,41 +24,26 @@ type CorePlugin = InternalPlugin<InternalPluginInstance<unknown>>;
  * Obsidian already triggers `change` on `app.internalPlugins` at the end of both `InternalPlugin.enable()`
  * and `InternalPlugin.disable()` — its own **Core plugins** settings tab subscribes to it. What it does
  * not do is say WHICH plugin changed or in which direction: the event is a signal to re-read, which is
- * why the settings tab answers it by redrawing the whole list. So this component keeps the last known
- * enabled set and diffs against it, which is both what makes the events per-plugin and what makes them
- * correct when a single `change` follows more than one transition.
+ * why the settings tab answers it by redrawing the whole list. The diff that makes it per-plugin lives in
+ * {@link PluginEventsComponentBase}, which the community-plugin half shares.
  *
- * NOTHING IS PATCHED. The two seams that would carry more information — `InternalPlugin.prototype.enable`
- * / `disable`, for the `isEnabledByUser` argument, and the per-instance `onUserEnable` / `onUserDisable` —
- * are both monkey-patches on a prototype every plugin in the vault shares, and a vault with two plugins
- * patching them has two patches. That is the whole reason this plugin exists rather than the patch living
- * in a library, so installing one here would defeat it.
+ * The two seams that would carry more information — `InternalPlugin.prototype.enable` / `disable`, for the
+ * `isEnabledByUser` argument, and the per-instance `onUserEnable` / `onUserDisable` — are both
+ * monkey-patches on a prototype every plugin in the vault shares, and are not installed here for the reason
+ * the base class gives.
  *
  * Consequently the events do not distinguish a user toggling a core plugin from anything else enabling
  * one, because `change` does not. Neither consumer needs the distinction: what they do when a core plugin
  * comes back does not depend on who brought it back.
  */
-export class CorePluginEventsComponent extends ComponentEx {
-  private readonly app: App;
-  private enabledCorePluginNamesById = new Map<string, string>();
-
-  /**
-   * Creates the component.
-   *
-   * @param params - The parameters.
-   */
-  public constructor(params: CorePluginEventsComponentConstructorParams) {
-    super();
-    this.app = params.app;
-  }
-
+export class CorePluginEventsComponent extends PluginEventsComponentBase {
   /**
    * The ids of the core plugins enabled right now.
    *
    * @returns The enabled core plugin ids.
    */
   public getEnabledCorePluginIds(): string[] {
-    return [...this.enabledCorePluginNamesById.keys()];
+    return this.getEnabledPluginIds();
   }
 
   /**
@@ -78,44 +53,7 @@ export class CorePluginEventsComponent extends ComponentEx {
    * @returns `true` when it is enabled.
    */
   public isCorePluginEnabled(corePluginId: string): boolean {
-    return this.enabledCorePluginNamesById.has(corePluginId);
-  }
-
-  /**
-   * Takes the baseline snapshot and subscribes to Obsidian's `change` signal.
-   *
-   * The snapshot is taken BEFORE subscribing, so the first `change` is diffed against the state as it was
-   * when this plugin loaded rather than against an empty set — which would announce every already-enabled
-   * core plugin as newly enabled.
-   */
-  public override onload(): void {
-    super.onload();
-    this.enabledCorePluginNamesById = this.readEnabledCorePlugins();
-    this.registerEvent(this.app.internalPlugins.on('change', this.handleInternalPluginsChange.bind(this)));
-  }
-
-  private handleInternalPluginsChange(): void {
-    const previousEnabledCorePluginNamesById = this.enabledCorePluginNamesById;
-    const currentEnabledCorePluginNamesById = this.readEnabledCorePlugins();
-    this.enabledCorePluginNamesById = currentEnabledCorePluginNamesById;
-
-    for (const [corePluginId, corePluginName] of previousEnabledCorePluginNamesById) {
-      if (!currentEnabledCorePluginNamesById.has(corePluginId)) {
-        this.app.workspace.trigger(CORE_PLUGIN_DISABLED_EVENT_NAME, {
-          corePluginId,
-          corePluginName
-        });
-      }
-    }
-
-    for (const [corePluginId, corePluginName] of currentEnabledCorePluginNamesById) {
-      if (!previousEnabledCorePluginNamesById.has(corePluginId)) {
-        this.app.workspace.trigger(CORE_PLUGIN_ENABLED_EVENT_NAME, {
-          corePluginId,
-          corePluginName
-        });
-      }
-    }
+    return this.isPluginEnabled(corePluginId);
   }
 
   /**
@@ -127,7 +65,7 @@ export class CorePluginEventsComponent extends ComponentEx {
    *
    * @returns The display name of every enabled core plugin, keyed by its id.
    */
-  private readEnabledCorePlugins(): Map<string, string> {
+  protected override readEnabledPlugins(): Map<string, string> {
     const enabledCorePluginNamesById = new Map<string, string>();
 
     /*
@@ -145,5 +83,41 @@ export class CorePluginEventsComponent extends ComponentEx {
     }
 
     return enabledCorePluginNamesById;
+  }
+
+  /**
+   * Subscribes to Obsidian's `change` signal on `app.internalPlugins`.
+   *
+   * @param handleChange - The callback to run on each signal.
+   * @returns The event reference.
+   */
+  protected override subscribeToChanges(handleChange: () => void): EventRef {
+    return this.app.internalPlugins.on('change', handleChange);
+  }
+
+  /**
+   * Publishes one core plugin having been disabled.
+   *
+   * @param corePluginId - The core plugin's id.
+   * @param corePluginName - The core plugin's display name.
+   */
+  protected override triggerDisabled(corePluginId: string, corePluginName: string): void {
+    this.app.workspace.trigger(CORE_PLUGIN_DISABLED_EVENT_NAME, {
+      corePluginId,
+      corePluginName
+    });
+  }
+
+  /**
+   * Publishes one core plugin having been enabled.
+   *
+   * @param corePluginId - The core plugin's id.
+   * @param corePluginName - The core plugin's display name.
+   */
+  protected override triggerEnabled(corePluginId: string, corePluginName: string): void {
+    this.app.workspace.trigger(CORE_PLUGIN_ENABLED_EVENT_NAME, {
+      corePluginId,
+      corePluginName
+    });
   }
 }

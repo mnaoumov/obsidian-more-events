@@ -7,18 +7,56 @@
  * has never heard of `obsidian-dev-utils` can copy this file, or reference it, and depend on More Events
  * with no build-time dependency on this repo at all.
  *
- * Two things live here. The **events** — a `Workspace.on` overload plus the payload they carry — which are
+ * Two things live here. The **events** — a `Workspace.on` overload plus the payloads they carry — which are
  * what most consumers want, and the **API** reached through the `obsidian-dev-utils` plugin registry, which
- * answers the question the events cannot: what is enabled *right now*, before anything has changed.
+ * answers the question the events cannot: what is enabled *right now*, before anything has changed. There
+ * are two pairs of events, one for **core** plugins and one for **community** plugins, and they are
+ * deliberately separate names rather than one pair with a kind flag: the two live in different managers,
+ * their ids come from different namespaces, and almost every consumer wants exactly one of the two.
  *
  * The event NAMES are a wire contract and are spelled out as literal types rather than exported as
- * constants, because a declaration file has no runtime values to export: a consumer hardcodes the two
- * strings, exactly as `obsidian-dev-utils` tells third parties to hardcode its own broadcast's names. The
- * payload is plain data for the same reason it is in that library — it crosses between plugins that share
- * no code.
+ * constants, because a declaration file has no runtime values to export: a consumer hardcodes the strings,
+ * exactly as `obsidian-dev-utils` tells third parties to hardcode its own broadcast's names. The payloads
+ * are plain data for the same reason they are in that library — they cross between plugins that share no
+ * code.
  */
 
 import type { EventRef } from 'obsidian';
+
+/**
+ * The name of the event triggered after a community plugin has been disabled.
+ */
+export type CommunityPluginDisabledEventName = 'more-events:community-plugin-disabled';
+
+/**
+ * The name of the event triggered after a community plugin has been enabled.
+ */
+export type CommunityPluginEnabledEventName = 'more-events:community-plugin-enabled';
+
+/**
+ * Either community-plugin event name.
+ */
+export type CommunityPluginEventName = CommunityPluginDisabledEventName | CommunityPluginEnabledEventName;
+
+/**
+ * The payload both community-plugin events carry.
+ *
+ * Plain data, and additive only: a new member may be added, none may change meaning or be removed, because
+ * a consumer compiled against an older copy of this file is still passed the same object.
+ */
+export interface CommunityPluginEventPayload {
+  /**
+   * The community plugin's id — the `id` from its `manifest.json`, which is also its folder name under
+   * `.obsidian/plugins/` and the string `app.plugins.getPlugin` takes.
+   */
+  readonly communityPluginId: string;
+
+  /**
+   * The community plugin's display name, as Obsidian shows it in **Settings -> Community plugins**. Present
+   * so a consumer can name the plugin in a notice without reaching into `app.plugins` for it.
+   */
+  readonly communityPluginName: string;
+}
 
 /**
  * The name of the event triggered after a core plugin has been disabled.
@@ -64,6 +102,15 @@ export interface CorePluginEventPayload {
  */
 export interface MoreEventsApi {
   /**
+   * The ids of the community plugins that are loaded right now.
+   *
+   * A fresh array on each call, so writing to it changes nothing here.
+   *
+   * @returns The enabled community plugin ids.
+   */
+  getEnabledCommunityPluginIds(): string[];
+
+  /**
    * The ids of the core plugins enabled right now.
    *
    * A fresh array on each call, so writing to it changes nothing here.
@@ -71,6 +118,15 @@ export interface MoreEventsApi {
    * @returns The enabled core plugin ids.
    */
   getEnabledCorePluginIds(): string[];
+
+  /**
+   * Whether the named community plugin is loaded right now.
+   *
+   * @param communityPluginId - The community plugin's id, as
+   * {@link CommunityPluginEventPayload.communityPluginId} carries it.
+   * @returns `true` when it is enabled.
+   */
+  isCommunityPluginEnabled(communityPluginId: string): boolean;
 
   /**
    * Whether the named core plugin is enabled right now.
@@ -83,6 +139,32 @@ export interface MoreEventsApi {
 
 declare module 'obsidian' {
   interface Workspace {
+    /**
+     * Subscribes to a community plugin being enabled or disabled.
+     *
+     * **Enabled here means LOADED** — the plugin's code is running and `app.plugins.getPlugin(id)` answers
+     * with it. That is deliberately not the same as membership of `app.plugins.enabledPlugins`, which is
+     * the persisted config and can name a plugin that is not running at all: switching **Community
+     * plugins** off in Settings unloads every one of them without touching that set, and so does starting
+     * Obsidian in restricted mode.
+     *
+     * Triggered after the change has happened, so `getEnabledCommunityPluginIds()` already reflects it.
+     * Nothing is triggered for the community plugins that were already loaded when More Events loaded —
+     * read those from the API instead.
+     *
+     * @param name - Should be `'more-events:community-plugin-enabled'` or
+     * `'more-events:community-plugin-disabled'`.
+     * @param callback - The callback receiving the community plugin's payload.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    /*
+     * An augmentation of an EXISTING overload set has to stay a method signature. A property member does not
+     * merge into `Workspace.on`'s overloads, and the failure surfaces at every call site rather than here.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CommunityPluginEventName, callback: (payload: CommunityPluginEventPayload) => unknown, context?: unknown): EventRef;
+
     /**
      * Subscribes to a core plugin being enabled or disabled.
      *

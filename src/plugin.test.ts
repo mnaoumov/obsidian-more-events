@@ -15,6 +15,7 @@ import {
   vi
 } from 'vitest';
 
+import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
 import {
@@ -22,6 +23,16 @@ import {
   PLUGIN_API_VERSION
 } from './more-events-api.ts';
 import { Plugin } from './plugin.ts';
+
+vi.mock('./community-plugin-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    CommunityPluginEventsComponent: vi.fn(function communityPluginEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
 
 vi.mock('./core-plugin-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
@@ -40,10 +51,6 @@ interface AppGlobal {
   app: AppType;
 }
 
-interface CorePluginEventsComponentConstructorParams {
-  readonly app: AppType;
-}
-
 interface LoadedFlagHolder {
   loaded__: boolean;
 }
@@ -54,6 +61,10 @@ interface ObsidianModule {
 
 interface PluginApisReader {
   getPluginApis: () => PluginApiDeclaration[];
+}
+
+interface PluginEventsComponentConstructorParams {
+  readonly app: AppType;
 }
 
 const manifest = castTo<PluginManifest>({
@@ -94,7 +105,22 @@ describe('Plugin', () => {
     const calls = vi.mocked(CorePluginEventsComponent).mock.calls;
     expect(calls).toHaveLength(1);
 
-    const params = castTo<CorePluginEventsComponentConstructorParams>(calls[0]?.[0]);
+    const params = castTo<PluginEventsComponentConstructorParams>(calls[0]?.[0]);
+    expect(params.app).toBe(plugin.app);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
+  it('should add the community plugin events component with the app', async () => {
+    const plugin = new Plugin(app, manifest);
+    // PluginBase.onload is async; driving it directly runs onloadImpl and eager-loads the child.
+    await plugin.onload();
+
+    const calls = vi.mocked(CommunityPluginEventsComponent).mock.calls;
+    expect(calls).toHaveLength(1);
+
+    const params = castTo<PluginEventsComponentConstructorParams>(calls[0]?.[0]);
     expect(params.app).toBe(plugin.app);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;

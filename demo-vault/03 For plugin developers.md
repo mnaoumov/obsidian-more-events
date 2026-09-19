@@ -1,10 +1,10 @@
 # For plugin developers
 
-An event says when something changed. It cannot say what the state is *now*, and a plugin that has only just loaded needs exactly that: it has missed every change that happened before it existed. So More Events also publishes a small API, through the `obsidian-dev-utils` plugin registry, with the two reads that pair with the two events.
+An event says when something changed. It cannot say what the state is *now*, and a plugin that has only just loaded needs exactly that: it has missed every change that happened before it existed. So More Events also publishes a small API, through the `obsidian-dev-utils` plugin registry, with the reads that pair with the events — two for core plugins, two for community plugins.
 
 Everything a consumer needs is declared in the plugin's repo-root `api.d.ts`, which imports nothing but `obsidian` — copy it, or copy the few lines you use, and you depend on this plugin without depending on anything of its author's.
 
-## The two reads
+## The core plugin reads
 
 `moreEventsApi.getEnabledCorePluginIds` hands back the ids of every core plugin enabled right now, as a fresh array:
 
@@ -30,6 +30,30 @@ Manual equivalent: find the **Canvas** row in **Settings -> Core plugins**.
 
 Toggle Canvas on [01 Core plugin events](<./01 Core plugin events.md>) and press either button again — the answer follows immediately, because the API reads live state rather than a cached copy.
 
+## The community plugin reads
+
+`moreEventsApi.getEnabledCommunityPluginIds` is the same read for community plugins, and it answers for the ones that are **loaded** rather than the ones that are ticked in Settings — see [02 Community plugin events](<./02 Community plugin events.md>) for why those two lists are not the same:
+
+```code-button
+---
+caption: List the loaded community plugins
+---
+await require('/demoSetup.ts').showEnabledCommunityPlugins(app);
+```
+
+Manual equivalent: open **Settings -> Community plugins** and read the toggles, remembering that caveat.
+
+`moreEventsApi.isCommunityPluginEnabled` answers for one plugin. Here it asks about the throwaway plugin the toggle button on [02 Community plugin events](<./02 Community plugin events.md>) flips, so pressing that and then this shows the answer change:
+
+```code-button
+---
+caption: Is the demo community plugin loaded?
+---
+await require('/demoSetup.ts').showWhetherDemoCommunityPluginIsEnabled(app);
+```
+
+Manual equivalent: find that plugin's row in **Settings -> Community plugins**.
+
 ## Reaching the API
 
 ```ts
@@ -43,7 +67,7 @@ const moreEventsApiRef = watchPluginApi({
 });
 ```
 
-`moreEventsApiRef.value` is `null` while More Events is not loaded and becomes non-`null` on its own when it is, so a consumer never has to care about plugin load order. The contract version is **`1.0.0`** and moves independently of the plugin's own version, which is why the range above asks for `^1` rather than naming one.
+`moreEventsApiRef.value` is `null` while More Events is not loaded and becomes non-`null` on its own when it is, so a consumer never has to care about plugin load order. The contract version is **`1.1.0`** and moves independently of the plugin's own version, which is why the range above asks for `^1` rather than naming one.
 
 If you would rather not take `obsidian-dev-utils` as a dependency, the registry is a documented wire protocol you can read directly — its guide is [Cross-plugin APIs](https://mnaoumov.dev/obsidian-dev-utils/guides/cross-plugin-apis/).
 
