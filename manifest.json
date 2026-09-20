@@ -1,7 +1,7 @@
 {
   "author": "mnaoumov",
   "authorUrl": "https://github.com/mnaoumov/",
-  "description": "Publishes named, typed workspace events for core and community plugins being enabled and disabled, so other plugins can react without patching internals.",
+  "description": "Publishes named, typed workspace events the public API does not expose, so other plugins can react without patching internals. A growing set, starting with core and community plugins being enabled and disabled.",
   "fundingUrl": "https://www.buymeacoffee.com/mnaoumov",
   "id": "more-events",
   "isDesktopOnly": false,

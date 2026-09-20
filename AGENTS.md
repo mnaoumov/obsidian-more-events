@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-More Events publishes the plugin-lifecycle events Obsidian does not: four named, typed, per-plugin events on `app.workspace` — one pair for a **core plugin** being enabled or disabled, one pair for a **community plugin** — each carrying that plugin's id, its display name, and `isUserInitiated`. It has no user interface, no settings and no commands beyond the shared **Open demo vault** one — its entire audience is other plugins.
+More Events publishes the events Obsidian does not: named, typed, per-subject events on `app.workspace`, subscribable with no dependency beyond `obsidian` itself. It has no user interface, no settings and no commands beyond the shared **Open demo vault** one — its entire audience is other plugins.
+
+**The first set is plugin lifecycle, and it is the FIRST rather than the whole.** Four events — one pair for a **core plugin** being enabled or disabled, one pair for a **community plugin** — each carrying that plugin's id, its display name, and `isUserInitiated`. The plugin is called *More Events* and not *Plugin Events* deliberately: a further set is published under the same contract — named, typed, per subject, plain-data payloads that only grow — and adding one is the plan rather than scope creep. What a new set still has to clear is the patch gate below; needing no patch is the ordinary case, and needing one means making that argument again from scratch. **Keep the manifest and package descriptions on that wider story too** — they are the registry listing's first impression, they are read from the RELEASED manifest, and narrowing them again costs a release to undo.
 
 It exists because the alternative is every interested plugin monkey-patching one shared prototype. `obsidian-dev-utils`' own rule says a shared **global** patch belongs in a plugin rather than the library, since every consumer bundles its own copy of the library and two copies at different versions both patch. A core-plugin enable patch is exactly that shape, and Backlink Cache and Backlink Full Path each carry one today.
 
