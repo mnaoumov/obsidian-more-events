@@ -53,6 +53,7 @@
     "@vitest/coverage-v8": "$@vitest/coverage-v8",
     "deepmerge-ts": "^8.0.2",
     "eslint": "$eslint",
+    "obsidian-integration-testing": "$obsidian-integration-testing",
     "smol-toml": "^1.8.0",
     "typescript": "6.0.3"
   },
