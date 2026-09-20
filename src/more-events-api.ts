@@ -64,7 +64,12 @@ export const PLUGIN_API_CONTRACT: PluginApiContract = {
  * The version of the contract above — independent of the plugin's own version, so a consumer asks for
  * `'^1'` and keeps working across releases that change nothing it depends on.
  *
- * `1.1.0` rather than `2.0.0`: the community-plugin pair was ADDED to the core-plugin pair and nothing
- * already published changed, so a consumer written against `1.0.0` compiles and runs unaltered.
+ * `1.2.0` rather than `2.0.0`, for the same reason `1.1.0` was: `isUserInitiated` was ADDED to both
+ * payloads and nothing already published changed its meaning, so a consumer written against `1.0.0` or
+ * `1.1.0` compiles and runs unaltered. The payloads are declared additive-only in `api.d.ts` precisely so
+ * this stays a minor.
+ *
+ * The history: `1.0.0` was the core-plugin pair, `1.1.0` added the community-plugin pair, `1.2.0` added
+ * `isUserInitiated` to both.
  */
-export const PLUGIN_API_VERSION = '1.1.0';
+export const PLUGIN_API_VERSION = '1.2.0';

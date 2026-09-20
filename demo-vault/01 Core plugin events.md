@@ -1,8 +1,8 @@
 # Core plugin events
 
-Obsidian tells a plugin nothing useful about its core plugins being turned on and off. There is a signal — `app.internalPlugins` fires an untyped `change` — but it does not say which plugin moved or which way, so the usual answer has been to monkey-patch Obsidian's internals and hope no other plugin in the vault is patching the same prototype. This plugin does that watching once, in one place, and re-publishes the result as two ordinary workspace events.
+Obsidian tells a plugin nothing useful about its core plugins being turned on and off. There is a signal — `app.internalPlugins` fires an untyped `change` — but it does not say which plugin moved, which way, or who did it, so the usual answer has been to monkey-patch Obsidian's internals and hope no other plugin in the vault is patching the same prototype. This plugin does that once, in one place, and re-publishes the result as two ordinary workspace events.
 
-The two names are `more-events:core-plugin-enabled` and `more-events:core-plugin-disabled`. Each carries the core plugin's id and its display name.
+The two names are `more-events:core-plugin-enabled` and `more-events:core-plugin-disabled`. Each carries the core plugin's id, its display name, and whether Obsidian was told the user did it.
 
 ## Watch them arrive
 
@@ -26,7 +26,7 @@ caption: Toggle the Canvas core plugin
 await require('/demoSetup.ts').toggleCanvasCorePlugin(app);
 ```
 
-A notice should say **Enabled: Canvas (canvas)** or **Disabled: Canvas (canvas)**. Press it again for the other one. Then stop:
+A notice should say **Enabled: Canvas (canvas), by the user** or **Disabled: Canvas (canvas), by the user**. Press it again for the other one. Then stop:
 
 ```code-button
 ---
@@ -41,10 +41,16 @@ Manual equivalent: unloading the component that registered the handlers, which a
 
 - **One event per plugin that actually changed.** The signal Obsidian sends says only that *something* moved; this plugin works out what, so a listener never diffs anything itself.
 - **Past tense.** By the time a handler runs, the core plugin is already enabled or already disabled. There is no `before-*` pair and nothing to veto.
-- **The payload is plain data** — `corePluginId` and `corePluginName` — so it crosses between plugins that share no code.
+- **The payload is plain data** — `corePluginId`, `corePluginName` and `isUserInitiated` — so it crosses between plugins that share no code.
+- **It says whether the user did it.** `InternalPlugin.enable(isEnabledByUser)` and `.disable(isDisabledByUser)` take that answer, use it to decide whether the core plugin's own `onUserEnable` / `onUserDisable` hook runs, and then drop it when they trigger `change`. More Events intercepts those two methods to keep it, which is the only patch it installs for core plugins.
+
+## What `isUserInitiated` means, precisely
+
+**That plugin's own toggle was flipped**, which is narrower than "a person caused it". The toggle in **Settings -> Core plugins** passes `true`; Obsidian passes `false` when it enables the default core plugins at startup. It is a claim rather than a proof, too: a plugin that calls `enable(true)` itself reports `true`, because that is what Obsidian itself believes. The button above passes `true`, exactly as the Settings toggle does.
+
+A consumer that wants only the user's toggles — which is what the plugins this one was built to unburden actually patch `onUserEnable` for — can now write `if (!isUserInitiated) { return; }` and drop its patch.
 
 ## What they deliberately do not promise
 
 - **Nothing fires for the core plugins that were already enabled when More Events loaded.** Nothing changed, so nothing is announced. The starting state comes from the API instead — see [03 For plugin developers](<./03 For plugin developers.md>).
-- **They do not say whether the user did it.** Obsidian's underlying signal fires identically for a toggle in Settings and for a plugin enabling something programmatically, and the only way to tell them apart is to patch the internals this plugin exists to stop everybody patching.
 - **Community plugins are not covered by *these two*.** They have a manager of their own and a pair of events of their own — see [02 Community plugin events](<./02 Community plugin events.md>).

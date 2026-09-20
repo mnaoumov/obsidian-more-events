@@ -4,6 +4,7 @@ import {
   COMMUNITY_PLUGIN_DISABLED_EVENT_NAME,
   COMMUNITY_PLUGIN_ENABLED_EVENT_NAME
 } from './more-events-api.ts';
+import { PluginsPatchComponent } from './patches/plugins-patch-component.ts';
 import { PluginEventsComponentBase } from './plugin-events-component-base.ts';
 
 /**
@@ -16,6 +17,12 @@ import { PluginEventsComponentBase } from './plugin-events-component-base.ts';
  * the diff in {@link PluginEventsComponentBase} is the whole of the answer, and the `0` ms debounce makes
  * it load-bearing rather than defensive: several transitions really do collapse into one signal, and the
  * events then arrive as a batch.
+ *
+ * **Who did it is the one thing the diff cannot work out, so it is patched for.**
+ * {@link PluginsPatchComponent} intercepts `enablePlugin` / `disablePlugin` on the manager's prototype and
+ * keeps the `isUserEnabled` / `isUserDisabled` argument they forward to `loadPlugin` / `unloadPlugin` —
+ * the only two writers of the record read below — and which the payload-free `changed` signal has no room
+ * to carry. That is what puts `isUserInitiated` in the payload.
  *
  * **Enabled here means LOADED, and that is a decision rather than a shorthand.** The obvious-looking source
  * is `app.plugins.enabledPlugins`, a `Set<string>` — but that set is the persisted **config**, what the user
@@ -53,6 +60,18 @@ export class CommunityPluginEventsComponent extends PluginEventsComponentBase {
   }
 
   /**
+   * Adds the patch that keeps the argument `loadPlugin` / `unloadPlugin` are given.
+   */
+  protected override installUserInitiationPatch(): void {
+    this.addChild(
+      new PluginsPatchComponent({
+        app: this.app,
+        userInitiationRecorder: this
+      })
+    );
+  }
+
+  /**
    * Reads the loaded community plugins straight from Obsidian, id to display name.
    *
    * The name comes from each instance's OWN `manifest`, not from `app.plugins.manifests[id]`: the manifests
@@ -87,11 +106,13 @@ export class CommunityPluginEventsComponent extends PluginEventsComponentBase {
    *
    * @param communityPluginId - The community plugin's id.
    * @param communityPluginName - The community plugin's display name.
+   * @param isUserInitiated - Whether Obsidian was told the transition came from the user.
    */
-  protected override triggerDisabled(communityPluginId: string, communityPluginName: string): void {
+  protected override triggerDisabled(communityPluginId: string, communityPluginName: string, isUserInitiated: boolean): void {
     this.app.workspace.trigger(COMMUNITY_PLUGIN_DISABLED_EVENT_NAME, {
       communityPluginId,
-      communityPluginName
+      communityPluginName,
+      isUserInitiated
     });
   }
 
@@ -100,11 +121,13 @@ export class CommunityPluginEventsComponent extends PluginEventsComponentBase {
    *
    * @param communityPluginId - The community plugin's id.
    * @param communityPluginName - The community plugin's display name.
+   * @param isUserInitiated - Whether Obsidian was told the transition came from the user.
    */
-  protected override triggerEnabled(communityPluginId: string, communityPluginName: string): void {
+  protected override triggerEnabled(communityPluginId: string, communityPluginName: string, isUserInitiated: boolean): void {
     this.app.workspace.trigger(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, {
       communityPluginId,
-      communityPluginName
+      communityPluginName,
+      isUserInitiated
     });
   }
 }

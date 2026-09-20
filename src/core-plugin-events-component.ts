@@ -10,6 +10,7 @@ import {
   CORE_PLUGIN_DISABLED_EVENT_NAME,
   CORE_PLUGIN_ENABLED_EVENT_NAME
 } from './more-events-api.ts';
+import { InternalPluginPatchComponent } from './patches/internal-plugin-patch-component.ts';
 import { PluginEventsComponentBase } from './plugin-events-component-base.ts';
 
 /**
@@ -27,14 +28,13 @@ type CorePlugin = InternalPlugin<InternalPluginInstance<unknown>>;
  * why the settings tab answers it by redrawing the whole list. The diff that makes it per-plugin lives in
  * {@link PluginEventsComponentBase}, which the community-plugin half shares.
  *
- * The two seams that would carry more information — `InternalPlugin.prototype.enable` / `disable`, for the
- * `isEnabledByUser` argument, and the per-instance `onUserEnable` / `onUserDisable` — are both
- * monkey-patches on a prototype every plugin in the vault shares, and are not installed here for the reason
- * the base class gives.
- *
- * Consequently the events do not distinguish a user toggling a core plugin from anything else enabling
- * one, because `change` does not. Neither consumer needs the distinction: what they do when a core plugin
- * comes back does not depend on who brought it back.
+ * **Who did it is the one thing the diff cannot work out, so it is patched for.**
+ * {@link InternalPluginPatchComponent} intercepts `enable` / `disable` on the shared prototype and keeps
+ * the `isEnabledByUser` / `isDisabledByUser` argument Obsidian drops when it triggers `change`, which is
+ * what puts `isUserInitiated` in both payloads. That distinction is not academic: the patch this plugin
+ * was built to replace — Backlink Cache's and Backlink Full Path's `onUserEnable` patch — is a patch of
+ * the USER-initiated hook specifically, so without the flag these events are a near-replacement rather
+ * than a replacement.
  */
 export class CorePluginEventsComponent extends PluginEventsComponentBase {
   /**
@@ -54,6 +54,18 @@ export class CorePluginEventsComponent extends PluginEventsComponentBase {
    */
   public isCorePluginEnabled(corePluginId: string): boolean {
     return this.isPluginEnabled(corePluginId);
+  }
+
+  /**
+   * Adds the patch that keeps the argument `InternalPlugin.enable` / `.disable` is given.
+   */
+  protected override installUserInitiationPatch(): void {
+    this.addChild(
+      new InternalPluginPatchComponent({
+        app: this.app,
+        userInitiationRecorder: this
+      })
+    );
   }
 
   /**
@@ -100,11 +112,13 @@ export class CorePluginEventsComponent extends PluginEventsComponentBase {
    *
    * @param corePluginId - The core plugin's id.
    * @param corePluginName - The core plugin's display name.
+   * @param isUserInitiated - Whether Obsidian was told the transition came from the user.
    */
-  protected override triggerDisabled(corePluginId: string, corePluginName: string): void {
+  protected override triggerDisabled(corePluginId: string, corePluginName: string, isUserInitiated: boolean): void {
     this.app.workspace.trigger(CORE_PLUGIN_DISABLED_EVENT_NAME, {
       corePluginId,
-      corePluginName
+      corePluginName,
+      isUserInitiated
     });
   }
 
@@ -113,11 +127,13 @@ export class CorePluginEventsComponent extends PluginEventsComponentBase {
    *
    * @param corePluginId - The core plugin's id.
    * @param corePluginName - The core plugin's display name.
+   * @param isUserInitiated - Whether Obsidian was told the transition came from the user.
    */
-  protected override triggerEnabled(corePluginId: string, corePluginName: string): void {
+  protected override triggerEnabled(corePluginId: string, corePluginName: string, isUserInitiated: boolean): void {
     this.app.workspace.trigger(CORE_PLUGIN_ENABLED_EVENT_NAME, {
       corePluginId,
-      corePluginName
+      corePluginName,
+      isUserInitiated
     });
   }
 }
