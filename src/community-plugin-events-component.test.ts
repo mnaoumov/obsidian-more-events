@@ -1,6 +1,10 @@
 import type { App as AppOriginal } from 'obsidian';
 
-import { castTo } from 'obsidian-dev-utils/object-utils';
+import { noopAsync } from 'obsidian-dev-utils/function';
+import {
+  castTo,
+  getPrototypeOf
+} from 'obsidian-dev-utils/object-utils';
 import {
   App,
   Events
@@ -14,6 +18,8 @@ import {
   vi
 } from 'vitest';
 
+import type { CommunityPluginManagerSeam } from './patches/plugins-patch-component.ts';
+
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
 import {
   COMMUNITY_PLUGIN_DISABLED_EVENT_NAME,
@@ -24,11 +30,18 @@ import {
 // assignment; the seed goes onto its raw target, as it does for every other unmocked member.
 const STRICT_PROXY_TARGET_SYMBOL = Symbol.for('strictProxyTarget');
 
+const COMMUNITY_PLUGIN_NAMES_BY_ID: Record<string, string> = {
+  'dataview': 'Dataview',
+  'more-events': 'More Events',
+  'templater': 'Templater'
+};
+
 interface CommunityPluginManifestStub {
   name: string;
 }
 
 interface CommunityPluginStub {
+  _userDisabled?: boolean;
   manifest: CommunityPluginManifestStub;
 }
 
@@ -37,6 +50,7 @@ describe('CommunityPluginEventsComponent', () => {
   let appMock: App;
   let communityPlugins: Record<string, CommunityPluginStub>;
   let pluginsEvents: Events;
+  let seam: CommunityPluginManagerSeam;
   const loadedComponents: CommunityPluginEventsComponent[] = [];
 
   beforeEach(() => {
@@ -51,8 +65,8 @@ describe('CommunityPluginEventsComponent', () => {
      * reads a different thing.
      */
     communityPlugins = {
-      'dataview': createCommunityPlugin('Dataview'),
-      'more-events': createCommunityPlugin('More Events')
+      'dataview': createCommunityPlugin('dataview'),
+      'more-events': createCommunityPlugin('more-events')
     };
 
     /*
@@ -61,7 +75,26 @@ describe('CommunityPluginEventsComponent', () => {
      */
     pluginsEvents = Events.create__();
     seedOnRawTarget(pluginsEvents, 'plugins', communityPlugins);
+
+    /*
+     * The component patches `enablePlugin` / `disablePlugin` on the manager's PROTOTYPE, so the fixture has
+     * to put them there rather than on the object — a patch and an own property are not the same test. A
+     * prototype slipped into the chain per test keeps the mock's own members reachable and keeps one test's
+     * patch out of the next one's.
+     *
+     * The two mirror Obsidian's. Both are guarded, both are the only writers of the record above, both do
+     * with the flag what Obsidian does with it — `_userDisabled` on the way out — and NEITHER triggers
+     * `changed` itself: that goes through a 0 ms debounce, which is why every test below fires it
+     * separately and why a batch of transitions is still one signal.
+     */
+    const pluginsRawTarget = rawTargetOf(pluginsEvents);
+    const seamPrototype = castTo<CommunityPluginManagerSeam>(Object.create(getPrototypeOf(pluginsRawTarget)));
+    Reflect.set(seamPrototype, 'enablePlugin', enablePlugin);
+    Reflect.set(seamPrototype, 'disablePlugin', disablePlugin);
+    Object.setPrototypeOf(pluginsRawTarget, seamPrototype);
+
     seedOnRawTarget(app, 'plugins', pluginsEvents.asOriginalType__());
+    seam = castTo<CommunityPluginManagerSeam>(app.plugins);
   });
 
   afterEach(() => {
@@ -79,26 +112,118 @@ describe('CommunityPluginEventsComponent', () => {
     expect(loadedComponents[0]?.isCommunityPluginEnabled('templater')).toBe(false);
   });
 
-  it('should trigger the enabled event when a community plugin becomes loaded', () => {
+  it('should trigger the enabled event when a community plugin becomes loaded', async () => {
     const component = loadComponent();
     const handler = vi.fn();
     app.workspace.on(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, handler);
 
-    enableCommunityPlugin('templater', 'Templater');
+    await seam.enablePlugin('templater', true);
+    pluginsEvents.trigger('changed');
 
-    expect(handler).toHaveBeenCalledExactlyOnceWith({ communityPluginId: 'templater', communityPluginName: 'Templater' });
+    expect(handler).toHaveBeenCalledExactlyOnceWith({
+      communityPluginId: 'templater',
+      communityPluginName: 'Templater',
+      isUserInitiated: true
+    });
     expect(component.isCommunityPluginEnabled('templater')).toBe(true);
   });
 
-  it('should trigger the disabled event when a community plugin becomes unloaded', () => {
+  it('should trigger the disabled event when a community plugin becomes unloaded', async () => {
     const component = loadComponent();
     const handler = vi.fn();
     app.workspace.on(COMMUNITY_PLUGIN_DISABLED_EVENT_NAME, handler);
 
-    disableCommunityPlugin('dataview');
+    await seam.disablePlugin('dataview', true);
+    pluginsEvents.trigger('changed');
 
-    expect(handler).toHaveBeenCalledExactlyOnceWith({ communityPluginId: 'dataview', communityPluginName: 'Dataview' });
+    expect(handler).toHaveBeenCalledExactlyOnceWith({
+      communityPluginId: 'dataview',
+      communityPluginName: 'Dataview',
+      isUserInitiated: true
+    });
     expect(component.isCommunityPluginEnabled('dataview')).toBe(false);
+  });
+
+  /*
+   * The distinction the patch exists for. `true` is what `enablePluginAndSave` / `disablePluginAndSave`
+   * forward, which is what the toggle in **Settings -> Community plugins** calls; `false` is what a plain
+   * programmatic `enablePlugin` / `disablePlugin` forwards.
+   */
+  it('should report a programmatic change as not user-initiated', async () => {
+    loadComponent();
+    const enabledHandler = vi.fn();
+    const disabledHandler = vi.fn();
+    app.workspace.on(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, enabledHandler);
+    app.workspace.on(COMMUNITY_PLUGIN_DISABLED_EVENT_NAME, disabledHandler);
+
+    await seam.enablePlugin('templater', false);
+    await seam.disablePlugin('dataview', false);
+    pluginsEvents.trigger('changed');
+
+    expect(enabledHandler).toHaveBeenCalledExactlyOnceWith({
+      communityPluginId: 'templater',
+      communityPluginName: 'Templater',
+      isUserInitiated: false
+    });
+    expect(disabledHandler).toHaveBeenCalledExactlyOnceWith({
+      communityPluginId: 'dataview',
+      communityPluginName: 'Dataview',
+      isUserInitiated: false
+    });
+  });
+
+  /*
+   * Obsidian's own signature defaults the argument to `false` rather than requiring it, and its startup
+   * path omits it entirely.
+   */
+  it('should report an omitted flag as not user-initiated', async () => {
+    loadComponent();
+    const handler = vi.fn();
+    app.workspace.on(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, handler);
+
+    await seam.enablePlugin('templater');
+    pluginsEvents.trigger('changed');
+
+    expect(handler).toHaveBeenCalledExactlyOnceWith({
+      communityPluginId: 'templater',
+      communityPluginName: 'Templater',
+      isUserInitiated: false
+    });
+  });
+
+  /*
+   * The patch has to be transparent, which is the first thing a monkey-patch gets wrong: what the original
+   * returned still has to come back, and what it did with the flag still has to have happened.
+   */
+  it('should pass the call through to Obsidian untouched', async () => {
+    loadComponent();
+    const dataview = communityPlugins['dataview'];
+
+    const wasEnabled = await seam.enablePlugin('templater', true);
+    await seam.disablePlugin('dataview', true);
+
+    expect(wasEnabled).toBe(true);
+    expect(dataview?._userDisabled).toBe(true);
+  });
+
+  /*
+   * A transition that never went through `enablePlugin` / `disablePlugin` cannot have been recorded, and
+   * `false` is the only honest answer. Obsidian itself has no such path; a third party calling `loadPlugin`
+   * directly is what it would take.
+   */
+  it('should report an unrecorded change as not user-initiated', () => {
+    loadComponent();
+    const handler = vi.fn();
+    app.workspace.on(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, handler);
+
+    communityPlugins['templater'] = createCommunityPlugin('templater');
+    pluginsEvents.trigger('changed');
+
+    expect(handler).toHaveBeenCalledExactlyOnceWith({
+      communityPluginId: 'templater',
+      communityPluginName: 'Templater',
+      isUserInitiated: false
+    });
   });
 
   it('should trigger nothing when the change left every community plugin as it was', () => {
@@ -117,28 +242,44 @@ describe('CommunityPluginEventsComponent', () => {
     expect(disabledHandler).not.toHaveBeenCalled();
   });
 
-  it('should trigger one event per community plugin when several change at once', () => {
+  it('should trigger one event per community plugin when several change at once', async () => {
     loadComponent();
     const enabledHandler = vi.fn();
     const disabledHandler = vi.fn();
     app.workspace.on(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, enabledHandler);
     app.workspace.on(COMMUNITY_PLUGIN_DISABLED_EVENT_NAME, disabledHandler);
 
-    // `app.plugins.didChange` is debounced at 0 ms, so a batch of transitions really does collapse into one
-    // `changed`. Turning **Community plugins** off in Settings is exactly this shape, for every plugin at
-    // once.
-    setLoaded('templater', 'Templater');
-    setUnloaded('dataview');
-    setUnloaded('more-events');
+    /*
+     * `app.plugins.didChange` is debounced at 0 ms, so a batch of transitions really does collapse into one
+     * `changed`. Turning **Community plugins** off in Settings is exactly this shape, for every plugin at
+     * once — and `setEnable(false)` forwards no user flag, which is why the two disabled events below say
+     * `false` although a person flipped that switch. That is Obsidian's own notion of user-initiated, and
+     * these events report it rather than inventing a wider one.
+     */
+    await seam.enablePlugin('templater', true);
+    await seam.disablePlugin('dataview');
+    await seam.disablePlugin('more-events');
     pluginsEvents.trigger('changed');
 
-    expect(enabledHandler).toHaveBeenCalledExactlyOnceWith({ communityPluginId: 'templater', communityPluginName: 'Templater' });
+    expect(enabledHandler).toHaveBeenCalledExactlyOnceWith({
+      communityPluginId: 'templater',
+      communityPluginName: 'Templater',
+      isUserInitiated: true
+    });
     expect(disabledHandler).toHaveBeenCalledTimes(2);
-    expect(disabledHandler).toHaveBeenCalledWith({ communityPluginId: 'dataview', communityPluginName: 'Dataview' });
-    expect(disabledHandler).toHaveBeenCalledWith({ communityPluginId: 'more-events', communityPluginName: 'More Events' });
+    expect(disabledHandler).toHaveBeenCalledWith({
+      communityPluginId: 'dataview',
+      communityPluginName: 'Dataview',
+      isUserInitiated: false
+    });
+    expect(disabledHandler).toHaveBeenCalledWith({
+      communityPluginId: 'more-events',
+      communityPluginName: 'More Events',
+      isUserInitiated: false
+    });
   });
 
-  it('should announce the disabled events before the enabled ones', () => {
+  it('should announce the disabled events before the enabled ones', async () => {
     loadComponent();
     const announced: string[] = [];
     app.workspace.on(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, ({ communityPluginId }) => {
@@ -150,37 +291,54 @@ describe('CommunityPluginEventsComponent', () => {
 
     // An update unloads the plugin and loads the new build, and both halves can land in one `changed`. A
     // consumer that re-reads on the enabled event must not then be told the plugin left.
-    setUnloaded('dataview');
-    setLoaded('templater', 'Templater');
+    await seam.disablePlugin('dataview', true);
+    await seam.enablePlugin('templater', true);
     pluginsEvents.trigger('changed');
 
     expect(announced).toEqual(['disabled:dataview', 'enabled:templater']);
   });
 
-  it('should stop listening once it has unloaded', () => {
+  it('should stop listening once it has unloaded', async () => {
     const component = loadComponent();
     const handler = vi.fn();
     app.workspace.on(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, handler);
 
     component.unload();
     loadedComponents.pop();
-    enableCommunityPlugin('templater', 'Templater');
+    await seam.enablePlugin('templater', true);
+    pluginsEvents.trigger('changed');
 
     expect(handler).not.toHaveBeenCalled();
   });
 
-  function createCommunityPlugin(name: string): CommunityPluginStub {
-    return { manifest: { name } };
+  it('should uninstall its patch once it has unloaded', () => {
+    const component = loadComponent();
+    const patchedEnablePlugin = seam.enablePlugin;
+
+    component.unload();
+    loadedComponents.pop();
+
+    // `app.plugins` and its prototype outlive this plugin, so a patch left on either would keep recording
+    // into a component nothing reads any more.
+    expect(seam.enablePlugin).not.toBe(patchedEnablePlugin);
+  });
+
+  function disablePlugin(communityPluginId: string, isUserDisabled?: boolean): Promise<void> {
+    const communityPlugin = communityPlugins[communityPluginId];
+    if (!communityPlugin) {
+      return noopAsync();
+    }
+
+    communityPlugin._userDisabled = isUserDisabled ?? false;
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Obsidian itself deletes the entry in `unloadPlugin`, and the whole point of this fixture is to be that record.
+    delete communityPlugins[communityPluginId];
+    return noopAsync();
   }
 
-  function disableCommunityPlugin(communityPluginId: string): void {
-    setUnloaded(communityPluginId);
-    pluginsEvents.trigger('changed');
-  }
+  function enablePlugin(communityPluginId: string): Promise<boolean> {
+    communityPlugins[communityPluginId] ??= createCommunityPlugin(communityPluginId);
 
-  function enableCommunityPlugin(communityPluginId: string, communityPluginName: string): void {
-    setLoaded(communityPluginId, communityPluginName);
-    pluginsEvents.trigger('changed');
+    return Promise.resolve(true);
   }
 
   function loadComponent(): CommunityPluginEventsComponent {
@@ -189,18 +347,21 @@ describe('CommunityPluginEventsComponent', () => {
     loadedComponents.push(component);
     return component;
   }
-
-  function setLoaded(communityPluginId: string, communityPluginName: string): void {
-    communityPlugins[communityPluginId] = createCommunityPlugin(communityPluginName);
-  }
-
-  function setUnloaded(communityPluginId: string): void {
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Obsidian itself deletes the entry in `unloadPlugin`, and the whole point of this fixture is to be that record.
-    delete communityPlugins[communityPluginId];
-  }
 });
 
+function createCommunityPlugin(communityPluginId: string): CommunityPluginStub {
+  /*
+   * A manifest object per instance rather than one shared record, because that is what the component reads
+   * and why: `app.plugins.manifests[id]` is re-read from disk and can already describe a build that is not
+   * running, while the instance carries the manifest it was constructed with.
+   */
+  return { manifest: { name: COMMUNITY_PLUGIN_NAMES_BY_ID[communityPluginId] ?? communityPluginId } };
+}
+
+function rawTargetOf(strictProxiedObject: object): object {
+  return castTo<object | undefined>(Reflect.get(strictProxiedObject, STRICT_PROXY_TARGET_SYMBOL)) ?? strictProxiedObject;
+}
+
 function seedOnRawTarget(strictProxiedObject: object, key: string, value: unknown): void {
-  const rawTarget = castTo<object | undefined>(Reflect.get(strictProxiedObject, STRICT_PROXY_TARGET_SYMBOL)) ?? strictProxiedObject;
-  Reflect.set(rawTarget, key, value);
+  Reflect.set(rawTargetOf(strictProxiedObject), key, value);
 }

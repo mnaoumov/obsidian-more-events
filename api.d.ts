@@ -56,6 +56,27 @@ export interface CommunityPluginEventPayload {
    * so a consumer can name the plugin in a notice without reaching into `app.plugins` for it.
    */
   readonly communityPluginName: string;
+
+  /**
+   * Whether Obsidian was told that this change came from the user.
+   *
+   * Obsidian carries its own flag for exactly this, one level below the signal these events are built on.
+   * `Plugins.enablePlugin(id, isUserEnabled)` hands it to `loadPlugin`, which is what calls the plugin's
+   * own `onUserEnable()`; `disablePlugin(id, isUserDisabled)` hands it to `unloadPlugin`, which is what
+   * sets the plugin's `_userDisabled`. The toggle in **Settings -> Community plugins** reaches them
+   * through `enablePluginAndSave` / `disablePluginAndSave`, which pass `true`. The `changed` signal
+   * these events are built on carries no payload at all, so the flag is dropped; More Events recovers it.
+   *
+   * **It means one plugin's own toggle, which is narrower than "a person did it".** Obsidian passes
+   * nothing when the master **Community plugins** switch unloads every plugin at once, and nothing when a
+   * vault starts in restricted mode, so both report `false` although a person caused them. It is also a
+   * claim rather than a proof: a plugin that calls `enablePluginAndSave` itself reports `true`, because
+   * that is what Obsidian itself believes.
+   *
+   * `false` when nothing recorded the transition at all, which takes something moving
+   * `app.plugins.plugins` without going through either method above.
+   */
+  readonly isUserInitiated: boolean;
 }
 
 /**
@@ -91,6 +112,24 @@ export interface CorePluginEventPayload {
    * consumer can name the plugin in a notice without reaching into `app.internalPlugins` for it.
    */
   readonly corePluginName: string;
+
+  /**
+   * Whether Obsidian was told that this change came from the user.
+   *
+   * Obsidian carries its own flag for exactly this: `InternalPlugin.enable(isEnabledByUser)` and
+   * `.disable(isDisabledByUser)` take it, and it is what decides whether the core plugin's own
+   * `onUserEnable()` / `onUserDisable()` hooks run. The toggle in **Settings -> Core plugins** passes
+   * `true`. The `change` signal these events are built on drops it; More Events recovers it.
+   *
+   * **It means that plugin's own toggle, which is narrower than "a person did it"**, and it is a claim
+   * rather than a proof: a plugin that calls `enable(true)` itself reports `true`, because that is what
+   * Obsidian itself believes. Obsidian passes `false` when it enables the default core plugins at
+   * startup.
+   *
+   * `false` when nothing recorded the transition at all, which takes something moving a core plugin
+   * without going through either method above.
+   */
+  readonly isUserInitiated: boolean;
 }
 
 /**

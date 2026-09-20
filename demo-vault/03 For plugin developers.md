@@ -67,7 +67,7 @@ const moreEventsApiRef = watchPluginApi({
 });
 ```
 
-`moreEventsApiRef.value` is `null` while More Events is not loaded and becomes non-`null` on its own when it is, so a consumer never has to care about plugin load order. The contract version is **`1.1.0`** and moves independently of the plugin's own version, which is why the range above asks for `^1` rather than naming one.
+`moreEventsApiRef.value` is `null` while More Events is not loaded and becomes non-`null` on its own when it is, so a consumer never has to care about plugin load order. The contract version is **`1.2.0`** and moves independently of the plugin's own version, which is why the range above asks for `^1` rather than naming one. It has only ever gone up by a minor: `1.1.0` added the community-plugin events to the core-plugin ones, and `1.2.0` added `isUserInitiated` to both payloads.
 
 If you would rather not take `obsidian-dev-utils` as a dependency, the registry is a documented wire protocol you can read directly — its guide is [Cross-plugin APIs](https://mnaoumov.dev/obsidian-dev-utils/guides/cross-plugin-apis/).
 
@@ -77,10 +77,12 @@ The events are ordinary workspace events, so a consumer that only wants to be to
 
 ```ts
 this.registerEvent(
-  this.app.workspace.on('more-events:core-plugin-enabled', ({ corePluginId, corePluginName }) => {
-    console.log(`${corePluginName} (${corePluginId}) is back`);
+  this.app.workspace.on('more-events:core-plugin-enabled', ({ corePluginId, corePluginName, isUserInitiated }) => {
+    if (isUserInitiated) {
+      console.log(`${corePluginName} (${corePluginId}) is back, because someone turned it back on`);
+    }
   })
 );
 ```
 
-The names and the payload are a wire contract: they will not change meaning, and the payload only ever gains members.
+The names and the payload are a wire contract: they will not change meaning, and the payload only ever gains members. `isUserInitiated` is the first thing that arrived that way, so a consumer written before it compiles and runs unaltered.

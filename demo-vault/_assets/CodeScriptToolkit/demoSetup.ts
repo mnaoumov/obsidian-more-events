@@ -134,13 +134,13 @@ export function startListeningToCommunityPlugins(app: App): void {
 
   const component = new Component();
   component.registerEvent(
-    app.workspace.on(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, ({ communityPluginId, communityPluginName }) => {
-      new Notice(`Enabled: ${communityPluginName} (${communityPluginId})`);
+    app.workspace.on(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, ({ communityPluginId, communityPluginName, isUserInitiated }) => {
+      new Notice(`Enabled: ${communityPluginName} (${communityPluginId}), ${describeInitiator(isUserInitiated)}`);
     })
   );
   component.registerEvent(
-    app.workspace.on(COMMUNITY_PLUGIN_DISABLED_EVENT_NAME, ({ communityPluginId, communityPluginName }) => {
-      new Notice(`Disabled: ${communityPluginName} (${communityPluginId})`);
+    app.workspace.on(COMMUNITY_PLUGIN_DISABLED_EVENT_NAME, ({ communityPluginId, communityPluginName, isUserInitiated }) => {
+      new Notice(`Disabled: ${communityPluginName} (${communityPluginId}), ${describeInitiator(isUserInitiated)}`);
     })
   );
   component.load();
@@ -162,13 +162,13 @@ export function startListeningToCorePlugins(app: App): void {
 
   const component = new Component();
   component.registerEvent(
-    app.workspace.on(CORE_PLUGIN_ENABLED_EVENT_NAME, ({ corePluginId, corePluginName }) => {
-      new Notice(`Enabled: ${corePluginName} (${corePluginId})`);
+    app.workspace.on(CORE_PLUGIN_ENABLED_EVENT_NAME, ({ corePluginId, corePluginName, isUserInitiated }) => {
+      new Notice(`Enabled: ${corePluginName} (${corePluginId}), ${describeInitiator(isUserInitiated)}`);
     })
   );
   component.registerEvent(
-    app.workspace.on(CORE_PLUGIN_DISABLED_EVENT_NAME, ({ corePluginId, corePluginName }) => {
-      new Notice(`Disabled: ${corePluginName} (${corePluginId})`);
+    app.workspace.on(CORE_PLUGIN_DISABLED_EVENT_NAME, ({ corePluginId, corePluginName, isUserInitiated }) => {
+      new Notice(`Disabled: ${corePluginName} (${corePluginId}), ${describeInitiator(isUserInitiated)}`);
     })
   );
   component.load();
@@ -219,6 +219,10 @@ export function stopListeningToCorePlugins(): void {
  * signal, and the plain pair never writes to `community-plugins.json`, so a demo cannot leave a throwaway
  * plugin ticked in your vault's configuration.
  *
+ * That choice is also why the notice this produces says *programmatically* rather than *by the user*: the
+ * `...AndSave` pair is what the Settings toggle calls and what passes Obsidian's user flag, so this button
+ * demonstrates the other side of `isUserInitiated` for free.
+ *
  * Manual equivalent: any plugin's toggle in **Settings -> Community plugins**.
  */
 export async function toggleDemoCommunityPlugin(app: App): Promise<void> {
@@ -251,6 +255,16 @@ export async function toggleCanvasCorePlugin(app: App): Promise<void> {
   }
 
   await app.internalPlugins.saveConfig();
+}
+
+/**
+ * Puts Obsidian's own user flag into words for a notice.
+ *
+ * @param isUserInitiated - The payload's `isUserInitiated`.
+ * @returns `'by the user'` or `'programmatically'`.
+ */
+function describeInitiator(isUserInitiated: boolean): string {
+  return isUserInitiated ? 'by the user' : 'programmatically';
 }
 
 async function getApi(app: App): Promise<MoreEventsApi> {
