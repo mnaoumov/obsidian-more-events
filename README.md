@@ -2,7 +2,9 @@
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/mnaoumov) [![GitHub release](https://img.shields.io/github/v/release/mnaoumov/obsidian-more-events)](https://github.com/mnaoumov/obsidian-more-events/releases) [![GitHub downloads](https://img.shields.io/github/downloads/mnaoumov/obsidian-more-events/total)](https://github.com/mnaoumov/obsidian-more-events/releases) [![Coverage: 100%](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/mnaoumov/obsidian-more-events)
 
-A plugin that reacts to another plugin — one of [Obsidian](https://obsidian.md/)'s core plugins like Backlinks, Canvas or Graph, or a community plugin it integrates with — has to know when that plugin goes away and when it comes back. Obsidian does emit something: `app.internalPlugins` fires an untyped `change` when a core plugin's state moves, and `app.plugins` fires an untyped `changed` when a community plugin's does. Neither says **which** plugin moved, or in which direction — the community one carries no payload whatsoever — and both hang off internal objects with no published types. So the usual answer is to monkey-patch `InternalPlugin.prototype.enable` — and when two plugins in the same vault do that, there are two patches on one prototype.
+**A home for the events [Obsidian](https://obsidian.md/) does not publish.** Its public API exposes a fixed set of workspace events, and anything outside that set leaves a plugin reading undocumented internals or patching a shared prototype. More Events publishes the missing ones instead — named, typed and per subject, on `app.workspace`, subscribable with no dependency beyond `obsidian` itself. **The first set is plugin lifecycle**, which is what the rest of this page is about; further sets arrive the same way, under the same names-and-types contract, and that is what the plugin is for rather than an afterthought to it.
+
+A plugin that reacts to another plugin — one of Obsidian's core plugins like Backlinks, Canvas or Graph, or a community plugin it integrates with — has to know when that plugin goes away and when it comes back. Obsidian does emit something: `app.internalPlugins` fires an untyped `change` when a core plugin's state moves, and `app.plugins` fires an untyped `changed` when a community plugin's does. Neither says **which** plugin moved, or in which direction — the community one carries no payload whatsoever — and both hang off internal objects with no published types. So the usual answer is to monkey-patch `InternalPlugin.prototype.enable` — and when two plugins in the same vault do that, there are two patches on one prototype.
 
 This plugin does that patching once, for everybody. It watches the signals Obsidian already sends, works out what actually changed, recovers the one thing those signals drop — whether Obsidian was told the user did it — and re-publishes the lot on `app.workspace` as four named, typed, per-plugin events any plugin can listen for with no dependency beyond `obsidian` itself. One patch on the shared prototype instead of one per interested plugin is the whole point: **you** do not patch.
 
@@ -38,6 +40,8 @@ A copy of the vault ships with every release. You can access it via any of the f
 3. Browsing its source in [`demo-vault/`](./demo-vault/README.md) in this repository.
 
 ## What it does
+
+**Today that is the plugin-lifecycle set** — four events, and a small API answering the question events cannot answer. It is the first set rather than the whole of it.
 
 - **`more-events:core-plugin-enabled`** fires on `app.workspace` after a core plugin has been enabled, carrying that plugin's id and display name. [01 Core plugin events](<./demo-vault/01 Core plugin events.md>)
 - **`more-events:core-plugin-disabled`** fires the same way after one has been disabled. [01 Core plugin events](<./demo-vault/01 Core plugin events.md>)
