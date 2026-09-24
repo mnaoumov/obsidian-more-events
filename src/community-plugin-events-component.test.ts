@@ -18,8 +18,6 @@ import {
   vi
 } from 'vitest';
 
-import type { CommunityPluginManagerSeam } from './patches/plugins-patch-component.ts';
-
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
 import {
   COMMUNITY_PLUGIN_DISABLED_EVENT_NAME,
@@ -50,7 +48,7 @@ describe('CommunityPluginEventsComponent', () => {
   let appMock: App;
   let communityPlugins: Record<string, CommunityPluginStub>;
   let pluginsEvents: Events;
-  let seam: CommunityPluginManagerSeam;
+  let pluginManager: AppOriginal['plugins'];
   const loadedComponents: CommunityPluginEventsComponent[] = [];
 
   beforeEach(() => {
@@ -88,13 +86,13 @@ describe('CommunityPluginEventsComponent', () => {
      * separately and why a batch of transitions is still one signal.
      */
     const pluginsRawTarget = rawTargetOf(pluginsEvents);
-    const seamPrototype = castTo<CommunityPluginManagerSeam>(Object.create(getPrototypeOf(pluginsRawTarget)));
-    Reflect.set(seamPrototype, 'enablePlugin', enablePlugin);
-    Reflect.set(seamPrototype, 'disablePlugin', disablePlugin);
-    Object.setPrototypeOf(pluginsRawTarget, seamPrototype);
+    const pluginManagerPrototype = castTo<AppOriginal['plugins']>(Object.create(getPrototypeOf(pluginsRawTarget)));
+    Reflect.set(pluginManagerPrototype, 'enablePlugin', enablePlugin);
+    Reflect.set(pluginManagerPrototype, 'disablePlugin', disablePlugin);
+    Object.setPrototypeOf(pluginsRawTarget, pluginManagerPrototype);
 
     seedOnRawTarget(app, 'plugins', pluginsEvents.asOriginalType__());
-    seam = castTo<CommunityPluginManagerSeam>(app.plugins);
+    pluginManager = app.plugins;
   });
 
   afterEach(() => {
@@ -117,7 +115,7 @@ describe('CommunityPluginEventsComponent', () => {
     const handler = vi.fn();
     app.workspace.on(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, handler);
 
-    await seam.enablePlugin('templater', true);
+    await pluginManager.enablePlugin('templater', true);
     pluginsEvents.trigger('changed');
 
     expect(handler).toHaveBeenCalledExactlyOnceWith({
@@ -133,7 +131,7 @@ describe('CommunityPluginEventsComponent', () => {
     const handler = vi.fn();
     app.workspace.on(COMMUNITY_PLUGIN_DISABLED_EVENT_NAME, handler);
 
-    await seam.disablePlugin('dataview', true);
+    await pluginManager.disablePlugin('dataview', true);
     pluginsEvents.trigger('changed');
 
     expect(handler).toHaveBeenCalledExactlyOnceWith({
@@ -156,8 +154,8 @@ describe('CommunityPluginEventsComponent', () => {
     app.workspace.on(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, enabledHandler);
     app.workspace.on(COMMUNITY_PLUGIN_DISABLED_EVENT_NAME, disabledHandler);
 
-    await seam.enablePlugin('templater', false);
-    await seam.disablePlugin('dataview', false);
+    await pluginManager.enablePlugin('templater', false);
+    await pluginManager.disablePlugin('dataview', false);
     pluginsEvents.trigger('changed');
 
     expect(enabledHandler).toHaveBeenCalledExactlyOnceWith({
@@ -181,7 +179,7 @@ describe('CommunityPluginEventsComponent', () => {
     const handler = vi.fn();
     app.workspace.on(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, handler);
 
-    await seam.enablePlugin('templater');
+    await pluginManager.enablePlugin('templater');
     pluginsEvents.trigger('changed');
 
     expect(handler).toHaveBeenCalledExactlyOnceWith({
@@ -199,8 +197,8 @@ describe('CommunityPluginEventsComponent', () => {
     loadComponent();
     const dataview = communityPlugins['dataview'];
 
-    const wasEnabled = await seam.enablePlugin('templater', true);
-    await seam.disablePlugin('dataview', true);
+    const wasEnabled = await pluginManager.enablePlugin('templater', true);
+    await pluginManager.disablePlugin('dataview', true);
 
     expect(wasEnabled).toBe(true);
     expect(dataview?._userDisabled).toBe(true);
@@ -256,9 +254,9 @@ describe('CommunityPluginEventsComponent', () => {
      * `false` although a person flipped that switch. That is Obsidian's own notion of user-initiated, and
      * these events report it rather than inventing a wider one.
      */
-    await seam.enablePlugin('templater', true);
-    await seam.disablePlugin('dataview');
-    await seam.disablePlugin('more-events');
+    await pluginManager.enablePlugin('templater', true);
+    await pluginManager.disablePlugin('dataview');
+    await pluginManager.disablePlugin('more-events');
     pluginsEvents.trigger('changed');
 
     expect(enabledHandler).toHaveBeenCalledExactlyOnceWith({
@@ -291,8 +289,8 @@ describe('CommunityPluginEventsComponent', () => {
 
     // An update unloads the plugin and loads the new build, and both halves can land in one `changed`. A
     // consumer that re-reads on the enabled event must not then be told the plugin left.
-    await seam.disablePlugin('dataview', true);
-    await seam.enablePlugin('templater', true);
+    await pluginManager.disablePlugin('dataview', true);
+    await pluginManager.enablePlugin('templater', true);
     pluginsEvents.trigger('changed');
 
     expect(announced).toEqual(['disabled:dataview', 'enabled:templater']);
@@ -305,7 +303,7 @@ describe('CommunityPluginEventsComponent', () => {
 
     component.unload();
     loadedComponents.pop();
-    await seam.enablePlugin('templater', true);
+    await pluginManager.enablePlugin('templater', true);
     pluginsEvents.trigger('changed');
 
     expect(handler).not.toHaveBeenCalled();
@@ -313,14 +311,14 @@ describe('CommunityPluginEventsComponent', () => {
 
   it('should uninstall its patch once it has unloaded', () => {
     const component = loadComponent();
-    const patchedEnablePlugin = seam.enablePlugin;
+    const patchedEnablePlugin = pluginManager.enablePlugin;
 
     component.unload();
     loadedComponents.pop();
 
     // `app.plugins` and its prototype outlive this plugin, so a patch left on either would keep recording
     // into a component nothing reads any more.
-    expect(seam.enablePlugin).not.toBe(patchedEnablePlugin);
+    expect(pluginManager.enablePlugin).not.toBe(patchedEnablePlugin);
   });
 
   function disablePlugin(communityPluginId: string, isUserDisabled?: boolean): Promise<void> {

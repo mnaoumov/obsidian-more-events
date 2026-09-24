@@ -9,35 +9,6 @@ import { MonkeyAroundComponent } from 'obsidian-dev-utils/obsidian/components/mo
 import type { UserInitiationRecorder } from '../plugin-events-component-base.ts';
 
 /**
- * `app.plugins`' two transition methods, with the argument they really take.
- *
- * `@obsidian-typings` declares `enablePlugin(id)` and `disablePlugin(id)` without their second parameter,
- * although it declares it on `loadPlugin` / `unloadPlugin`, which these two forward to — and it declares
- * `enablePlugin` as returning `void` where it returns `boolean`. Measured in the unminified `app.js`:
- * `enablePlugin(e, t = false)` calls `loadPlugin(e, t)` and returns `!0` / `!1`; `disablePlugin(e, t =
- * false)` calls `unloadPlugin(e, t)`. This is the shape to patch against until the typings carry it.
- */
-export interface CommunityPluginManagerSeam {
-  /**
-   * Unloads a community plugin.
-   *
-   * @param communityPluginId - The community plugin's id.
-   * @param isUserDisabled - Whether the user disabled it, which becomes the plugin's `_userDisabled`.
-   * @returns A promise that resolves when it has been unloaded.
-   */
-  readonly disablePlugin: (communityPluginId: string, isUserDisabled?: boolean) => Promise<void>;
-
-  /**
-   * Loads a community plugin.
-   *
-   * @param communityPluginId - The community plugin's id.
-   * @param isUserEnabled - Whether the user enabled it, which decides whether its `onUserEnable()` runs.
-   * @returns Whether it was loaded.
-   */
-  readonly enablePlugin: (communityPluginId: string, isUserEnabled?: boolean) => Promise<boolean>;
-}
-
-/**
  * Parameters for the {@link PluginsPatchComponent} constructor.
  */
 export interface PluginsPatchComponentConstructorParams {
@@ -72,10 +43,10 @@ export interface PluginsPatchComponentConstructorParams {
  * payload said `isUserInitiated: false`. Nothing saves and restores the prototype, and any own property a
  * third party leaves behind simply layers above this patch rather than deleting it.
  *
- * **Why these two rather than `loadPlugin` / `unloadPlugin`**, which are one level down and are the ones
- * `@obsidian-typings` already declares the flag on: those two are exactly what the harness above
- * save-and-restores, and the pair here covers every path Obsidian itself takes — including the master
- * **Community plugins** switch, whose `setEnable(false)` calls `disablePlugin` per plugin. What it does not
+ * **Why these two rather than `loadPlugin` / `unloadPlugin`**, which are one level down and take the same
+ * flag: those two are exactly what the harness above save-and-restores, and the pair here covers every path
+ * Obsidian itself takes — including the master **Community plugins** switch, whose `setEnable(false)` calls
+ * `disablePlugin` per plugin. What it does not
  * cover is a third party calling `loadPlugin` directly, which Obsidian never does; such a transition is
  * reported with `isUserInitiated: false`, which is the honest answer for one nothing recorded.
  */
@@ -100,7 +71,7 @@ export class PluginsPatchComponent extends MonkeyAroundComponent {
   public override onload(): void {
     super.onload();
 
-    const communityPluginManagerPrototype = castTo<CommunityPluginManagerSeam>(getPrototypeOf(this.app.plugins));
+    const communityPluginManagerPrototype = castTo<App['plugins']>(getPrototypeOf(this.app.plugins));
 
     this.registerMethodPatch({
       $object: communityPluginManagerPrototype,
