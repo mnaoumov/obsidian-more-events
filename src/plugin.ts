@@ -24,17 +24,15 @@ export class Plugin extends PluginBase {
    * @returns The declaration, or none before the plugin has loaded.
    */
   protected override getPluginApis(): PluginApiDeclaration[] {
-    if (!this.moreEventsApi) {
-      return [];
-    }
-
-    return [
-      {
-        api: this.moreEventsApi,
-        apiVersion: PLUGIN_API_VERSION,
-        contract: PLUGIN_API_CONTRACT
-      }
-    ];
+    return this.moreEventsApi
+      ? [
+        {
+          api: this.moreEventsApi,
+          apiVersion: PLUGIN_API_VERSION,
+          contract: PLUGIN_API_CONTRACT
+        }
+      ]
+      : [];
   }
 
   protected override async onloadImpl(): Promise<void> {
