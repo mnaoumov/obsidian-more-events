@@ -43,8 +43,9 @@
  * width of the six random characters. `captureObsidianScreenshot` now hides the name itself, by default and
  * for every repo that captures a desktop frame, so this suite carries neither the hiding nor an assertion
  * about it — the harness's own integration suite asserts the count, the post-capture state and the
- * byte-identity of two differently-named vaults. What the harness does not handle is the Settings modal's
- * focused search box, whose blinking caret made two captures differ again, so `shoot` blurs it first.
+ * byte-identity of two differently-named vaults. The Settings modal's focused search box is handled the same
+ * way: its blinking caret made two captures differ, and since 17.1.0 the harness hides the focused element's
+ * caret for the frame, so this suite no longer blurs it.
  */
 
 import type { InternalPluginNameType } from '@obsidian-typings/obsidian-public-latest';
@@ -158,20 +159,6 @@ describe('desktop store screenshots', () => {
  * @param caption - The caption drawn across the bottom of the frame.
  */
 async function shoot(index: number, caption: string): Promise<void> {
-  /*
-   * Obsidian focuses the Settings modal's search box when the modal opens, and its caret blinks: which
-   * phase the shutter caught decided 17 pixels at `x:104 y:80-96`, so two captures of an unchanged tree
-   * differed. Blurring it leaves nothing blinking in the frame.
-   */
-  await evalInObsidian({
-    callback() {
-      if (activeDocument.activeElement instanceof HTMLElement) {
-        activeDocument.activeElement.blur();
-      }
-    },
-    vaultPath: vaultPath()
-  });
-
   const bytes = await captureObsidianScreenshot({
     heightInPixels: HEIGHT_IN_PIXELS,
     vaultPath: vaultPath(),
