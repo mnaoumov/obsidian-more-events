@@ -57,6 +57,7 @@ import {
 import { join } from 'node:path';
 import process from 'node:process';
 import {
+  applyObsidianTheme,
   captureObsidianScreenshot,
   evalInObsidian,
   labelScreenshot,
@@ -120,17 +121,14 @@ const SCREENSHOT_COMMUNITY_PLUGIN_MANIFEST_JSON = JSON.stringify(
 
 const IMAGES_DIRECTORY = join(process.cwd(), 'images', 'screenshots');
 
+/*
+ * `applyObsidianTheme` rather than a bare `app.changeTheme('obsidian')` in a closure: that only schedules the
+ * config save a second later, and a config reload landing first drops `theme`, so every frame would come out
+ * light and silently overwrite the committed ones. It saves at once, waits for the theme to show, and lets
+ * `captureObsidianScreenshot` refuse a frame the theme has left.
+ */
 beforeAll(async () => {
-  await evalInObsidian({
-    async callback({ app }) {
-      const SETTLE_DELAY_IN_MILLISECONDS = 1000;
-
-      app.changeTheme('obsidian');
-
-      await sleep(SETTLE_DELAY_IN_MILLISECONDS);
-    },
-    vaultPath: vaultPath()
-  });
+  await applyObsidianTheme({ theme: 'dark', vaultPath: vaultPath() });
 });
 
 describe('desktop store screenshots', () => {
