@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.0.1
+
+- test(screenshots): merge applying the dark theme through applyObsidianTheme
+- test(screenshots): merge dropping the local caret blur
+- fix(screenshots): merge blurring the Settings search box before desktop frames
+- build(deps): merge the obsidian-integration-testing 17 float
+- build(deps): merge the obsidian-test-mocks ^7.0.0 float
+- refactor(patches): merge the patch against app.plugins own typings
+- build(deps): merge the obsidian-integration-testing override removal
+- docs(agents): merge the 1.0.0 release record
+
 ## 1.0.0
 
 - fix(test): merge the headless demo-vault toolkit install
