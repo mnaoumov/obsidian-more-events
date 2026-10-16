@@ -54,7 +54,7 @@ export const CORE_PLUGIN_ENABLED_EVENT_NAME: CorePluginEnabledEventName = 'more-
 /**
  * The contract this plugin publishes: the repo-root `api-contract.ts` constant a consumer copies, so the
  * provider and its consumers validate against one definition. Assigning it here is also what checks that
- * the hand-written schemas are Standard Schemas the registry accepts.
+ * its schemas are Standard Schemas the registry accepts.
  */
 export const PLUGIN_API_CONTRACT: PluginApiContract = MORE_EVENTS_API_CONTRACT;
 

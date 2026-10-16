@@ -1,13 +1,11 @@
+import type { ApiMethodContract } from '@mnaoumov/typescript-lib/api-contract';
+
 import {
   describe,
   expect,
   it
 } from 'vitest';
 
-import type {
-  MoreEventsApiSchema,
-  MoreEventsApiSchemaResult
-} from '../api-contract.ts';
 import type { MoreEventsApi } from '../api.d.ts';
 
 import { MORE_EVENTS_API_CONTRACT } from '../api-contract.ts';
@@ -23,6 +21,10 @@ interface PayloadCase {
   readonly invalid: readonly unknown[];
   readonly valid: readonly unknown[];
 }
+
+type Schema = NonNullable<ApiMethodContract['input']>;
+
+type SchemaResult = Exclude<ReturnType<Schema['~standard']['validate']>, Promise<unknown>>;
 
 const NO_ARGUMENTS: PayloadCase = { invalid: [['extra'], null, undefined], valid: [[]] };
 const PLUGIN_ID: PayloadCase = { invalid: [[], [null], [1], ['canvas', 'extra'], 'canvas'], valid: [['canvas']] };
@@ -57,7 +59,7 @@ describe('MORE_EVENTS_API_CONTRACT', () => {
   it('should accept every valid payload and refuse every invalid one', () => {
     for (const methodName of METHOD_NAMES) {
       for (const half of ['input', 'output'] as const) {
-        const schema: MoreEventsApiSchema<unknown> = MORE_EVENTS_API_CONTRACT[methodName][half];
+        const schema: Schema = MORE_EVENTS_API_CONTRACT[methodName][half];
         const { invalid, valid } = CASES[methodName][half];
         for (const [index, value] of valid.entries()) {
           expect(validate(schema, value), `${methodName} ${half} should accept valid case ${String(index)}`).toEqual({ value });
@@ -86,6 +88,11 @@ describe('MORE_EVENTS_API_CONTRACT', () => {
   });
 });
 
-function validate(schema: MoreEventsApiSchema<unknown>, value: unknown): MoreEventsApiSchemaResult<unknown> {
-  return schema['~standard'].validate(value);
+function validate(schema: Schema, value: unknown): SchemaResult {
+  const result = schema['~standard'].validate(value);
+  if (result instanceof Promise) {
+    throw new TypeError('Expected a synchronous schema.');
+  }
+
+  return result;
 }
