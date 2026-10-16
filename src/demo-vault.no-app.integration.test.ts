@@ -1,6 +1,6 @@
+import { registerDemoVaultCoverageSuite } from '@mnaoumov/obsidian-dev-toolkit/demo-vault-coverage';
+import { getRootFolder } from '@mnaoumov/typescript-dev-toolkit/root';
 import process from 'node:process';
-import { registerDemoVaultCoverageSuite } from 'obsidian-dev-utils/script-utils/demo-vault-coverage';
-import { getRootFolder } from 'obsidian-dev-utils/script-utils/root';
 
 // Keeps the in-repo `demo-vault/` honest WITHOUT launching Obsidian. `More Events` has no settings, so there
 // is no config interface to reflect. Its public surface is reflected instead: `MoreEventsApi` lives in the

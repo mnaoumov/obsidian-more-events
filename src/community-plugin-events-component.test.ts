@@ -1,10 +1,10 @@
 import type { App as AppOriginal } from 'obsidian';
 
-import { noopAsync } from 'obsidian-dev-utils/function';
+import { noopAsync } from '@mnaoumov/typescript-lib/function';
 import {
   castTo,
   getPrototypeOf
-} from 'obsidian-dev-utils/object-utils';
+} from '@mnaoumov/typescript-lib/object-utils';
 import {
   App,
   Events

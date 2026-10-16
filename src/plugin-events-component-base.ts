@@ -3,7 +3,7 @@ import type {
   EventRef
 } from 'obsidian';
 
-import { ComponentEx } from 'obsidian-dev-utils/obsidian/components/component-ex';
+import { ComponentEx } from '@mnaoumov/obsidian-lib/components/component-ex';
 
 /**
  * Parameters for the {@link PluginEventsComponentBase} constructor.
