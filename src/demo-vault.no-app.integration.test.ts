@@ -2,7 +2,7 @@ import process from 'node:process';
 import { registerDemoVaultCoverageSuite } from 'obsidian-dev-utils/script-utils/demo-vault-coverage';
 import { getRootFolder } from 'obsidian-dev-utils/script-utils/root';
 
-// Keeps the in-repo `demo-vault/` honest WITHOUT launching Obsidian. More Events has no settings, so there
+// Keeps the in-repo `demo-vault/` honest WITHOUT launching Obsidian. `More Events` has no settings, so there
 // is no config interface to reflect. Its public surface is reflected instead: `MoreEventsApi` lives in the
 // repo-root `api.d.ts`, which is the file a consumer reads, so a member added there and demonstrated
 // nowhere fails here — and a member the notes name after it has been renamed fails too.

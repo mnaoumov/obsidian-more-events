@@ -17,7 +17,7 @@ require('/demoSetup.ts').startListeningToCommunityPlugins(app);
 
 Manual equivalent: the two `app.workspace.on(...)` calls from your own plugin.
 
-Now toggle a community plugin. You can flip any of them in **Settings -> Community plugins**, but this vault has nothing spare to flip — More Events publishes the events and CodeScript Toolkit runs these buttons — so this button brings its own. On first press it writes a do-nothing plugin into the vault and loads it; on the next press it unloads it again:
+Now toggle a community plugin. You can flip any of them in **Settings -> Community plugins**, but this vault has nothing spare to flip — `More Events` publishes the events and `CodeScript Toolkit` runs these buttons — so this button brings its own. On first press it writes a do-nothing plugin into the vault and loads it; on the next press it unloads it again:
 
 ```code-button
 ---
@@ -26,7 +26,7 @@ caption: Toggle the demo community plugin
 await require('/demoSetup.ts').toggleDemoCommunityPlugin(app);
 ```
 
-A notice should say **Enabled: More Events Demo Plugin (more-events-demo-plugin), programmatically** or **Disabled: ..., programmatically**. It says *programmatically* rather than *by the user* on purpose — see below. Press it again for the other one. Then stop:
+A notice should say **Enabled: `More Events Demo Plugin` (more-events-demo-plugin), programmatically** or **Disabled: ..., programmatically**. It says *programmatically* rather than *by the user* on purpose — see below. Press it again for the other one. Then stop:
 
 ```code-button
 ---
@@ -48,7 +48,7 @@ So these events answer the only question a consumer really asks: *is that plugin
 
 ## What `isUserInitiated` means, precisely
 
-**That plugin's own toggle was flipped**, which is narrower than "a person caused it". `Plugins.enablePlugin(id, isUserEnabled)` and `disablePlugin(id, isUserDisabled)` take that answer and forward it to `loadPlugin` / `unloadPlugin`, which use it to decide whether the plugin's own `onUserEnable()` runs and what its `_userDisabled` becomes — and then the `changed` signal, which carries nothing, drops it. More Events intercepts `enablePlugin` and `disablePlugin` to keep it.
+**That plugin's own toggle was flipped**, which is narrower than "a person caused it". `Plugins.enablePlugin(id, isUserEnabled)` and `disablePlugin(id, isUserDisabled)` take that answer and forward it to `loadPlugin` / `unloadPlugin`, which use it to decide whether the plugin's own `onUserEnable()` runs and what its `_userDisabled` becomes — and then the `changed` signal, which carries nothing, drops it. `More Events` intercepts `enablePlugin` and `disablePlugin` to keep it.
 
 The toggle in **Settings -> Community plugins** reaches them through `enablePluginAndSave` / `disablePluginAndSave`, which pass `true`. Two things a person does report `false`, because Obsidian passes no flag down those paths: switching the master **Community plugins** switch off, and starting the vault in restricted mode. **And so does the button above**, which calls the plain `enablePlugin` / `disablePlugin` precisely so it never writes to your configuration — which makes it a live demonstration of the difference rather than an awkwardness.
 
@@ -60,6 +60,6 @@ The toggle in **Settings -> Community plugins** reaches them through `enablePlug
 
 ## What they deliberately do not promise
 
-- **Nothing fires for the community plugins that were already loaded when More Events loaded.** Nothing changed, so nothing is announced. The starting state comes from the API instead — see [03 For plugin developers](<./03 For plugin developers.md>).
+- **Nothing fires for the community plugins that were already loaded when `More Events` loaded.** Nothing changed, so nothing is announced. The starting state comes from the API instead — see [03 For plugin developers](<./03 For plugin developers.md>).
 - **They arrive in batches.** Obsidian debounces its signal, so several plugins moving at once produce one signal and therefore several events back to back. That is why the plugin diffs rather than trusting the signal to mean one change.
 - **They overlap with `obsidian-dev-utils`.** That library broadcasts `obsidian-dev-utils:plugin-loaded` and `obsidian-dev-utils:plugin-unloaded` — but only for plugins built on it, which is a small and particular set. These two events cover **every** community plugin in the vault, including the ones that have never heard of that library. A plugin built on it will raise both, so subscribe to one of the two and not to both.

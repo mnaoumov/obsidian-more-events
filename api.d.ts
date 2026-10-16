@@ -1,10 +1,10 @@
 /**
  * @file
  *
- * More Events' public surface, as a consumer sees it.
+ * `More Events`' public surface, as a consumer sees it.
  *
  * Hand-written and self-contained on purpose: it imports from `obsidian` and nothing else, so a plugin that
- * has never heard of `obsidian-dev-utils` can copy this file, or reference it, and depend on More Events
+ * has never heard of `obsidian-dev-utils` can copy this file, or reference it, and depend on `More Events`
  * with no build-time dependency on this repo at all.
  *
  * Two things live here. The **events** — a `Workspace.on` overload plus the payloads they carry — which are
@@ -65,7 +65,7 @@ export interface CommunityPluginEventPayload {
    * own `onUserEnable()`; `disablePlugin(id, isUserDisabled)` hands it to `unloadPlugin`, which is what
    * sets the plugin's `_userDisabled`. The toggle in **Settings -> Community plugins** reaches them
    * through `enablePluginAndSave` / `disablePluginAndSave`, which pass `true`. The `changed` signal
-   * these events are built on carries no payload at all, so the flag is dropped; More Events recovers it.
+   * these events are built on carries no payload at all, so the flag is dropped; `More Events` recovers it.
    *
    * **It means one plugin's own toggle, which is narrower than "a person did it".** Obsidian passes
    * nothing when the master **Community plugins** switch unloads every plugin at once, and nothing when a
@@ -119,7 +119,7 @@ export interface CorePluginEventPayload {
    * Obsidian carries its own flag for exactly this: `InternalPlugin.enable(isEnabledByUser)` and
    * `.disable(isDisabledByUser)` take it, and it is what decides whether the core plugin's own
    * `onUserEnable()` / `onUserDisable()` hooks run. The toggle in **Settings -> Core plugins** passes
-   * `true`. The `change` signal these events are built on drops it; More Events recovers it.
+   * `true`. The `change` signal these events are built on drops it; `More Events` recovers it.
    *
    * **It means that plugin's own toggle, which is narrower than "a person did it"**, and it is a claim
    * rather than a proof: a plugin that calls `enable(true)` itself reports `true`, because that is what
@@ -133,7 +133,7 @@ export interface CorePluginEventPayload {
 }
 
 /**
- * More Events' API, published through the `obsidian-dev-utils` plugin registry.
+ * `More Events`' API, published through the `obsidian-dev-utils` plugin registry.
  *
  * The events say when something changed; this says what the state is. A consumer needs both — it has to
  * reconcile once when it loads, and again on each event, and the load-time answer is the one no event can
@@ -188,7 +188,7 @@ declare module 'obsidian' {
      * Obsidian in restricted mode.
      *
      * Triggered after the change has happened, so `getEnabledCommunityPluginIds()` already reflects it.
-     * Nothing is triggered for the community plugins that were already loaded when More Events loaded —
+     * Nothing is triggered for the community plugins that were already loaded when `More Events` loaded —
      * read those from the API instead.
      *
      * @param name - Should be `'more-events:community-plugin-enabled'` or
@@ -208,7 +208,7 @@ declare module 'obsidian' {
      * Subscribes to a core plugin being enabled or disabled.
      *
      * Triggered after the change has happened, so `getEnabledCorePluginIds()` already reflects it. Nothing
-     * is triggered for the core plugins that were already enabled when More Events loaded — read those
+     * is triggered for the core plugins that were already enabled when `More Events` loaded — read those
      * from the API instead.
      *
      * @param name - Should be `'more-events:core-plugin-enabled'` or `'more-events:core-plugin-disabled'`.

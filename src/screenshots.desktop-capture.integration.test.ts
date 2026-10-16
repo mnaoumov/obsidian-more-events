@@ -28,7 +28,7 @@
  * photograph both.
  *
  * The community shot brings its own throwaway plugin, exactly as
- * `community-plugin-events.desktop.integration.test.ts` does and for the same reason: toggling More Events
+ * `community-plugin-events.desktop.integration.test.ts` does and for the same reason: toggling `More Events`
  * itself would unload the component doing the publishing, and toggling whatever else the harness installed
  * would make the frame depend on the run. `enablePluginAndSave` rather than `enablePlugin`, because the
  * row's toggle in the photographed tab reads from the persisted list.

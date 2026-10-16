@@ -26,7 +26,7 @@ caption: Toggle the Canvas core plugin
 await require('/demoSetup.ts').toggleCanvasCorePlugin(app);
 ```
 
-A notice should say **Enabled: Canvas (canvas), by the user** or **Disabled: Canvas (canvas), by the user**. Press it again for the other one. Then stop:
+A notice should say **Enabled: `Canvas` (canvas), by the user** or **Disabled: `Canvas` (canvas), by the user**. Press it again for the other one. Then stop:
 
 ```code-button
 ---
@@ -42,7 +42,7 @@ Manual equivalent: unloading the component that registered the handlers, which a
 - **One event per plugin that actually changed.** The signal Obsidian sends says only that *something* moved; this plugin works out what, so a listener never diffs anything itself.
 - **Past tense.** By the time a handler runs, the core plugin is already enabled or already disabled. There is no `before-*` pair and nothing to veto.
 - **The payload is plain data** — `corePluginId`, `corePluginName` and `isUserInitiated` — so it crosses between plugins that share no code.
-- **It says whether the user did it.** `InternalPlugin.enable(isEnabledByUser)` and `.disable(isDisabledByUser)` take that answer, use it to decide whether the core plugin's own `onUserEnable` / `onUserDisable` hook runs, and then drop it when they trigger `change`. More Events intercepts those two methods to keep it, which is the only patch it installs for core plugins.
+- **It says whether the user did it.** `InternalPlugin.enable(isEnabledByUser)` and `.disable(isDisabledByUser)` take that answer, use it to decide whether the core plugin's own `onUserEnable` / `onUserDisable` hook runs, and then drop it when they trigger `change`. `More Events` intercepts those two methods to keep it, which is the only patch it installs for core plugins.
 
 ## What `isUserInitiated` means, precisely
 
@@ -52,5 +52,5 @@ A consumer that wants only the user's toggles — which is what the plugins this
 
 ## What they deliberately do not promise
 
-- **Nothing fires for the core plugins that were already enabled when More Events loaded.** Nothing changed, so nothing is announced. The starting state comes from the API instead — see [03 For plugin developers](<./03 For plugin developers.md>).
+- **Nothing fires for the core plugins that were already enabled when `More Events` loaded.** Nothing changed, so nothing is announced. The starting state comes from the API instead — see [03 For plugin developers](<./03 For plugin developers.md>).
 - **Community plugins are not covered by *these two*.** They have a manager of their own and a pair of events of their own — see [02 Community plugin events](<./02 Community plugin events.md>).

@@ -32,7 +32,7 @@ type CorePlugin = InternalPlugin<InternalPluginInstance<unknown>>;
  * {@link InternalPluginPatchComponent} intercepts `enable` / `disable` on the shared prototype and keeps
  * the `isEnabledByUser` / `isDisabledByUser` argument Obsidian drops when it triggers `change`, which is
  * what puts `isUserInitiated` in both payloads. That distinction is not academic: the patch this plugin
- * was built to replace — Backlink Cache's and Backlink Full Path's `onUserEnable` patch — is a patch of
+ * was built to replace — `Backlink Cache`'s and `Backlink Full Path`'s `onUserEnable` patch — is a patch of
  * the USER-initiated hook specifically, so without the flag these events are a near-replacement rather
  * than a replacement.
  */
