@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 1.1.0
+
+- refactor: merge moving off obsidian-dev-utils onto the @mnaoumov packages
+- refactor(api): merge building api-contract.ts on @mnaoumov/typescript-lib/api-contract
+- feat(api): merge the copyable api-contract.ts with full schemas
+- docs: merge marking plugin names as code
+- test: merge using the obsidian-typings declarations of Obsidian internals
+- docs: merge the community directory listing links
+
 ## 1.0.1
 
 - test(screenshots): merge applying the dark theme through applyObsidianTheme
