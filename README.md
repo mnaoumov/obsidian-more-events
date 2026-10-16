@@ -88,15 +88,22 @@ this.registerEvent(
 );
 ```
 
-For the current state, and to know whether `More Events` is installed at all, take the API through the registry. The contract is **`1.2.0`** and moves independently of the plugin's own version, so ask for a range:
+For the current state, and to know whether `More Events` is installed at all, take the API through the registry. The contract is **`1.2.0`** and moves independently of the plugin's own version, so ask for a range.
+
+Beside `api.d.ts`, [`api-contract.ts`](./api-contract.ts) holds the API's contract, `MORE_EVENTS_API_CONTRACT`: for every method, a schema over its arguments and a schema over what it returns. It is the constant this plugin publishes with the API, so copy it next to `api.d.ts` and pass it as the `contract`, and both sides check the same definition. It imports from `./api.d.ts` alone, its schemas being hand-written [Standard Schema](https://standardschema.dev) objects. (It is not named `api.ts`: TypeScript would read `api.d.ts` as that file's own declarations.)
 
 ```ts
 import { watchPluginApi } from 'obsidian-dev-utils/obsidian/plugin/plugin-api';
+
+import type { MoreEventsApi } from './api.d.ts';
+
+import { MORE_EVENTS_API_CONTRACT } from './api-contract.ts';
 
 const moreEventsApiRef = watchPluginApi<MoreEventsApi>({
   apiVersionRange: '^1',
   app: this.app,
   component: this,
+  contract: MORE_EVENTS_API_CONTRACT,
   pluginId: 'more-events'
 });
 
