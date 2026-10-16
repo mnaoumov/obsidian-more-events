@@ -31,8 +31,8 @@ const NOTICE_DURATION_IN_MILLISECONDS = 8000;
 /**
  * The throwaway community plugin the toggle button below flips.
  *
- * A vault has no community plugin that is safe to toggle for a demonstration — More Events itself publishes
- * the events, CodeScript Toolkit is what runs these buttons — so the demo brings its own. It is written into
+ * A vault has no community plugin that is safe to toggle for a demonstration — `More Events` itself publishes
+ * the events, `CodeScript Toolkit` is what runs these buttons — so the demo brings its own. It is written into
  * `.obsidian/plugins/` on first press and does nothing at all; the toggle never persists it to
  * `community-plugins.json`, so pressing these buttons leaves your configuration exactly as it found it.
  */
@@ -107,7 +107,7 @@ export async function showEnabledCorePlugins(app: App): Promise<void> {
 export async function showWhetherDemoCommunityPluginIsEnabled(app: App): Promise<void> {
   const moreEventsApi = await getApi(app);
   const isEnabled = moreEventsApi.isCommunityPluginEnabled(DEMO_COMMUNITY_PLUGIN_ID);
-  new Notice(`${DEMO_COMMUNITY_PLUGIN_NAME} is ${isEnabled ? 'loaded' : 'not loaded'}.`);
+  new Notice(createPluginNameFragment('', DEMO_COMMUNITY_PLUGIN_NAME, ` is ${isEnabled ? 'loaded' : 'not loaded'}.`));
 }
 
 /**
@@ -118,7 +118,7 @@ export async function showWhetherDemoCommunityPluginIsEnabled(app: App): Promise
 export async function showWhetherCanvasIsEnabled(app: App): Promise<void> {
   const moreEventsApi = await getApi(app);
   const isEnabled = moreEventsApi.isCorePluginEnabled(DEMO_CORE_PLUGIN_ID);
-  new Notice(`Canvas is ${isEnabled ? 'enabled' : 'disabled'}.`);
+  new Notice(createPluginNameFragment('', 'Canvas', ` is ${isEnabled ? 'enabled' : 'disabled'}.`));
 }
 
 /**
@@ -135,12 +135,12 @@ export function startListeningToCommunityPlugins(app: App): void {
   const component = new Component();
   component.registerEvent(
     app.workspace.on(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME, ({ communityPluginId, communityPluginName, isUserInitiated }) => {
-      new Notice(`Enabled: ${communityPluginName} (${communityPluginId}), ${describeInitiator(isUserInitiated)}`);
+      new Notice(createPluginNameFragment('Enabled: ', communityPluginName, ` (${communityPluginId}), ${describeInitiator(isUserInitiated)}`));
     })
   );
   component.registerEvent(
     app.workspace.on(COMMUNITY_PLUGIN_DISABLED_EVENT_NAME, ({ communityPluginId, communityPluginName, isUserInitiated }) => {
-      new Notice(`Disabled: ${communityPluginName} (${communityPluginId}), ${describeInitiator(isUserInitiated)}`);
+      new Notice(createPluginNameFragment('Disabled: ', communityPluginName, ` (${communityPluginId}), ${describeInitiator(isUserInitiated)}`));
     })
   );
   component.load();
@@ -163,12 +163,12 @@ export function startListeningToCorePlugins(app: App): void {
   const component = new Component();
   component.registerEvent(
     app.workspace.on(CORE_PLUGIN_ENABLED_EVENT_NAME, ({ corePluginId, corePluginName, isUserInitiated }) => {
-      new Notice(`Enabled: ${corePluginName} (${corePluginId}), ${describeInitiator(isUserInitiated)}`);
+      new Notice(createPluginNameFragment('Enabled: ', corePluginName, ` (${corePluginId}), ${describeInitiator(isUserInitiated)}`));
     })
   );
   component.registerEvent(
     app.workspace.on(CORE_PLUGIN_DISABLED_EVENT_NAME, ({ corePluginId, corePluginName, isUserInitiated }) => {
-      new Notice(`Disabled: ${corePluginName} (${corePluginId}), ${describeInitiator(isUserInitiated)}`);
+      new Notice(createPluginNameFragment('Disabled: ', corePluginName, ` (${corePluginId}), ${describeInitiator(isUserInitiated)}`));
     })
   );
   component.load();
@@ -244,7 +244,7 @@ export async function toggleDemoCommunityPlugin(app: App): Promise<void> {
 export async function toggleCanvasCorePlugin(app: App): Promise<void> {
   const canvasCorePlugin = app.internalPlugins.getPluginById(DEMO_CORE_PLUGIN_ID);
   if (!canvasCorePlugin) {
-    new Notice('Canvas core plugin not found.');
+    new Notice(createPluginNameFragment('', 'Canvas', ' core plugin not found.'));
     return;
   }
 
@@ -255,6 +255,23 @@ export async function toggleCanvasCorePlugin(app: App): Promise<void> {
   }
 
   await app.internalPlugins.saveConfig();
+}
+
+/**
+ * Builds notice text whose plugin name renders as code, the way every plugin name in this collection's UI
+ * does.
+ *
+ * @param prefix - The text before the name.
+ * @param pluginName - The plugin's display name.
+ * @param suffix - The text after the name.
+ * @returns The fragment to pass to `Notice`.
+ */
+function createPluginNameFragment(prefix: string, pluginName: string, suffix: string): DocumentFragment {
+  return createFragment((fragment) => {
+    fragment.appendText(prefix);
+    fragment.createEl('code', { text: pluginName });
+    fragment.appendText(suffix);
+  });
 }
 
 /**

@@ -66,7 +66,7 @@ interface RecordedEvents {
  * against the 30 s a desktop closure gets.
  *
  * It installs its OWN throwaway plugin rather than toggling one that happens to be in the vault. Toggling
- * More Events itself would unload the component under test; toggling the harness's own plugins would make
+ * `More Events` itself would unload the component under test; toggling the harness's own plugins would make
  * the suite depend on what else the run installed. A two-line plugin written into the vault depends on
  * nothing and is the honest third-party case these events exist for — the one `obsidian-dev-utils`'
  * `plugin-loaded` broadcast cannot see.

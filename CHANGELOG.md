@@ -24,4 +24,4 @@
 - feat(screenshots): decide what a screenshot can show for a plugin with no UI, then capture the set
 - feat: publish per-plugin community-plugin enabled and disabled events
 - test(integration): prove the core-plugin events against a real Obsidian
-- feat: scaffold More Events
+- feat: scaffold `More Events`
