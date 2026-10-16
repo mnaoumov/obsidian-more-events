@@ -1,6 +1,6 @@
 # For plugin developers
 
-An event says when something changed. It cannot say what the state is *now*, and a plugin that has only just loaded needs exactly that: it has missed every change that happened before it existed. So `More Events` also publishes a small API, through the `obsidian-dev-utils` plugin registry, with the reads that pair with the events — two for core plugins, two for community plugins.
+An event says when something changed. It cannot say what the state is *now*, and a plugin that has only just loaded needs exactly that: it has missed every change that happened before it existed. So `More Events` also publishes a small API, through the `@mnaoumov/obsidian-lib` plugin registry, with the reads that pair with the events — two for core plugins, two for community plugins.
 
 Everything a consumer needs is declared in the plugin's repo-root `api.d.ts`, which imports nothing but `obsidian` — copy it, or copy the few lines you use, and you depend on this plugin without depending on anything of its author's.
 
@@ -57,7 +57,7 @@ Manual equivalent: find that plugin's row in **Settings -> Community plugins**.
 ## Reaching the API
 
 ```ts
-import { watchPluginApi } from 'obsidian-dev-utils/obsidian/plugin/plugin-api';
+import { watchPluginApi } from '@mnaoumov/obsidian-lib/plugin/plugin-api';
 
 const moreEventsApiRef = watchPluginApi({
   apiVersionRange: '^1',
@@ -69,7 +69,7 @@ const moreEventsApiRef = watchPluginApi({
 
 `moreEventsApiRef.value` is `null` while `More Events` is not loaded and becomes non-`null` on its own when it is, so a consumer never has to care about plugin load order. The contract version is **`1.2.0`** and moves independently of the plugin's own version, which is why the range above asks for `^1` rather than naming one. It has only ever gone up by a minor: `1.1.0` added the community-plugin events to the core-plugin ones, and `1.2.0` added `isUserInitiated` to both payloads.
 
-If you would rather not take `obsidian-dev-utils` as a dependency, the registry is a documented wire protocol you can read directly — its guide is [Cross-plugin APIs](https://mnaoumov.dev/obsidian-dev-utils/guides/cross-plugin-apis/).
+If you would rather not take `@mnaoumov/obsidian-lib` as a dependency, the registry is a documented wire protocol you can read directly — its guide is [Cross-plugin APIs](https://mnaoumov.dev/obsidian-dev-utils/guides/cross-plugin-apis/).
 
 ## Subscribing needs no API at all
 

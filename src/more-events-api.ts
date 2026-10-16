@@ -8,7 +8,7 @@
  * reads, and are imported from it so there is exactly one declaration of each and nothing to drift.
  */
 
-import type { PluginApiContract } from 'obsidian-dev-utils/obsidian/plugin/plugin-api';
+import type { ApiContract } from '@mnaoumov/typescript-lib/api-contract';
 
 import type {
   CommunityPluginDisabledEventName,
@@ -56,7 +56,7 @@ export const CORE_PLUGIN_ENABLED_EVENT_NAME: CorePluginEnabledEventName = 'more-
  * provider and its consumers validate against one definition. Assigning it here is also what checks that
  * its schemas are Standard Schemas the registry accepts.
  */
-export const PLUGIN_API_CONTRACT: PluginApiContract = MORE_EVENTS_API_CONTRACT;
+export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
 
 /**
  * The version of the contract above — independent of the plugin's own version, so a consumer asks for

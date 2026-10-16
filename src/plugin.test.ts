@@ -1,10 +1,10 @@
+import type { PluginApiDeclaration } from '@mnaoumov/obsidian-lib/plugin/plugin-api';
 import type {
   App as AppType,
   PluginManifest
 } from 'obsidian';
-import type { PluginApiDeclaration } from 'obsidian-dev-utils/obsidian/plugin/plugin-api';
 
-import { castTo } from 'obsidian-dev-utils/object-utils';
+import { castTo } from '@mnaoumov/typescript-lib/object-utils';
 import { App } from 'obsidian-test-mocks/obsidian';
 import {
   afterEach,
@@ -83,8 +83,6 @@ describe('Plugin', () => {
     appMock = App.createConfigured__();
     app = appMock.asOriginalType__();
 
-    // The real PluginBase reads dev-utils state off the app (and the global app).
-    seedOnRawTarget(app, 'obsidianDevUtilsState', {});
     seedOnRawTarget(app.workspace, 'onLayoutReady', () => {
       // The wrapper test never fires layout-ready; the child component is a stub.
     });

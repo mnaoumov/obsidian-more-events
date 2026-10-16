@@ -4,11 +4,11 @@
  * `More Events`' public surface, as a consumer sees it.
  *
  * Hand-written and self-contained on purpose: it imports from `obsidian` and nothing else, so a plugin that
- * has never heard of `obsidian-dev-utils` can copy this file, or reference it, and depend on `More Events`
+ * has never heard of `@mnaoumov/obsidian-lib` can copy this file, or reference it, and depend on `More Events`
  * with no build-time dependency on this repo at all.
  *
  * Two things live here. The **events** — a `Workspace.on` overload plus the payloads they carry — which are
- * what most consumers want, and the **API** reached through the `obsidian-dev-utils` plugin registry, which
+ * what most consumers want, and the **API** reached through the `@mnaoumov/obsidian-lib` plugin registry, which
  * answers the question the events cannot: what is enabled *right now*, before anything has changed. There
  * are two pairs of events, one for **core** plugins and one for **community** plugins, and they are
  * deliberately separate names rather than one pair with a kind flag: the two live in different managers,
@@ -16,7 +16,7 @@
  *
  * The event NAMES are a wire contract and are spelled out as literal types rather than exported as
  * constants, because a declaration file has no runtime values to export: a consumer hardcodes the strings,
- * exactly as `obsidian-dev-utils` tells third parties to hardcode its own broadcast's names. The payloads
+ * exactly as `@mnaoumov/obsidian-lib` tells third parties to hardcode its own broadcast's names. The payloads
  * are plain data for the same reason they are in that library — they cross between plugins that share no
  * code.
  */
@@ -133,7 +133,7 @@ export interface CorePluginEventPayload {
 }
 
 /**
- * `More Events`' API, published through the `obsidian-dev-utils` plugin registry.
+ * `More Events`' API, published through the `@mnaoumov/obsidian-lib` plugin registry.
  *
  * The events say when something changed; this says what the state is. A consumer needs both — it has to
  * reconcile once when it loads, and again on each event, and the load-time answer is the one no event can

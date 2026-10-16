@@ -1,10 +1,10 @@
 import type { App } from 'obsidian';
 
+import { MonkeyAroundComponent } from '@mnaoumov/obsidian-lib/components/monkey-around-component';
 import {
   castTo,
   getPrototypeOf
-} from 'obsidian-dev-utils/object-utils';
-import { MonkeyAroundComponent } from 'obsidian-dev-utils/obsidian/components/monkey-around-component';
+} from '@mnaoumov/typescript-lib/object-utils';
 
 import type { UserInitiationRecorder } from '../plugin-events-component-base.ts';
 

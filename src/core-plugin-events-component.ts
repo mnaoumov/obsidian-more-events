@@ -4,7 +4,7 @@ import type {
 } from '@obsidian-typings/obsidian-public-latest';
 import type { EventRef } from 'obsidian';
 
-import { castTo } from 'obsidian-dev-utils/object-utils';
+import { castTo } from '@mnaoumov/typescript-lib/object-utils';
 
 import {
   CORE_PLUGIN_DISABLED_EVENT_NAME,

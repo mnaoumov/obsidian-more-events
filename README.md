@@ -64,7 +64,7 @@ The patch supplements the diff rather than replacing it. What it intercepts is t
 ## What it deliberately does not do
 
 - **It does not fire for the plugins that were already enabled when it loaded.** Nothing changed, so nothing is announced; read the starting state from the API instead.
-- **It does not replace `obsidian-dev-utils`' broadcast, and it overlaps with it.** That library broadcasts `obsidian-dev-utils:plugin-loaded` / `-unloaded`, but only for plugins built on it. The community-plugin events here cover **every** plugin in the vault, including the ones that have never heard of that library — which is the gap they exist to fill. A plugin built on it raises both, so subscribe to one and not to both.
+- **It does not replace the `@mnaoumov/obsidian-lib` broadcast, and it overlaps with it.** That library, like `obsidian-dev-utils` before it, broadcasts `obsidian-dev-utils:plugin-loaded` / `-unloaded`, but only for plugins built on it. The community-plugin events here cover **every** plugin in the vault, including the ones that have never heard of that library — which is the gap they exist to fill. A plugin built on it raises both, so subscribe to one and not to both.
 
 ## For plugin developers
 
@@ -93,7 +93,7 @@ For the current state, and to know whether `More Events` is installed at all, ta
 Beside `api.d.ts`, [`api-contract.ts`](./api-contract.ts) holds the API's contract, `MORE_EVENTS_API_CONTRACT`: for every method, a schema over its arguments and a schema over what it returns. It is the constant this plugin publishes with the API, so copy it next to `api.d.ts` and pass it as the `contract`, and both sides check the same definition. Besides `./api.d.ts` it imports from one package, [`@mnaoumov/typescript-lib`](https://www.npmjs.com/package/@mnaoumov/typescript-lib), whose `api-contract` subpath builds the [Standard Schema](https://standardschema.dev) objects, so add that package (`1.1.0` or later) to your project when you copy the file. (It is not named `api.ts`: TypeScript would read `api.d.ts` as that file's own declarations.)
 
 ```ts
-import { watchPluginApi } from 'obsidian-dev-utils/obsidian/plugin/plugin-api';
+import { watchPluginApi } from '@mnaoumov/obsidian-lib/plugin/plugin-api';
 
 import type { MoreEventsApi } from './api.d.ts';
 
@@ -118,7 +118,7 @@ if (moreEventsApi) {
 }
 ```
 
-If you would rather not depend on `obsidian-dev-utils` for that, the registry is a documented wire protocol you can read directly — see [Cross-plugin APIs](https://mnaoumov.dev/obsidian-dev-utils/guides/cross-plugin-apis/).
+If you would rather not depend on [`@mnaoumov/obsidian-lib`](https://www.npmjs.com/package/@mnaoumov/obsidian-lib) for that, the registry is a documented wire protocol you can read directly — see [Cross-plugin APIs](https://mnaoumov.dev/obsidian-dev-utils/guides/cross-plugin-apis/).
 
 ## Installation
 
