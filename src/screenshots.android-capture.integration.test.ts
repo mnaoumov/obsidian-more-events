@@ -65,13 +65,6 @@ import {
   CORE_PLUGIN_ENABLED_EVENT_NAME
 } from './more-events-api.ts';
 
-/**
- * Obsidian's settings modal, reduced to the container `obsidian-typings` does not declare.
- */
-interface SettingsModalWithContainer {
-  containerEl: HTMLElement;
-}
-
 const WIDTH_IN_PIXELS = 900;
 const HEIGHT_IN_PIXELS = 1600;
 
@@ -312,8 +305,7 @@ async function openCommunityPluginsTab(): Promise<void> {
       // Obsidian reads the plugins folder at startup, so a manifest written a moment ago is not known yet.
       await app.plugins.loadManifests();
 
-      const settingsModal: unknown = app.setting;
-      const containerEl = (settingsModal as SettingsModalWithContainer).containerEl;
+      const { containerEl } = app.setting;
       if (!document.body.contains(containerEl)) {
         document.body.append(containerEl);
       }
@@ -366,8 +358,7 @@ async function openCorePluginsTab(): Promise<void> {
         corePlugin.disable(true);
       }
 
-      const settingsModal: unknown = app.setting;
-      const containerEl = (settingsModal as SettingsModalWithContainer).containerEl;
+      const { containerEl } = app.setting;
       if (!document.body.contains(containerEl)) {
         document.body.append(containerEl);
       }
