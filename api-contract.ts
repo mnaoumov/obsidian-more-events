@@ -9,9 +9,9 @@
  * passes it as the `contract` when it looks the API up, so both ends validate against ONE definition. The
  * plugin registry checks the payloads against it only while its debugger is on.
  *
- * Copying it takes one dependency beside `api.d.ts`: `@mnaoumov/typescript-lib`, whose `api-contract`
- * subpath carries the contract type, the {@link https://standardschema.dev | Standard Schema} builders and
- * the guards, so this file is the constant alone. {@link defineApiContract} checks every entry against its
+ * Copying it takes one dependency beside `api.d.ts`: `@mnaoumov/typescript-lib`, whose `api-contract` entry
+ * point carries the contract type, the {@link https://standardschema.dev | Standard Schema} builders and the
+ * common guards, so this file is the constant alone. {@link defineApiContract} checks every entry against its
  * method's signature, and the result is assignable to any registry's contract type that is generic over the
  * API (such as `PluginApiContract<MoreEventsApi>`).
  *
@@ -20,8 +20,7 @@
 
 import {
   BOOLEAN_GUARD,
-  createArgumentsSchema,
-  createTypeGuardSchema,
+  createApiContractSchemaBuilders,
   defineApiContract,
   STRING_ARRAY_GUARD,
   STRING_GUARD
@@ -29,7 +28,7 @@ import {
 
 import type { MoreEventsApi } from './api.d.ts';
 
-const VENDOR = 'more-events';
+const { createArgumentsSchema, createTypeGuardSchema } = createApiContractSchemaBuilders('more-events');
 
 /**
  * The contract this plugin publishes with {@link MoreEventsApi}, for a consumer to pass as the `contract`
@@ -37,19 +36,19 @@ const VENDOR = 'more-events';
  */
 export const MORE_EVENTS_API_CONTRACT = defineApiContract<MoreEventsApi>({
   getEnabledCommunityPluginIds: {
-    input: createArgumentsSchema([], { vendor: VENDOR }),
-    output: createTypeGuardSchema({ ...STRING_ARRAY_GUARD, expected: 'an array of community plugin ids', vendor: VENDOR })
+    input: createArgumentsSchema([]),
+    output: createTypeGuardSchema({ ...STRING_ARRAY_GUARD, expected: 'an array of community plugin ids' })
   },
   getEnabledCorePluginIds: {
-    input: createArgumentsSchema([], { vendor: VENDOR }),
-    output: createTypeGuardSchema({ ...STRING_ARRAY_GUARD, expected: 'an array of core plugin ids', vendor: VENDOR })
+    input: createArgumentsSchema([]),
+    output: createTypeGuardSchema({ ...STRING_ARRAY_GUARD, expected: 'an array of core plugin ids' })
   },
   isCommunityPluginEnabled: {
-    input: createArgumentsSchema([{ ...STRING_GUARD, expected: 'a community plugin id' }], { vendor: VENDOR }),
-    output: createTypeGuardSchema({ ...BOOLEAN_GUARD, vendor: VENDOR })
+    input: createArgumentsSchema([{ ...STRING_GUARD, expected: 'a community plugin id' }]),
+    output: createTypeGuardSchema(BOOLEAN_GUARD)
   },
   isCorePluginEnabled: {
-    input: createArgumentsSchema([{ ...STRING_GUARD, expected: 'a core plugin id' }], { vendor: VENDOR }),
-    output: createTypeGuardSchema({ ...BOOLEAN_GUARD, vendor: VENDOR })
+    input: createArgumentsSchema([{ ...STRING_GUARD, expected: 'a core plugin id' }]),
+    output: createTypeGuardSchema(BOOLEAN_GUARD)
   }
 });
