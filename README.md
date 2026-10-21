@@ -118,7 +118,7 @@ if (moreEventsApi) {
 }
 ```
 
-If you would rather not depend on [`@mnaoumov/obsidian-lib`](https://www.npmjs.com/package/@mnaoumov/obsidian-lib) for that, the registry is a documented wire protocol you can read directly — see [Cross-plugin APIs](https://mnaoumov.dev/obsidian-dev-utils/guides/cross-plugin-apis/).
+If you would rather not depend on [`@mnaoumov/obsidian-lib`](https://www.npmjs.com/package/@mnaoumov/obsidian-lib) for that, the registry is a documented wire protocol you can read directly — see [Cross-plugin APIs](https://mnaoumov.dev/obsidian-lib/guides/cross-plugin-apis/).
 
 ## Installation
 
@@ -144,7 +144,7 @@ Without `Advanced Debug Mode`, run the following command in the `DevTools Consol
 window.DEBUG.enable('more-events');
 ```
 
-For more details, refer to the [documentation](https://mnaoumov.dev/obsidian-dev-utils/guides/debugging/).
+For more details, refer to the [documentation](https://mnaoumov.dev/obsidian-lib/guides/debugging/).
 
 ## Changelog
 

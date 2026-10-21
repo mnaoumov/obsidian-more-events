@@ -69,7 +69,7 @@ const moreEventsApiRef = watchPluginApi({
 
 `moreEventsApiRef.value` is `null` while `More Events` is not loaded and becomes non-`null` on its own when it is, so a consumer never has to care about plugin load order. The contract version is **`1.2.0`** and moves independently of the plugin's own version, which is why the range above asks for `^1` rather than naming one. It has only ever gone up by a minor: `1.1.0` added the community-plugin events to the core-plugin ones, and `1.2.0` added `isUserInitiated` to both payloads.
 
-If you would rather not take `@mnaoumov/obsidian-lib` as a dependency, the registry is a documented wire protocol you can read directly — its guide is [Cross-plugin APIs](https://mnaoumov.dev/obsidian-dev-utils/guides/cross-plugin-apis/).
+If you would rather not take `@mnaoumov/obsidian-lib` as a dependency, the registry is a documented wire protocol you can read directly — its guide is [Cross-plugin APIs](https://mnaoumov.dev/obsidian-lib/guides/cross-plugin-apis/).
 
 ## Subscribing needs no API at all
 
