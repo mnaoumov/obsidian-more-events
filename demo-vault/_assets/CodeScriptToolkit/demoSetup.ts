@@ -4,7 +4,7 @@ import {
   Component,
   Notice
 } from 'obsidian';
-import { watchPluginApi } from 'obsidian-dev-utils/obsidian/plugin/plugin-api';
+import { watchPluginApi } from '@mnaoumov/obsidian-lib/plugin/plugin-api';
 
 /**
  * A copy of the declaration from the plugin's repo-root `api.d.ts`.
