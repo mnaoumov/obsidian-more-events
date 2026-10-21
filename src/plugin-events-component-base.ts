@@ -51,7 +51,7 @@ export interface UserInitiationRecorder {
  * {@link PluginEventsComponentBase.handleChange} consumes it when it publishes the matching event.
  *
  * **Patching here is the opposite of self-defeating, and the stance it replaces had the argument
- * backwards.** The hazard `obsidian-dev-utils` names is N plugins each patching one shared prototype, which
+ * backwards.** The hazard `@mnaoumov/obsidian-lib` names is N plugins each patching one shared prototype, which
  * is why a global patch belongs in a plugin rather than in a library every consumer bundles its own copy
  * of. This plugin existing is what collapses N to 1: one patch, in one place, installed once per vault, so
  * every consumer gets the context and none of them patches anything.
