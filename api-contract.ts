@@ -14,7 +14,7 @@
  * point carries the contract type, the {@link https://standardschema.dev | Standard Schema} builders and the
  * common guards, so this file is the constant alone. {@link defineApiContract} checks every entry against its
  * method's signature, and the result is assignable to any registry's contract type that is generic over the
- * API (such as `PluginApiContract<MoreEventsApi>`).
+ * API (such as `ApiContract<MoreEventsApi>`).
  *
  * It is not named `api.ts`: TypeScript would read `api.d.ts` as that file's own declarations.
  */
