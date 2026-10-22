@@ -64,7 +64,7 @@ The patch supplements the diff rather than replacing it. What it intercepts is t
 ## What it deliberately does not do
 
 - **It does not fire for the plugins that were already enabled when it loaded.** Nothing changed, so nothing is announced; read the starting state from the API instead.
-- **It does not replace the `@mnaoumov/obsidian-lib` broadcast, and it overlaps with it.** That library, like `obsidian-dev-utils` before it, broadcasts `obsidian-dev-utils:plugin-loaded` / `-unloaded`, but only for plugins built on it. The community-plugin events here cover **every** plugin in the vault, including the ones that have never heard of that library — which is the gap they exist to fill. A plugin built on it raises both, so subscribe to one and not to both.
+- **It does not replace the `@mnaoumov/obsidian-lib` broadcast, and it overlaps with it.** That library broadcasts `obsidian-lib:plugin-loaded` / `-unloaded`, but only for plugins built on it. The community-plugin events here cover **every** plugin in the vault, including the ones that have never heard of that library — which is the gap they exist to fill. A plugin built on it raises both, so subscribe to one and not to both.
 
 ## For plugin developers
 
