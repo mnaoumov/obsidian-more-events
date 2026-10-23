@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 1.1.1
+
+- test(demo-vault): require `CodeScript Toolkit` 15.0.0, the first to serve obsidian-lib 6
+- build(deps): move to obsidian-lib 6 and off the dropped obsidian-dev-utils names
+- docs: shorten the debugging section
+- fix(demo-vault): load the demo setup helpers from @mnaoumov/obsidian-lib
+- docs(readme): lead the Debugging section with `Advanced Debug Mode`
+- build(deps): float brace-expansion, sharp and fast-uri past their advisories
+- docs: mark plugin names as code
+- build(deps): merge taking obsidian-lib 4.3.0 and its validation debug switch
+- test(api-contract): verify the contract with verifyApiContract from typescript-lib 1.5.0
+- refactor(api-contract): merge building the contract guards from typescript-lib
+- chore(github): point questions to Discussions from the new-issue page
+- ci: merge attesting release assets through the toolkit's reusable workflow
+- docs: record the 1.1.0 release in AGENTS.md
+
 ## 1.1.0
 
 - refactor: merge moving off obsidian-dev-utils onto the @mnaoumov packages
