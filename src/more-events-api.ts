@@ -24,7 +24,9 @@ import type {
   CorePluginDisabledEventName,
   CorePluginEnabledEventName,
   CorePluginSettingTabMenuEventName,
+  CssSnippetMenuEventName,
   PdfThumbnailMenuEventName,
+  PropertyMenuEventName,
   PropertyValueMenuEventName,
   RibbonMenuEventName,
   SidebarToggleMenuEventName,
@@ -57,8 +59,12 @@ export type {
   CorePluginEventName,
   CorePluginEventPayload,
   CorePluginSettingTabMenuEventName,
+  CssSnippetMenuEventName,
+  CssSnippetMenuItem,
   MoreEventsApi,
   PdfThumbnailMenuEventName,
+  PropertyMenuEventName,
+  PropertyMenuItem,
   PropertyValueMenuEventName,
   PropertyValueMenuItem,
   RibbonMenuEventName,
@@ -141,9 +147,19 @@ export const CORE_PLUGIN_ENABLED_EVENT_NAME: CorePluginEnabledEventName = 'more-
 export const CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME: CorePluginSettingTabMenuEventName = 'more-events:core-plugin-setting-tab-menu';
 
 /**
+ * Triggered on `app.workspace` when the context menu of a snippet's row on the **CSS snippets** page of **Settings -> Appearance** is about to open.
+ */
+export const CSS_SNIPPET_MENU_EVENT_NAME: CssSnippetMenuEventName = 'more-events:css-snippet-menu';
+
+/**
  * Triggered on `app.workspace` when the context menu of a page thumbnail in the PDF view is about to open.
  */
 export const PDF_THUMBNAIL_MENU_EVENT_NAME: PdfThumbnailMenuEventName = 'more-events:pdf-thumbnail-menu';
+
+/**
+ * Triggered on `app.workspace` when a property's own menu, the one its icon opens, is about to open.
+ */
+export const PROPERTY_MENU_EVENT_NAME: PropertyMenuEventName = 'more-events:property-menu';
 
 /**
  * Triggered on `app.workspace` when the context menu of one value of a list or tags property is about to open.
@@ -196,6 +212,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * one and the ribbon one, all in the same release, and `1.4.0` added the **All properties** and **Web viewer**
  * History item menus, the PDF view's thumbnail menu, the sidebar toggle buttons' menu, a community plugin's
  * settings row menu, a callout's menu, the core and community plugin settings tab menus, a Live Preview
- * table's cell and drag handle menus, a property value's menu and a Bases table column header's menu.
+ * table's cell and drag handle menus, a property value's menu, a Bases table column header's menu, a property's own
+ * menu and a CSS snippet row's menu.
  */
 export const PLUGIN_API_VERSION = '1.4.0';

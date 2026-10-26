@@ -63,7 +63,9 @@ const BOOKMARKS_MENU_EVENT_NAME = 'more-events:bookmarks-menu';
 const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
 const CALLOUT_MENU_EVENT_NAME = 'more-events:callout-menu';
 const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
+const CSS_SNIPPET_MENU_EVENT_NAME = 'more-events:css-snippet-menu';
 const PDF_THUMBNAIL_MENU_EVENT_NAME = 'more-events:pdf-thumbnail-menu';
+const PROPERTY_MENU_EVENT_NAME = 'more-events:property-menu';
 const PROPERTY_VALUE_MENU_EVENT_NAME = 'more-events:property-value-menu';
 const COMMUNITY_PLUGIN_MENU_EVENT_NAME = 'more-events:community-plugin-menu';
 const COMMUNITY_PLUGIN_SETTING_TAB_MENU_EVENT_NAME = 'more-events:community-plugin-setting-tab-menu';
@@ -93,6 +95,7 @@ let canvasAndRibbonMenuListeningComponent: Component | null = null;
 let communityPluginListeningComponent: Component | null = null;
 let corePluginListeningComponent: Component | null = null;
 let pdfThumbnailMenuListeningComponent: Component | null = null;
+let propertyAndCssSnippetMenuListeningComponent: Component | null = null;
 let propertyValueAndBasesColumnMenuListeningComponent: Component | null = null;
 let sidebarToggleAndCommunityPluginMenuListeningComponent: Component | null = null;
 let tableMenuListeningComponent: Component | null = null;
@@ -794,6 +797,66 @@ export function stopListeningToPropertyValueAndBasesColumnMenus(): void {
 
   propertyValueAndBasesColumnMenuListeningComponent.unload();
   propertyValueAndBasesColumnMenuListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
+/**
+ * Subscribes to the property and CSS snippet menu events and adds one item to each menu, until the stop button
+ * below.
+ *
+ * Manual equivalent: the same two `app.workspace.on(...)` calls from your own plugin's `onload`.
+ */
+export function startListeningToPropertyAndCssSnippetMenus(app: App): void {
+  if (propertyAndCssSnippetMenuListeningComponent) {
+    new Notice('Already listening. Click a property\'s icon, or right-click a snippet in Settings -> Appearance -> CSS snippets.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(PROPERTY_MENU_EVENT_NAME, (menu, leaf, property) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which property is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`The "${property.key}" property of ${leaf.getDisplayText()}`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(CSS_SNIPPET_MENU_EVENT_NAME, (menu, snippet) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which snippet is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`The "${snippet.name}" CSS snippet`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.load();
+  propertyAndCssSnippetMenuListeningComponent = component;
+
+  new Notice('Listening. Now click the icon of demo-topics in this note\'s properties, or right-click a snippet in Settings -> Appearance -> CSS snippets.');
+}
+
+/**
+ * Drops the property and CSS snippet menu subscriptions.
+ *
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToPropertyAndCssSnippetMenus(): void {
+  if (!propertyAndCssSnippetMenuListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  propertyAndCssSnippetMenuListeningComponent.unload();
+  propertyAndCssSnippetMenuListeningComponent = null;
   new Notice('Stopped listening.');
 }
 
