@@ -21,7 +21,75 @@
  * code.
  */
 
-import type { EventRef } from 'obsidian';
+import type {
+  EventRef,
+  Menu,
+  WorkspaceLeaf
+} from 'obsidian';
+
+/**
+ * One bookmark, as the **Bookmarks** core plugin stores it — the object a bookmarks context menu is for.
+ *
+ * It is Obsidian's own object rather than a copy, so it is the one the **Bookmarks** core plugin's
+ * methods recognize: hand it to `removeItem`, or compare it by identity with the plugin's `items`. Treat
+ * it as read-only; writing to it edits the bookmark without telling Obsidian.
+ *
+ * Declared here rather than imported, because the public `obsidian` typings do not describe bookmarks at
+ * all. Additive only, like the other payloads in this file.
+ */
+export interface BookmarkMenuItem {
+  /**
+   * When the bookmark was created, in milliseconds since the epoch. The **Bookmarks** core plugin uses it
+   * as the bookmark's identity, so it is unique within a vault.
+   */
+  readonly ctime: number;
+
+  /**
+   * The bookmarks inside a `group`. Absent for every other type.
+   */
+  readonly items?: readonly BookmarkMenuItem[];
+
+  /**
+   * The vault path of a `file` or `folder` bookmark.
+   */
+  readonly path?: string;
+
+  /**
+   * The search query of a `search` bookmark.
+   */
+  readonly query?: string;
+
+  /**
+   * The heading or block a `file` bookmark points into, such as `#Heading` or `#^block-id`.
+   */
+  readonly subpath?: string;
+
+  /**
+   * The title the user gave the bookmark. Absent or empty when the bookmark shows its target's own name.
+   */
+  readonly title?: string;
+
+  /**
+   * What the bookmark points at.
+   */
+  readonly type: 'file' | 'folder' | 'graph' | 'group' | 'search' | 'url';
+
+  /**
+   * The address of a `url` bookmark.
+   */
+  readonly url?: string;
+}
+
+/**
+ * The name of the event triggered when the context menu of one or more bookmarks is about to open.
+ */
+export type BookmarksMenuEventName = 'more-events:bookmarks-menu';
+
+/**
+ * The name of the event triggered when the context menu of the **Bookmarks** view's empty area is about to
+ * open — the right-click below the last bookmark, which offers **New group**.
+ */
+export type BookmarksViewMenuEventName = 'more-events:bookmarks-view-menu';
 
 /**
  * The name of the event triggered after a community plugin has been disabled.
@@ -178,6 +246,38 @@ export interface MoreEventsApi {
 
 declare module 'obsidian' {
   interface Workspace {
+    /**
+     * Subscribes to the context menu of one or more bookmarks in the **Bookmarks** view.
+     *
+     * Shaped like Obsidian's own `files-menu`: add items to `menu` and they appear in it. Triggered before
+     * the menu is shown, after Obsidian has added its own items.
+     *
+     * @param name - Should be `'more-events:bookmarks-menu'`.
+     * @param callback - The callback receiving the menu, and the bookmarks it is for: one, or every selected
+     * one when the user right-clicks a multiple selection. Never empty.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    /*
+     * An augmentation of an EXISTING overload set has to stay a method signature. A property member does not
+     * merge into `Workspace.on`'s overloads, and the failure surfaces at every call site rather than here.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: BookmarksMenuEventName, callback: (menu: Menu, bookmarks: readonly BookmarkMenuItem[]) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of the **Bookmarks** view's empty area, below its last bookmark.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own **New group**.
+     *
+     * @param name - Should be `'more-events:bookmarks-view-menu'`.
+     * @param callback - The callback receiving the menu, and the leaf holding the **Bookmarks** view.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: BookmarksViewMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf) => unknown, context?: unknown): EventRef;
+
     /**
      * Subscribes to a community plugin being enabled or disabled.
      *

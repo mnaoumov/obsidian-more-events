@@ -3,6 +3,7 @@ import type { PluginApiDeclaration } from '@mnaoumov/obsidian-lib/plugin/plugin-
 import { OpenDemoVaultCommandHandler } from '@mnaoumov/obsidian-lib/command-handlers/open-demo-vault-command-handler';
 import { PluginBase } from '@mnaoumov/obsidian-lib/plugin/plugin';
 
+import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
@@ -10,6 +11,7 @@ import {
   PLUGIN_API_CONTRACT,
   PLUGIN_API_VERSION
 } from './more-events-api.ts';
+import { MenuPatchComponent } from './patches/menu-patch-component.ts';
 
 export class Plugin extends PluginBase {
   private moreEventsApi: MoreEventsApiImpl | null = null;
@@ -45,6 +47,18 @@ export class Plugin extends PluginBase {
     const corePluginEventsComponent = this.addChild(
       new CorePluginEventsComponent({
         app: this.app
+      })
+    );
+
+    const bookmarksMenuEventsComponent = this.addChild(
+      new BookmarksMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    this.addChild(
+      new MenuPatchComponent({
+        menuAnnouncers: [bookmarksMenuEventsComponent]
       })
     );
 
