@@ -63,8 +63,10 @@ Obsidian raises `file-menu`, `editor-menu` and a few others so a plugin can add 
 - **`more-events:bookmarks-view-menu`** fires for the **Bookmarks** view's empty area, below the last bookmark, where Obsidian offers **New group**. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 - **`more-events:canvas-view-menu`** fires for a **Canvas** view's empty background, where Obsidian offers **Add card**, with the canvas's leaf and the point that was right-clicked in canvas coordinates. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 - **`more-events:ribbon-menu`** fires for the ribbon's empty area, below its icons, where Obsidian offers **Hide ribbon**, with which ribbon it is. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
+- **`more-events:all-properties-menu`** fires for a property in the **All properties** view, where Obsidian offers its types, **Rename** and **Delete**, with the names of the properties the menu acts on: the whole selection when the property is part of one. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
+- **`more-events:web-viewer-history-menu`** fires for a visited page in the **Web viewer**'s History view, where Obsidian offers **Copy URL** and **Remove from history**, with that page's title and address. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 
-Obsidian does trigger an event of its own for the first one, `bookmarks:bookmarks-menu`, but documents and types it nowhere; `More Events` relays it under a name it keeps stable. The other three fire nothing at all in Obsidian.
+Obsidian does trigger an event of its own for the first one, `bookmarks:bookmarks-menu`, but documents and types it nowhere; `More Events` relays it under a name it keeps stable. The others fire nothing at all in Obsidian.
 
 ## Why it patches, when the point was to stop you patching
 
@@ -111,7 +113,7 @@ this.registerEvent(
 );
 ```
 
-For the current state, and to know whether `More Events` is installed at all, take the API through the registry. The contract is **`1.3.0`** and moves independently of the plugin's own version, so ask for a range.
+For the current state, and to know whether `More Events` is installed at all, take the API through the registry. The contract is **`1.4.0`** and moves independently of the plugin's own version, so ask for a range.
 
 Beside `api.d.ts`, [`api-contract.ts`](./api-contract.ts) holds the API's contract, `MORE_EVENTS_API_CONTRACT`: for every method, a schema over its arguments and a schema over what it returns. It is the constant this plugin publishes with the API, so copy it next to `api.d.ts` and pass it as the `contract`, and both sides check the same definition. Besides `./api.d.ts` it imports from one package, [`@mnaoumov/typescript-lib`](https://www.npmjs.com/package/@mnaoumov/typescript-lib), whose `api-contract` entry point carries the contract type, the [Standard Schema](https://standardschema.dev) builders and the common guards, so add that package (`1.3.0` or later) to your project when you copy the file. (It is not named `api.ts`: TypeScript would read `api.d.ts` as that file's own declarations.)
 

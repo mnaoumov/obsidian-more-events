@@ -5,6 +5,7 @@ import {
 } from 'vitest';
 
 import {
+  ALL_PROPERTIES_MENU_EVENT_NAME,
   BOOKMARKS_MENU_EVENT_NAME,
   BOOKMARKS_VIEW_MENU_EVENT_NAME,
   CANVAS_VIEW_MENU_EVENT_NAME,
@@ -14,7 +15,8 @@ import {
   CORE_PLUGIN_ENABLED_EVENT_NAME,
   PLUGIN_API_CONTRACT,
   PLUGIN_API_VERSION,
-  RIBBON_MENU_EVENT_NAME
+  RIBBON_MENU_EVENT_NAME,
+  WEB_VIEWER_HISTORY_MENU_EVENT_NAME
 } from './more-events-api.ts';
 
 /*
@@ -33,6 +35,8 @@ describe('the published contract', () => {
     expect(BOOKMARKS_VIEW_MENU_EVENT_NAME).toBe('more-events:bookmarks-view-menu');
     expect(CANVAS_VIEW_MENU_EVENT_NAME).toBe('more-events:canvas-view-menu');
     expect(RIBBON_MENU_EVENT_NAME).toBe('more-events:ribbon-menu');
+    expect(ALL_PROPERTIES_MENU_EVENT_NAME).toBe('more-events:all-properties-menu');
+    expect(WEB_VIEWER_HISTORY_MENU_EVENT_NAME).toBe('more-events:web-viewer-history-menu');
   });
 
   it('should declare every member of the api in the contract', () => {
@@ -45,6 +49,6 @@ describe('the published contract', () => {
   });
 
   it('should publish a contract version independent of the plugin version', () => {
-    expect(PLUGIN_API_VERSION).toBe('1.3.0');
+    expect(PLUGIN_API_VERSION).toBe('1.4.0');
   });
 });

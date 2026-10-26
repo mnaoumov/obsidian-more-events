@@ -3,6 +3,7 @@ import type { PluginApiDeclaration } from '@mnaoumov/obsidian-lib/plugin/plugin-
 import { OpenDemoVaultCommandHandler } from '@mnaoumov/obsidian-lib/command-handlers/open-demo-vault-command-handler';
 import { PluginBase } from '@mnaoumov/obsidian-lib/plugin/plugin';
 
+import { AllPropertiesMenuEventsComponent } from './all-properties-menu-events-component.ts';
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
@@ -14,6 +15,7 @@ import {
 } from './more-events-api.ts';
 import { MenuPatchComponent } from './patches/menu-patch-component.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
+import { WebViewerHistoryMenuEventsComponent } from './web-viewer-history-menu-events-component.ts';
 
 export class Plugin extends PluginBase {
   private moreEventsApi: MoreEventsApiImpl | null = null;
@@ -70,9 +72,27 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const allPropertiesMenuEventsComponent = this.addChild(
+      new AllPropertiesMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    const webViewerHistoryMenuEventsComponent = this.addChild(
+      new WebViewerHistoryMenuEventsComponent({
+        app: this.app
+      })
+    );
+
     this.addChild(
       new MenuPatchComponent({
-        menuAnnouncers: [bookmarksMenuEventsComponent, canvasMenuEventsComponent, ribbonMenuEventsComponent]
+        menuAnnouncers: [
+          bookmarksMenuEventsComponent,
+          canvasMenuEventsComponent,
+          ribbonMenuEventsComponent,
+          allPropertiesMenuEventsComponent,
+          webViewerHistoryMenuEventsComponent
+        ]
       })
     );
 

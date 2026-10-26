@@ -28,6 +28,12 @@ import type {
 } from 'obsidian';
 
 /**
+ * The name of the event triggered when the context menu of a property in the **All properties** view is
+ * about to open — the right-click on a property, which offers its types, **Rename** and **Delete**.
+ */
+export type AllPropertiesMenuEventName = 'more-events:all-properties-menu';
+
+/**
  * One bookmark, as the **Bookmarks** core plugin stores it — the object a bookmarks context menu is for.
  *
  * It is Obsidian's own object rather than a copy, so it is the one the **Bookmarks** core plugin's
@@ -281,8 +287,52 @@ export type RibbonMenuEventName = 'more-events:ribbon-menu';
  */
 export type RibbonSide = 'left' | 'right';
 
+/**
+ * The name of the event triggered when the context menu of an entry in the **Web viewer** core plugin's
+ * History view is about to open — the right-click on a visited page, which offers **Copy URL** and **Remove
+ * from history**.
+ */
+export type WebViewerHistoryMenuEventName = 'more-events:web-viewer-history-menu';
+
+/**
+ * One entry of the **Web viewer** core plugin's history — the page a History view menu is for.
+ *
+ * A plain copy of the stored entry, so writing to it changes nothing in Obsidian. Additive only, like the
+ * other payloads in this file.
+ */
+export interface WebViewerHistoryMenuItem {
+  /**
+   * The page's title when it was visited. Empty when the page had none.
+   */
+  readonly title: string;
+
+  /**
+   * The page's address.
+   */
+  readonly url: string;
+}
+
 declare module 'obsidian' {
   interface Workspace {
+    /**
+     * Subscribes to the context menu of a property in the **All properties** view.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown.
+     *
+     * @param name - Should be `'more-events:all-properties-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the **All properties** view, and
+     * the names of the properties the menu acts on: every selected one when the user right-clicks a
+     * property that is part of a multiple selection, otherwise the one right-clicked. Never empty.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    /*
+     * An augmentation of an EXISTING overload set has to stay a method signature. A property member does not
+     * merge into `Workspace.on`'s overloads, and the failure surfaces at every call site rather than here.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: AllPropertiesMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, propertyNames: readonly string[]) => unknown, context?: unknown): EventRef;
+
     /**
      * Subscribes to the context menu of one or more bookmarks in the **Bookmarks** view.
      *
@@ -389,5 +439,19 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: RibbonMenuEventName, callback: (menu: Menu, side: RibbonSide) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of an entry in the **Web viewer** core plugin's History view.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown.
+     *
+     * @param name - Should be `'more-events:web-viewer-history-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the History view, and the history
+     * entry right-clicked.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: WebViewerHistoryMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, historyItem: WebViewerHistoryMenuItem) => unknown, context?: unknown): EventRef;
   }
 }
