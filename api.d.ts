@@ -23,7 +23,11 @@
 
 import type {
   EventRef,
+  MarkdownView,
+  MarkdownViewModeType,
   Menu,
+  TFile,
+  View,
   WorkspaceLeaf,
   WorkspaceTabs
 } from 'obsidian';
@@ -377,6 +381,20 @@ export interface ExternalImageMenuItem {
 export type LeafMenuEventName = 'more-events:leaf-menu';
 
 /**
+ * The name of the event triggered when the menu of a note's **Properties** heading is about to open — the
+ * right-click on the heading, or on the empty area of the **File properties** view, which offers **Add file
+ * property**, **Sort** and the clearing item.
+ */
+export type MarkdownPropertiesMenuEventName = 'more-events:markdown-properties-menu';
+
+/**
+ * The name of the event triggered when a note's viewport menu is about to open — the right-click in the note's
+ * margin, outside its text, or on the editor's gutter, which offers **Readable line length**, **Line numbers** and
+ * **Inline title**.
+ */
+export type MarkdownViewportMenuEventName = 'more-events:markdown-viewport-menu';
+
+/**
  * `More Events`' API, published through the `@mnaoumov/obsidian-lib` plugin registry.
  *
  * The events say when something changed; this says what the state is. A consumer needs both — it has to
@@ -518,6 +536,12 @@ export type RibbonMenuEventName = 'more-events:ribbon-menu';
  * only **Hide ribbon**.
  */
 export type RibbonSide = 'left' | 'right';
+
+/**
+ * The name of the event triggered when the **Search** view's results menu is about to open — the click on the
+ * result count above the results, which offers **Copy search results**.
+ */
+export type SearchResultsMenuEventName = 'more-events:search-results-menu';
 
 /**
  * Which sidebar a sidebar toggle button opens and closes.
@@ -906,6 +930,39 @@ declare module 'obsidian' {
     on(name: LeafMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf) => unknown, context?: unknown): EventRef;
 
     /**
+     * Subscribes to the menu of a note's **Properties** heading.
+     *
+     * A relay of Obsidian's own `markdown-properties-menu`, which it documents and types nowhere: add items to `menu`
+     * and they appear in it. Triggered before the menu is shown, after Obsidian's own items, for a right-click on the
+     * **Properties** heading of a note, and for one on the empty area of the **File properties** view.
+     *
+     * @param name - Should be `'more-events:markdown-properties-menu'`.
+     * @param callback - The callback receiving the menu, and the file whose properties it is for, `null` when the
+     * view shows none.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: MarkdownPropertiesMenuEventName, callback: (menu: Menu, file: null | TFile) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to a note's viewport menu, the one a right-click in the note's margin opens.
+     *
+     * A relay of Obsidian's own `markdown-viewport-menu`, which it documents and types nowhere: add items to `menu`
+     * and they appear in it. Triggered before the menu is shown, after Obsidian's own items, for a trusted right-click
+     * outside the note's text — beside it when **Readable line length** is on, or below it — and, in the editor, on
+     * its gutter. Not on a touch screen.
+     *
+     * @param name - Should be `'more-events:markdown-viewport-menu'`.
+     * @param callback - The callback receiving the menu, the note's view, and whether the click was in its editor
+     * (`'source'`, Live Preview included) or its Reading view (`'preview'`).
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: MarkdownViewportMenuEventName, callback: (menu: Menu, view: MarkdownView, mode: MarkdownViewModeType) => unknown, context?: unknown): EventRef;
+
+    /**
      * Subscribes to the context menu of an item in the PDF view's outline.
      *
      * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown,
@@ -997,6 +1054,22 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: RibbonMenuEventName, callback: (menu: Menu, side: RibbonSide) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the **Search** view's results menu, the one the result count above the results opens.
+     *
+     * A relay of Obsidian's own `search:results-menu`, which it documents and types nowhere: add items to `menu` and
+     * they appear in it. Triggered before the menu is shown, after Obsidian's **Copy search results**. Obsidian's own
+     * **Bookmarks** core plugin adds **Bookmark** to it the same way.
+     *
+     * @param name - Should be `'more-events:search-results-menu'`.
+     * @param callback - The callback receiving the menu, and the **Search** view it is for, whose leaf is
+     * `searchView.leaf`.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: SearchResultsMenuEventName, callback: (menu: Menu, searchView: View) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of a sidebar toggle button.

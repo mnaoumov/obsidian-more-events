@@ -327,6 +327,28 @@ caption: Stop listening to the vault name, tab and tab group menus
 require('/demoSetup.ts').stopListeningToVaultAndTabMenus();
 ```
 
+## Try the note margin, Properties and Search ones
+
+These three raise events of Obsidian's own that it documents nowhere, which `More Events` relays. Start listening:
+
+```code-button
+---
+caption: Start listening to the note margin, Properties and Search menus
+---
+require('/demoSetup.ts').startListeningToNoteAndSearchMenus(app);
+```
+
+Now right-click this note's margin, beside or below its text: below Obsidian's **Readable line length** and **Inline title** is **Which note is this? (added by a listener)**, which works in Reading view too. Then open a note with properties and right-click its **Properties** heading: below Obsidian's **Add file property** and **Sort** is **Whose properties are these? (added by a listener)**. Then search for anything in the **Search** view and click the result count above the results: below Obsidian's **Copy search results** is **How many results? (added by a listener)**.
+
+Then stop:
+
+```code-button
+---
+caption: Stop listening to the note margin, Properties and Search menus
+---
+require('/demoSetup.ts').stopListeningToNoteAndSearchMenus();
+```
+
 ## What the events promise
 
 - **They fire before the menu opens**, after Obsidian has added its own items, so an item you add appears in the menu.
@@ -335,6 +357,6 @@ require('/demoSetup.ts').stopListeningToVaultAndTabMenus();
 
 ## Where they come from
 
-Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, and for the tab and tab group menus, `leaf-menu` and `tab-group-menu`, but documents and types them nowhere. `More Events` relays them under names it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
+Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, for the tab and tab group menus, `leaf-menu` and `tab-group-menu`, and for the note margin, Properties and Search results menus, `markdown-viewport-menu`, `markdown-properties-menu` and `search:results-menu`, but documents and types them nowhere. `More Events` relays them under names it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
 The vault name menu, the bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu, the CSS snippet menu, the external image menu and the board column menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.

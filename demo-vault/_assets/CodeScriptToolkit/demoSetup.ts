@@ -71,6 +71,8 @@ const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
 const CSS_SNIPPET_MENU_EVENT_NAME = 'more-events:css-snippet-menu';
 const EXTERNAL_IMAGE_MENU_EVENT_NAME = 'more-events:external-image-menu';
 const LEAF_MENU_EVENT_NAME = 'more-events:leaf-menu';
+const MARKDOWN_PROPERTIES_MENU_EVENT_NAME = 'more-events:markdown-properties-menu';
+const MARKDOWN_VIEWPORT_MENU_EVENT_NAME = 'more-events:markdown-viewport-menu';
 const PDF_OUTLINE_MENU_EVENT_NAME = 'more-events:pdf-outline-menu';
 const PDF_PAGE_MENU_EVENT_NAME = 'more-events:pdf-page-menu';
 const PDF_THUMBNAIL_MENU_EVENT_NAME = 'more-events:pdf-thumbnail-menu';
@@ -80,6 +82,7 @@ const COMMUNITY_PLUGIN_MENU_EVENT_NAME = 'more-events:community-plugin-menu';
 const COMMUNITY_PLUGIN_SETTING_TAB_MENU_EVENT_NAME = 'more-events:community-plugin-setting-tab-menu';
 const CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME = 'more-events:core-plugin-setting-tab-menu';
 const RIBBON_MENU_EVENT_NAME = 'more-events:ribbon-menu';
+const SEARCH_RESULTS_MENU_EVENT_NAME = 'more-events:search-results-menu';
 const SIDEBAR_TOGGLE_MENU_EVENT_NAME = 'more-events:sidebar-toggle-menu';
 const TAB_GROUP_MENU_EVENT_NAME = 'more-events:tab-group-menu';
 const TABLE_CELL_MENU_EVENT_NAME = 'more-events:table-cell-menu';
@@ -107,6 +110,7 @@ let communityPluginListeningComponent: Component | null = null;
 let corePluginListeningComponent: Component | null = null;
 let externalImageAndBasesKanbanColumnMenuListeningComponent: Component | null = null;
 let pdfMenuListeningComponent: Component | null = null;
+let noteAndSearchMenuListeningComponent: Component | null = null;
 let propertyAndCssSnippetMenuListeningComponent: Component | null = null;
 let propertyValueAndBasesColumnMenuListeningComponent: Component | null = null;
 let sidebarToggleAndCommunityPluginMenuListeningComponent: Component | null = null;
@@ -1024,6 +1028,80 @@ export function stopListeningToVaultAndTabMenus(): void {
 
   vaultAndTabMenuListeningComponent.unload();
   vaultAndTabMenuListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
+/**
+ * Subscribes to the note margin, **Properties** heading and **Search** results menu events and adds one item to each
+ * menu, until the stop button below.
+ *
+ * Manual equivalent: the same three `app.workspace.on(...)` calls from your own plugin's `onload`.
+ */
+export function startListeningToNoteAndSearchMenus(app: App): void {
+  if (noteAndSearchMenuListeningComponent) {
+    new Notice('Already listening. Right-click this note\'s margin or its Properties heading, or click a search\'s result count.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(MARKDOWN_VIEWPORT_MENU_EVENT_NAME, (menu, view, mode) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which note is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            const modeText = mode === 'preview' ? 'Reading view' : 'editor';
+            new Notice(`The ${modeText} of "${view.file?.path ?? 'no file'}"`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(MARKDOWN_PROPERTIES_MENU_EVENT_NAME, (menu, file) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Whose properties are these? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`The properties of "${file?.path ?? 'no file'}"`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(SEARCH_RESULTS_MENU_EVENT_NAME, (menu, searchView) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('How many results? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            const resultCount = searchView.containerEl.querySelectorAll('.search-result').length;
+            new Notice(`${String(resultCount)} file(s) found`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.load();
+  noteAndSearchMenuListeningComponent = component;
+
+  new Notice('Listening. Now right-click this note\'s margin or its Properties heading, or click a search\'s result count.');
+}
+
+/**
+ * Drops the note margin, **Properties** heading and **Search** results menu subscriptions.
+ *
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToNoteAndSearchMenus(): void {
+  if (!noteAndSearchMenuListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  noteAndSearchMenuListeningComponent.unload();
+  noteAndSearchMenuListeningComponent = null;
   new Notice('Stopped listening.');
 }
 

@@ -28,12 +28,15 @@ import type {
   CssSnippetMenuEventName,
   ExternalImageMenuEventName,
   LeafMenuEventName,
+  MarkdownPropertiesMenuEventName,
+  MarkdownViewportMenuEventName,
   PdfOutlineMenuEventName,
   PdfPageMenuEventName,
   PdfThumbnailMenuEventName,
   PropertyMenuEventName,
   PropertyValueMenuEventName,
   RibbonMenuEventName,
+  SearchResultsMenuEventName,
   SidebarToggleMenuEventName,
   TabGroupMenuEventName,
   TableCellMenuEventName,
@@ -73,6 +76,8 @@ export type {
   ExternalImageMenuEventName,
   ExternalImageMenuItem,
   LeafMenuEventName,
+  MarkdownPropertiesMenuEventName,
+  MarkdownViewportMenuEventName,
   MoreEventsApi,
   PdfOutlineMenuEventName,
   PdfOutlineMenuItem,
@@ -84,6 +89,7 @@ export type {
   PropertyValueMenuItem,
   RibbonMenuEventName,
   RibbonSide,
+  SearchResultsMenuEventName,
   SidebarSide,
   SidebarToggleMenuEventName,
   TabGroupMenuEventName,
@@ -184,6 +190,16 @@ export const EXTERNAL_IMAGE_MENU_EVENT_NAME: ExternalImageMenuEventName = 'more-
 export const LEAF_MENU_EVENT_NAME: LeafMenuEventName = 'more-events:leaf-menu';
 
 /**
+ * Triggered on `app.workspace` when the menu of a note's **Properties** heading is about to open.
+ */
+export const MARKDOWN_PROPERTIES_MENU_EVENT_NAME: MarkdownPropertiesMenuEventName = 'more-events:markdown-properties-menu';
+
+/**
+ * Triggered on `app.workspace` when a note's viewport menu, from a right-click in its margin, is about to open.
+ */
+export const MARKDOWN_VIEWPORT_MENU_EVENT_NAME: MarkdownViewportMenuEventName = 'more-events:markdown-viewport-menu';
+
+/**
  * Triggered on `app.workspace` when the context menu of an item in the PDF view's outline is about to open.
  */
 export const PDF_OUTLINE_MENU_EVENT_NAME: PdfOutlineMenuEventName = 'more-events:pdf-outline-menu';
@@ -212,6 +228,11 @@ export const PROPERTY_VALUE_MENU_EVENT_NAME: PropertyValueMenuEventName = 'more-
  * Triggered on `app.workspace` when the context menu of the ribbon's empty area is about to open.
  */
 export const RIBBON_MENU_EVENT_NAME: RibbonMenuEventName = 'more-events:ribbon-menu';
+
+/**
+ * Triggered on `app.workspace` when the **Search** view's results menu is about to open.
+ */
+export const SEARCH_RESULTS_MENU_EVENT_NAME: SearchResultsMenuEventName = 'more-events:search-results-menu';
 
 /**
  * Triggered on `app.workspace` when the context menu of a sidebar toggle button is about to open.
@@ -266,6 +287,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * settings row menu, a callout's menu, the core and community plugin settings tab menus, a Live Preview
  * table's cell and drag handle menus, a property value's menu, a Bases table column header's menu, a property's own
  * menu, a CSS snippet row's menu, an external image's menu, a Bases board column's menu and the vault name's menu, and
- * the relays of Obsidian's own `leaf-menu` and `tab-group-menu`.
+ * the relays of Obsidian's own `leaf-menu`, `tab-group-menu`, `search:results-menu`, `markdown-viewport-menu` and
+ * `markdown-properties-menu`.
  */
 export const PLUGIN_API_VERSION = '1.4.0';

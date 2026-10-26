@@ -83,8 +83,11 @@ Obsidian raises `file-menu`, `editor-menu` and a few others so a plugin can add 
 - **`more-events:vault-menu`** fires for the vault name at the bottom of the left sidebar, on the desktop app, where Obsidian offers **Show in system explorer** and **Copy path**. The menu is for the open vault, so it carries nothing but the menu. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 - **`more-events:leaf-menu`** fires for a leaf's menu, from a right-click on its tab header or a click on its view's **More options** button, with the leaf. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 - **`more-events:tab-group-menu`** fires for a tab group's tab list menu, the one the chevron at the right end of its tab headers opens, where Obsidian offers **Close all** and one item per tab, with the tab group. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
+- **`more-events:search-results-menu`** fires for the **Search** view's results menu, the one the result count above the results opens, where Obsidian offers **Copy search results**, with the **Search** view. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
+- **`more-events:markdown-viewport-menu`** fires for a right-click in a note's margin, outside its text, or on the editor's gutter, where Obsidian offers **Readable line length**, **Line numbers** and **Inline title**, with the note's view and whether it is the editor or Reading view. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
+- **`more-events:markdown-properties-menu`** fires for a note's **Properties** heading, and for the empty area of the **File properties** view, where Obsidian offers **Add file property** and **Sort**, with the file. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 
-Obsidian does trigger events of its own for three of these, `bookmarks:bookmarks-menu`, `leaf-menu` and `tab-group-menu`, but documents and types them nowhere; `More Events` relays them under names it keeps stable. The others fire nothing at all in Obsidian.
+Obsidian does trigger events of its own for six of these, `bookmarks:bookmarks-menu`, `leaf-menu`, `tab-group-menu`, `search:results-menu`, `markdown-viewport-menu` and `markdown-properties-menu`, but documents and types them nowhere; `More Events` relays them under names it keeps stable. The others fire nothing at all in Obsidian.
 
 ## Why it patches, when the point was to stop you patching
 
