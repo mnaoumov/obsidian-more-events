@@ -305,6 +305,28 @@ caption: Stop listening to the external image and board column menus
 require('/demoSetup.ts').stopListeningToExternalImageAndBasesKanbanColumnMenus();
 ```
 
+## Try the vault name, tab and tab group ones
+
+The vault name's menu raises nothing in Obsidian, while a tab's and a tab group's raise events of Obsidian's own that it documents nowhere, which `More Events` relays. Start listening:
+
+```code-button
+---
+caption: Start listening to the vault name, tab and tab group menus
+---
+require('/demoSetup.ts').startListeningToVaultAndTabMenus(app);
+```
+
+Now right-click the vault name at the bottom of the left sidebar, on the desktop app: below Obsidian's **Show in system explorer** and **Copy path** is **Which vault is this? (added by a listener)**. Then right-click this note's tab header: among Obsidian's **Close** and split items is **Which tab is this? (added by a listener)**. Then click the chevron at the right end of the tab headers: below Obsidian's **Close all** is **Which tab group is this? (added by a listener)**, and clicking it names the tabs in the group.
+
+Then stop:
+
+```code-button
+---
+caption: Stop listening to the vault name, tab and tab group menus
+---
+require('/demoSetup.ts').stopListeningToVaultAndTabMenus();
+```
+
 ## What the events promise
 
 - **They fire before the menu opens**, after Obsidian has added its own items, so an item you add appears in the menu.
@@ -313,6 +335,6 @@ require('/demoSetup.ts').stopListeningToExternalImageAndBasesKanbanColumnMenus()
 
 ## Where they come from
 
-Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, but documents and types it nowhere. `More Events` relays it under a name it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
+Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, and for the tab and tab group menus, `leaf-menu` and `tab-group-menu`, but documents and types them nowhere. `More Events` relays them under names it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
-The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu, the CSS snippet menu, the external image menu and the board column menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
+The vault name menu, the bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu, the CSS snippet menu, the external image menu and the board column menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.

@@ -70,6 +70,7 @@ const CALLOUT_MENU_EVENT_NAME = 'more-events:callout-menu';
 const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
 const CSS_SNIPPET_MENU_EVENT_NAME = 'more-events:css-snippet-menu';
 const EXTERNAL_IMAGE_MENU_EVENT_NAME = 'more-events:external-image-menu';
+const LEAF_MENU_EVENT_NAME = 'more-events:leaf-menu';
 const PDF_OUTLINE_MENU_EVENT_NAME = 'more-events:pdf-outline-menu';
 const PDF_PAGE_MENU_EVENT_NAME = 'more-events:pdf-page-menu';
 const PDF_THUMBNAIL_MENU_EVENT_NAME = 'more-events:pdf-thumbnail-menu';
@@ -80,8 +81,10 @@ const COMMUNITY_PLUGIN_SETTING_TAB_MENU_EVENT_NAME = 'more-events:community-plug
 const CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME = 'more-events:core-plugin-setting-tab-menu';
 const RIBBON_MENU_EVENT_NAME = 'more-events:ribbon-menu';
 const SIDEBAR_TOGGLE_MENU_EVENT_NAME = 'more-events:sidebar-toggle-menu';
+const TAB_GROUP_MENU_EVENT_NAME = 'more-events:tab-group-menu';
 const TABLE_CELL_MENU_EVENT_NAME = 'more-events:table-cell-menu';
 const TABLE_HANDLE_MENU_EVENT_NAME = 'more-events:table-handle-menu';
+const VAULT_MENU_EVENT_NAME = 'more-events:vault-menu';
 const WEB_VIEWER_HISTORY_MENU_EVENT_NAME = 'more-events:web-viewer-history-menu';
 const DEMO_HISTORY_TITLE = 'Obsidian';
 const DEMO_HISTORY_URL = 'https://obsidian.md/';
@@ -108,6 +111,7 @@ let propertyAndCssSnippetMenuListeningComponent: Component | null = null;
 let propertyValueAndBasesColumnMenuListeningComponent: Component | null = null;
 let sidebarToggleAndCommunityPluginMenuListeningComponent: Component | null = null;
 let tableMenuListeningComponent: Component | null = null;
+let vaultAndTabMenuListeningComponent: Component | null = null;
 
 /**
  * Lists the community plugins that are loaded right now, straight from the plugin's API.
@@ -942,6 +946,84 @@ export function stopListeningToExternalImageAndBasesKanbanColumnMenus(): void {
 
   externalImageAndBasesKanbanColumnMenuListeningComponent.unload();
   externalImageAndBasesKanbanColumnMenuListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
+/**
+ * Subscribes to the vault name, leaf and tab group menu events and adds one item to each menu, until the stop button
+ * below.
+ *
+ * Manual equivalent: the same three `app.workspace.on(...)` calls from your own plugin's `onload`.
+ */
+export function startListeningToVaultAndTabMenus(app: App): void {
+  if (vaultAndTabMenuListeningComponent) {
+    new Notice('Already listening. Right-click the vault name or a tab, or click the chevron right of the tabs.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(VAULT_MENU_EVENT_NAME, (menu) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which vault is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`The vault "${app.vault.getName()}"`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(LEAF_MENU_EVENT_NAME, (menu, leaf) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which tab is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`The tab "${leaf.getDisplayText()}"`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(TAB_GROUP_MENU_EVENT_NAME, (menu, tabGroup) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which tab group is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            const tabTitles: string[] = [];
+            app.workspace.iterateAllLeaves((leaf) => {
+              if (leaf.parent === tabGroup) {
+                tabTitles.push(leaf.getDisplayText());
+              }
+            });
+            new Notice(`The tab group holding ${tabTitles.join(', ')}`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.load();
+  vaultAndTabMenuListeningComponent = component;
+
+  new Notice('Listening. Now right-click the vault name or this tab, or click the chevron right of the tabs.');
+}
+
+/**
+ * Drops the vault name, leaf and tab group menu subscriptions.
+ *
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToVaultAndTabMenus(): void {
+  if (!vaultAndTabMenuListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  vaultAndTabMenuListeningComponent.unload();
+  vaultAndTabMenuListeningComponent = null;
   new Notice('Stopped listening.');
 }
 

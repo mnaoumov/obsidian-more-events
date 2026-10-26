@@ -42,7 +42,9 @@ import { PropertyValueMenuEventsComponent } from './property-value-menu-events-c
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
 import { TableMenuEventsComponent } from './table-menu-events-component.ts';
+import { VaultMenuEventsComponent } from './vault-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './web-viewer-history-menu-events-component.ts';
+import { WorkspaceMenuEventsComponent } from './workspace-menu-events-component.ts';
 
 vi.mock('./community-plugin-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
@@ -149,6 +151,26 @@ vi.mock('./bases-kanban-column-menu-events-component.ts', async () => {
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     BasesKanbanColumnMenuEventsComponent: vi.fn(function basesKanbanColumnMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./vault-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    VaultMenuEventsComponent: vi.fn(function vaultMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./workspace-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    WorkspaceMenuEventsComponent: vi.fn(function workspaceMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -423,7 +445,8 @@ describe('Plugin', () => {
       vi.mocked(CssSnippetMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(PdfOutlineMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(PdfPageMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(BasesKanbanColumnMenuEventsComponent).mock.results[0]?.value
+      vi.mocked(BasesKanbanColumnMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(VaultMenuEventsComponent).mock.results[0]?.value
     ]);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
@@ -489,6 +512,22 @@ describe('Plugin', () => {
     const basesKanbanColumnCalls = vi.mocked(BasesKanbanColumnMenuEventsComponent).mock.calls;
     expect(basesKanbanColumnCalls).toHaveLength(1);
     expect(castTo<PluginEventsComponentConstructorParams>(basesKanbanColumnCalls[0]?.[0]).app).toBe(plugin.app);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
+  it('should add the vault menu and workspace menu events components with the app', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+
+    const vaultCalls = vi.mocked(VaultMenuEventsComponent).mock.calls;
+    expect(vaultCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(vaultCalls[0]?.[0]).app).toBe(plugin.app);
+
+    const workspaceCalls = vi.mocked(WorkspaceMenuEventsComponent).mock.calls;
+    expect(workspaceCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(workspaceCalls[0]?.[0]).app).toBe(plugin.app);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();

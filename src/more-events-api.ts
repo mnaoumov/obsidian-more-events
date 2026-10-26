@@ -27,6 +27,7 @@ import type {
   CorePluginSettingTabMenuEventName,
   CssSnippetMenuEventName,
   ExternalImageMenuEventName,
+  LeafMenuEventName,
   PdfOutlineMenuEventName,
   PdfPageMenuEventName,
   PdfThumbnailMenuEventName,
@@ -34,8 +35,10 @@ import type {
   PropertyValueMenuEventName,
   RibbonMenuEventName,
   SidebarToggleMenuEventName,
+  TabGroupMenuEventName,
   TableCellMenuEventName,
   TableHandleMenuEventName,
+  VaultMenuEventName,
   WebViewerHistoryMenuEventName
 } from '../api.d.ts';
 
@@ -69,6 +72,7 @@ export type {
   CssSnippetMenuItem,
   ExternalImageMenuEventName,
   ExternalImageMenuItem,
+  LeafMenuEventName,
   MoreEventsApi,
   PdfOutlineMenuEventName,
   PdfOutlineMenuItem,
@@ -82,12 +86,14 @@ export type {
   RibbonSide,
   SidebarSide,
   SidebarToggleMenuEventName,
+  TabGroupMenuEventName,
   TableCellMenuEventName,
   TableCellMenuItem,
   TableCellPosition,
   TableHandleAxis,
   TableHandleMenuEventName,
   TableHandleMenuItem,
+  VaultMenuEventName,
   WebViewerHistoryMenuEventName,
   WebViewerHistoryMenuItem
 } from '../api.d.ts';
@@ -173,6 +179,11 @@ export const CSS_SNIPPET_MENU_EVENT_NAME: CssSnippetMenuEventName = 'more-events
 export const EXTERNAL_IMAGE_MENU_EVENT_NAME: ExternalImageMenuEventName = 'more-events:external-image-menu';
 
 /**
+ * Triggered on `app.workspace` when a leaf's menu, from its tab header or its view's **More options** button, is about to open.
+ */
+export const LEAF_MENU_EVENT_NAME: LeafMenuEventName = 'more-events:leaf-menu';
+
+/**
  * Triggered on `app.workspace` when the context menu of an item in the PDF view's outline is about to open.
  */
 export const PDF_OUTLINE_MENU_EVENT_NAME: PdfOutlineMenuEventName = 'more-events:pdf-outline-menu';
@@ -208,6 +219,11 @@ export const RIBBON_MENU_EVENT_NAME: RibbonMenuEventName = 'more-events:ribbon-m
 export const SIDEBAR_TOGGLE_MENU_EVENT_NAME: SidebarToggleMenuEventName = 'more-events:sidebar-toggle-menu';
 
 /**
+ * Triggered on `app.workspace` when a tab group's tab list menu is about to open.
+ */
+export const TAB_GROUP_MENU_EVENT_NAME: TabGroupMenuEventName = 'more-events:tab-group-menu';
+
+/**
  * Triggered on `app.workspace` when the context menu of a table cell in a Live Preview editor is about to open.
  */
 export const TABLE_CELL_MENU_EVENT_NAME: TableCellMenuEventName = 'more-events:table-cell-menu';
@@ -216,6 +232,11 @@ export const TABLE_CELL_MENU_EVENT_NAME: TableCellMenuEventName = 'more-events:t
  * Triggered on `app.workspace` when the context menu of a table's row or column drag handle in a Live Preview editor is about to open.
  */
 export const TABLE_HANDLE_MENU_EVENT_NAME: TableHandleMenuEventName = 'more-events:table-handle-menu';
+
+/**
+ * Triggered on `app.workspace` when the context menu of the vault name at the bottom of the left sidebar is about to open.
+ */
+export const VAULT_MENU_EVENT_NAME: VaultMenuEventName = 'more-events:vault-menu';
 
 /**
  * Triggered on `app.workspace` when the context menu of an entry in the **Web viewer** History view is about to open.
@@ -244,6 +265,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * History item menus, the PDF view's thumbnail, outline item and page menus, the sidebar toggle buttons' menu, a community plugin's
  * settings row menu, a callout's menu, the core and community plugin settings tab menus, a Live Preview
  * table's cell and drag handle menus, a property value's menu, a Bases table column header's menu, a property's own
- * menu, a CSS snippet row's menu, an external image's menu and a Bases board column's menu.
+ * menu, a CSS snippet row's menu, an external image's menu, a Bases board column's menu and the vault name's menu, and
+ * the relays of Obsidian's own `leaf-menu` and `tab-group-menu`.
  */
 export const PLUGIN_API_VERSION = '1.4.0';
