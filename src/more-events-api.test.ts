@@ -13,6 +13,7 @@ import {
   COMMUNITY_PLUGIN_ENABLED_EVENT_NAME,
   CORE_PLUGIN_DISABLED_EVENT_NAME,
   CORE_PLUGIN_ENABLED_EVENT_NAME,
+  PDF_THUMBNAIL_MENU_EVENT_NAME,
   PLUGIN_API_CONTRACT,
   PLUGIN_API_VERSION,
   RIBBON_MENU_EVENT_NAME,
@@ -37,6 +38,7 @@ describe('the published contract', () => {
     expect(RIBBON_MENU_EVENT_NAME).toBe('more-events:ribbon-menu');
     expect(ALL_PROPERTIES_MENU_EVENT_NAME).toBe('more-events:all-properties-menu');
     expect(WEB_VIEWER_HISTORY_MENU_EVENT_NAME).toBe('more-events:web-viewer-history-menu');
+    expect(PDF_THUMBNAIL_MENU_EVENT_NAME).toBe('more-events:pdf-thumbnail-menu');
   });
 
   it('should declare every member of the api in the contract', () => {

@@ -14,6 +14,7 @@ They are shaped like Obsidian's own: the listener receives the `Menu` first, the
 - **`more-events:ribbon-menu`** is the menu of the ribbon's empty area, below its icons, where Obsidian offers **Hide ribbon**. The listener gets which ribbon it is.
 - **`more-events:all-properties-menu`** is the menu of a property in the **All properties** view, where Obsidian offers its types, **Rename** and **Delete**. The listener gets the names of the properties the menu acts on: the one you right-clicked, or the whole selection when that property is part of one.
 - **`more-events:web-viewer-history-menu`** is the menu of a visited page in the **Web viewer**'s History view, where Obsidian offers **Copy URL** and **Remove from history**. The listener gets that page's title and address.
+- **`more-events:pdf-thumbnail-menu`** is the menu of a page thumbnail in a PDF's sidebar, where Obsidian offers **Copy link to page**. The listener gets the PDF's leaf and the page number.
 
 ## Try the bookmarks ones
 
@@ -108,6 +109,37 @@ caption: Stop listening to the All properties and History menus
 require('/demoSetup.ts').stopListeningToAllPropertiesAndHistoryMenus();
 ```
 
+## Try the PDF thumbnail one
+
+First, a PDF to right-click. This opens a three-page demo PDF in a new tab, with its thumbnail sidebar open:
+
+```code-button
+---
+caption: Open the demo PDF
+---
+await require('/demoSetup.ts').openDemoPdf(app);
+```
+
+Manual equivalent: open `_assets/Context menu demo.pdf` from the file explorer, then the sidebar button at the left end of the PDF toolbar.
+
+Then start listening:
+
+```code-button
+---
+caption: Start listening to the PDF thumbnail menu
+---
+require('/demoSetup.ts').startListeningToPdfThumbnailMenu(app);
+```
+
+Now right-click the thumbnail of page 2: below Obsidian's **Copy link to page 2** is **Which page is this? (added by a listener)**, and clicking it names the PDF and the page. Then stop:
+
+```code-button
+---
+caption: Stop listening to the PDF thumbnail menu
+---
+require('/demoSetup.ts').stopListeningToPdfThumbnailMenu();
+```
+
 ## What the events promise
 
 - **They fire before the menu opens**, after Obsidian has added its own items, so an item you add appears in the menu.
@@ -118,4 +150,4 @@ require('/demoSetup.ts').stopListeningToAllPropertiesAndHistoryMenus();
 
 Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, but documents and types it nowhere. `More Events` relays it under a name it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
-The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu and the History menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
+The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu and the PDF thumbnail menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.

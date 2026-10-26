@@ -19,6 +19,7 @@ import type {
   CommunityPluginEnabledEventName,
   CorePluginDisabledEventName,
   CorePluginEnabledEventName,
+  PdfThumbnailMenuEventName,
   RibbonMenuEventName,
   WebViewerHistoryMenuEventName
 } from '../api.d.ts';
@@ -41,6 +42,7 @@ export type {
   CorePluginEventName,
   CorePluginEventPayload,
   MoreEventsApi,
+  PdfThumbnailMenuEventName,
   RibbonMenuEventName,
   RibbonSide,
   WebViewerHistoryMenuEventName,
@@ -88,6 +90,11 @@ export const CORE_PLUGIN_DISABLED_EVENT_NAME: CorePluginDisabledEventName = 'mor
 export const CORE_PLUGIN_ENABLED_EVENT_NAME: CorePluginEnabledEventName = 'more-events:core-plugin-enabled';
 
 /**
+ * Triggered on `app.workspace` when the context menu of a page thumbnail in the PDF view is about to open.
+ */
+export const PDF_THUMBNAIL_MENU_EVENT_NAME: PdfThumbnailMenuEventName = 'more-events:pdf-thumbnail-menu';
+
+/**
  * Triggered on `app.workspace` when the context menu of the ribbon's empty area is about to open.
  */
 export const RIBBON_MENU_EVENT_NAME: RibbonMenuEventName = 'more-events:ribbon-menu';
@@ -116,6 +123,6 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * The history: `1.0.0` was the core-plugin pair, `1.1.0` added the community-plugin pair, `1.2.0` added
  * `isUserInitiated` to both, `1.3.0` added the context-menu events: the bookmarks pair, the canvas view
  * one and the ribbon one, all in the same release, and `1.4.0` added the **All properties** and **Web viewer**
- * History item menus.
+ * History item menus and the PDF view's thumbnail menu.
  */
 export const PLUGIN_API_VERSION = '1.4.0';

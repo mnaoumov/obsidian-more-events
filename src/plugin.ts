@@ -14,6 +14,7 @@ import {
   PLUGIN_API_VERSION
 } from './more-events-api.ts';
 import { MenuPatchComponent } from './patches/menu-patch-component.ts';
+import { PdfThumbnailMenuEventsComponent } from './pdf-thumbnail-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './web-viewer-history-menu-events-component.ts';
 
@@ -84,6 +85,12 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const pdfThumbnailMenuEventsComponent = this.addChild(
+      new PdfThumbnailMenuEventsComponent({
+        app: this.app
+      })
+    );
+
     this.addChild(
       new MenuPatchComponent({
         menuAnnouncers: [
@@ -91,7 +98,8 @@ export class Plugin extends PluginBase {
           canvasMenuEventsComponent,
           ribbonMenuEventsComponent,
           allPropertiesMenuEventsComponent,
-          webViewerHistoryMenuEventsComponent
+          webViewerHistoryMenuEventsComponent,
+          pdfThumbnailMenuEventsComponent
         ]
       })
     );
