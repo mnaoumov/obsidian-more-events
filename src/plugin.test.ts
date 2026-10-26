@@ -30,6 +30,8 @@ import {
   PLUGIN_API_VERSION
 } from './more-events-api.ts';
 import { MenuPatchComponent } from './patches/menu-patch-component.ts';
+import { PdfOutlineMenuEventsComponent } from './pdf-outline-menu-events-component.ts';
+import { PdfPageMenuEventsComponent } from './pdf-page-menu-events-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './pdf-thumbnail-menu-events-component.ts';
 import { PluginSettingTabMenuEventsComponent } from './plugin-setting-tab-menu-events-component.ts';
 import { Plugin } from './plugin.ts';
@@ -200,6 +202,26 @@ vi.mock('./css-snippet-menu-events-component.ts', async () => {
   };
 });
 
+vi.mock('./pdf-outline-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    PdfOutlineMenuEventsComponent: vi.fn(function pdfOutlineMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./pdf-page-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    PdfPageMenuEventsComponent: vi.fn(function pdfPageMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
 vi.mock('./patches/menu-patch-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
@@ -348,7 +370,8 @@ describe('Plugin', () => {
       vi.mocked(WebViewerHistoryMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(PdfThumbnailMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(TableMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(PropertyMenuEventsComponent).mock.results[0]?.value
+      vi.mocked(PropertyMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(PdfOutlineMenuEventsComponent).mock.results[0]?.value
     ]);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
@@ -374,7 +397,9 @@ describe('Plugin', () => {
       vi.mocked(TableMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(PropertyValueMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(BasesColumnMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(CssSnippetMenuEventsComponent).mock.results[0]?.value
+      vi.mocked(CssSnippetMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(PdfOutlineMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(PdfPageMenuEventsComponent).mock.results[0]?.value
     ]);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
@@ -408,6 +433,22 @@ describe('Plugin', () => {
     const cssSnippetCalls = vi.mocked(CssSnippetMenuEventsComponent).mock.calls;
     expect(cssSnippetCalls).toHaveLength(1);
     expect(castTo<PluginEventsComponentConstructorParams>(cssSnippetCalls[0]?.[0]).app).toBe(plugin.app);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
+  it('should add the PDF outline and page menu events components with the app', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+
+    const pdfOutlineCalls = vi.mocked(PdfOutlineMenuEventsComponent).mock.calls;
+    expect(pdfOutlineCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(pdfOutlineCalls[0]?.[0]).app).toBe(plugin.app);
+
+    const pdfPageCalls = vi.mocked(PdfPageMenuEventsComponent).mock.calls;
+    expect(pdfPageCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(pdfPageCalls[0]?.[0]).app).toBe(plugin.app);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();

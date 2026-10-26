@@ -3,17 +3,12 @@ import type {
   Menu
 } from 'obsidian';
 
-import { castTo } from '@mnaoumov/typescript-lib/object-utils';
 import { Component } from 'obsidian';
 
 import type { MenuAnnouncer } from './patches/menu-patch-component.ts';
 
 import { PDF_THUMBNAIL_MENU_EVENT_NAME } from './more-events-api.ts';
-
-/**
- * The view type of the PDF view.
- */
-const PDF_VIEW_TYPE = 'pdf';
+import { getPdfLeafViewers } from './pdf-view.ts';
 
 /**
  * Parameters for the {@link PdfThumbnailMenuEventsComponent} constructor.
@@ -23,57 +18,6 @@ export interface PdfThumbnailMenuEventsComponentConstructorParams {
    * The Obsidian application instance.
    */
   readonly app: App;
-}
-
-/**
- * PDF.js's own viewer application.
- */
-interface PdfJsViewer {
-  /**
-   * The elements it was built on.
-   */
-  readonly dom: PdfViewerDom;
-}
-
-/**
- * The PDF view, as far as telling its thumbnail menus apart needs it. The public typings and
- * `obsidian-typings` describe none of it.
- */
-interface PdfView {
-  /**
-   * The viewer component.
-   */
-  readonly viewer: PdfViewerComponent;
-}
-
-/**
- * The loaded document's viewer.
- */
-interface PdfViewerChild {
-  /**
-   * PDF.js's own viewer application, `null` before it is built.
-   */
-  readonly pdfViewer: null | PdfJsViewer;
-}
-
-/**
- * The PDF view's viewer component.
- */
-interface PdfViewerComponent {
-  /**
-   * The loaded document's viewer, `null` before one has loaded.
-   */
-  readonly child: null | PdfViewerChild;
-}
-
-/**
- * The elements PDF.js was handed when the viewer was built (`app.js:154198`).
- */
-interface PdfViewerDom {
-  /**
-   * The element the thumbnail `contextmenu` listener is bound on (`app.js:154187`).
-   */
-  readonly sidebarContainerEl: HTMLElement;
 }
 
 /**
@@ -110,10 +54,8 @@ export class PdfThumbnailMenuEventsComponent extends Component implements MenuAn
       currentTarget,
       target
     } = mouseEvent;
-    for (const leaf of this.app.workspace.getLeavesOfType(PDF_VIEW_TYPE)) {
-      // `Partial`, because a deferred leaf reports the view type before its real view, and its viewer, exist.
-      const { viewer } = castTo<Partial<PdfView>>(leaf.view);
-      if (viewer?.child?.pdfViewer?.dom.sidebarContainerEl !== currentTarget) {
+    for (const { leaf, pdfJsViewer } of getPdfLeafViewers(this.app)) {
+      if (pdfJsViewer.dom.sidebarContainerEl !== currentTarget) {
         continue;
       }
 

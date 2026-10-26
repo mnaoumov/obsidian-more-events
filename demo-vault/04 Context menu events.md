@@ -19,6 +19,8 @@ They are shaped like Obsidian's own: the listener receives the `Menu` first, the
 - **`more-events:all-properties-menu`** is the menu of a property in the **All properties** view, where Obsidian offers its types, **Rename** and **Delete**. The listener gets the names of the properties the menu acts on: the one you right-clicked, or the whole selection when that property is part of one.
 - **`more-events:web-viewer-history-menu`** is the menu of a visited page in the **Web viewer**'s History view, where Obsidian offers **Copy URL** and **Remove from history**. The listener gets that page's title and address.
 - **`more-events:pdf-thumbnail-menu`** is the menu of a page thumbnail in a PDF's sidebar, where Obsidian offers **Copy link to page**. The listener gets the PDF's leaf and the page number.
+- **`more-events:pdf-outline-menu`** is the menu of an entry in a PDF's outline, where Obsidian offers **Copy link to** that section. The listener gets the PDF's leaf, and the entry's title and page number.
+- **`more-events:pdf-page-menu`** is the menu of a page in a PDF, on the desktop app, where Obsidian offers **Copy** and its quote and link items for a text selection. The listener gets the PDF's leaf and the page number.
 
 ## Try the bookmarks ones
 
@@ -113,9 +115,9 @@ caption: Stop listening to the All properties and History menus
 require('/demoSetup.ts').stopListeningToAllPropertiesAndHistoryMenus();
 ```
 
-## Try the PDF thumbnail one
+## Try the PDF ones
 
-First, a PDF to right-click. This opens a three-page demo PDF in a new tab, with its thumbnail sidebar open:
+A PDF open in its own tab has three menus that fire nothing: a page thumbnail's, an outline entry's and a page's own. First, a PDF to right-click. This opens a three-page demo PDF in a new tab, with its thumbnail sidebar open:
 
 ```code-button
 ---
@@ -130,18 +132,18 @@ Then start listening:
 
 ```code-button
 ---
-caption: Start listening to the PDF thumbnail menu
+caption: Start listening to the PDF menus
 ---
-require('/demoSetup.ts').startListeningToPdfThumbnailMenu(app);
+require('/demoSetup.ts').startListeningToPdfMenus(app);
 ```
 
-Now right-click the thumbnail of page 2: below Obsidian's **Copy link to page 2** is **Which page is this? (added by a listener)**, and clicking it names the PDF and the page. Then stop:
+Now right-click the thumbnail of page 2: below Obsidian's **Copy link to page 2** is **Which page is this? (added by a listener)**, and clicking it names the PDF and the page. Switch the sidebar to the outline with the button at its top and right-click **Part 2**: below **Copy link to "Part 2"** is **Which outline entry is this? (added by a listener)**. Then select some text on a page and right-click it: below Obsidian's **Copy** and quote items is **Which page is this? (added by a listener)** again, on the desktop app only, as Obsidian shows a page no menu on mobile. Then stop:
 
 ```code-button
 ---
-caption: Stop listening to the PDF thumbnail menu
+caption: Stop listening to the PDF menus
 ---
-require('/demoSetup.ts').stopListeningToPdfThumbnailMenu();
+require('/demoSetup.ts').stopListeningToPdfMenus();
 ```
 
 ## Try the sidebar toggle and community plugin ones
@@ -278,4 +280,4 @@ require('/demoSetup.ts').stopListeningToPropertyAndCssSnippetMenus();
 
 Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, but documents and types it nowhere. `More Events` relays it under a name it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
-The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail menu, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu and the CSS snippet menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
+The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu and the CSS snippet menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.

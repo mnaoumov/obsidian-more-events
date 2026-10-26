@@ -1,4 +1,8 @@
-import type { App } from 'obsidian';
+import type {
+  App,
+  Menu,
+  WorkspaceLeaf
+} from 'obsidian';
 
 import {
   Component,
@@ -64,6 +68,8 @@ const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
 const CALLOUT_MENU_EVENT_NAME = 'more-events:callout-menu';
 const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
 const CSS_SNIPPET_MENU_EVENT_NAME = 'more-events:css-snippet-menu';
+const PDF_OUTLINE_MENU_EVENT_NAME = 'more-events:pdf-outline-menu';
+const PDF_PAGE_MENU_EVENT_NAME = 'more-events:pdf-page-menu';
 const PDF_THUMBNAIL_MENU_EVENT_NAME = 'more-events:pdf-thumbnail-menu';
 const PROPERTY_MENU_EVENT_NAME = 'more-events:property-menu';
 const PROPERTY_VALUE_MENU_EVENT_NAME = 'more-events:property-value-menu';
@@ -94,7 +100,7 @@ let calloutAndPluginSettingTabMenuListeningComponent: Component | null = null;
 let canvasAndRibbonMenuListeningComponent: Component | null = null;
 let communityPluginListeningComponent: Component | null = null;
 let corePluginListeningComponent: Component | null = null;
-let pdfThumbnailMenuListeningComponent: Component | null = null;
+let pdfMenuListeningComponent: Component | null = null;
 let propertyAndCssSnippetMenuListeningComponent: Component | null = null;
 let propertyValueAndBasesColumnMenuListeningComponent: Component | null = null;
 let sidebarToggleAndCommunityPluginMenuListeningComponent: Component | null = null;
@@ -481,49 +487,63 @@ export async function openDemoPdf(app: App): Promise<void> {
 }
 
 /**
- * Subscribes to the PDF thumbnail menu event and adds one item to the menu, until the stop button below.
+ * Subscribes to the PDF thumbnail, outline and page menu events and adds one item to each menu, until the stop
+ * button below.
  *
- * Manual equivalent: the same `app.workspace.on(...)` call from your own plugin's `onload`.
+ * Manual equivalent: the same three `app.workspace.on(...)` calls from your own plugin's `onload`.
  */
-export function startListeningToPdfThumbnailMenu(app: App): void {
-  if (pdfThumbnailMenuListeningComponent) {
-    new Notice('Already listening. Right-click a page thumbnail in the PDF sidebar.');
+export function startListeningToPdfMenus(app: App): void {
+  if (pdfMenuListeningComponent) {
+    new Notice('Already listening. Right-click a page thumbnail, an outline entry or a page of the PDF.');
     return;
   }
 
+  function addWhichPageItem(menu: Menu, leaf: WorkspaceLeaf, pageNumber: number): void {
+    menu.addItem((item) => {
+      item
+        .setTitle('Which page is this? (added by a listener)')
+        .setIcon('lucide-info')
+        .onClick(() => {
+          new Notice(`${leaf.getDisplayText()}: page ${String(pageNumber)}`, NOTICE_DURATION_IN_MILLISECONDS);
+        });
+    });
+  }
+
   const component = new Component();
+  component.registerEvent(app.workspace.on(PDF_THUMBNAIL_MENU_EVENT_NAME, addWhichPageItem));
+  component.registerEvent(app.workspace.on(PDF_PAGE_MENU_EVENT_NAME, addWhichPageItem));
   component.registerEvent(
-    app.workspace.on(PDF_THUMBNAIL_MENU_EVENT_NAME, (menu, leaf, pageNumber) => {
+    app.workspace.on(PDF_OUTLINE_MENU_EVENT_NAME, (menu, leaf, outlineItem) => {
       menu.addItem((item) => {
         item
-          .setTitle('Which page is this? (added by a listener)')
+          .setTitle('Which outline entry is this? (added by a listener)')
           .setIcon('lucide-info')
           .onClick(() => {
-            new Notice(`${leaf.getDisplayText()}: page ${String(pageNumber)}`, NOTICE_DURATION_IN_MILLISECONDS);
+            new Notice(`${leaf.getDisplayText()}: "${outlineItem.title}", page ${String(outlineItem.pageNumber)}`, NOTICE_DURATION_IN_MILLISECONDS);
           });
       });
     })
   );
   component.load();
-  pdfThumbnailMenuListeningComponent = component;
+  pdfMenuListeningComponent = component;
 
-  new Notice('Listening. Now right-click a page thumbnail in the PDF sidebar.');
+  new Notice('Listening. Now right-click a page thumbnail, an outline entry or a page of the PDF.');
 }
 
 /**
- * Drops the PDF thumbnail menu subscription.
+ * Drops the PDF menu subscriptions.
  *
- * Manual equivalent: unloading the component that registered it, which a plugin gets for free when it is
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
  * disabled.
  */
-export function stopListeningToPdfThumbnailMenu(): void {
-  if (!pdfThumbnailMenuListeningComponent) {
+export function stopListeningToPdfMenus(): void {
+  if (!pdfMenuListeningComponent) {
     new Notice('Not listening.');
     return;
   }
 
-  pdfThumbnailMenuListeningComponent.unload();
-  pdfThumbnailMenuListeningComponent = null;
+  pdfMenuListeningComponent.unload();
+  pdfMenuListeningComponent = null;
   new Notice('Stopped listening.');
 }
 
