@@ -4,6 +4,7 @@ import type {
 } from 'obsidian';
 
 import { MonkeyAroundComponent } from '@mnaoumov/obsidian-lib/components/monkey-around-component';
+import { castTo } from '@mnaoumov/typescript-lib/object-utils';
 import { Menu } from 'obsidian';
 
 /**
@@ -56,10 +57,42 @@ export interface MenuPatchComponentConstructorParams {
    * The announcers to ask, in order, about each menu shown at a mouse event still being dispatched.
    */
   readonly menuAnnouncers: readonly MenuAnnouncer[];
+
+  /**
+   * The announcers to ask, in order, about each menu shown with `showAtPosition`, outside any `contextmenu`
+   * dispatch, and anchored to an element.
+   */
+  readonly positionedMenuAnnouncers: readonly PositionedMenuAnnouncer[];
 }
 
 /**
- * The one patch every context menu that fires no event goes through: `Menu.prototype.showAtMouseEvent`.
+ * One kind of menu that Obsidian shows with `showAtPosition` and no event at all, anchored to an element with
+ * `setParentElement`, without triggering any event for it, and that a component of this plugin announces instead.
+ */
+export interface PositionedMenuAnnouncer {
+  /**
+   * Announces the menu when it is the kind this announcer knows, before it is shown.
+   *
+   * @param menu - The menu about to be shown. It still accepts items.
+   * @param parentEl - The element the menu was anchored to with `setParentElement`, usually the button that opens it.
+   * @returns `true` when the menu was this announcer's, so no other announcer is asked.
+   */
+  announcePositionedMenu: (menu: MenuOriginal, parentEl: HTMLElement) => boolean;
+}
+
+/**
+ * A menu, as far as telling a positioned one apart needs it.
+ */
+interface MenuWithParentEl {
+  /**
+   * The element `setParentElement` anchored the menu to (`app.js:64493` in 1.15.0), if any.
+   */
+  readonly parentEl?: HTMLElement | null;
+}
+
+/**
+ * The one patch every context menu that fires no event goes through: `Menu.prototype.showAtMouseEvent`, and the
+ * `showAtPosition` it delegates to.
  *
  * **Why a patch at all.** Obsidian builds many context menus with no workspace event for them, so a plugin
  * cannot add an item to one without patching the code that builds it. That code is a different internal
@@ -82,6 +115,15 @@ export interface MenuPatchComponentConstructorParams {
  * **Bookmarks** view's container is on the path of every deferred menu shown inside it, so a synchronous
  * announcer must never be asked about one.
  *
+ * **A menu shown with `showAtPosition` carries no event, so the same patch covers that method too.**
+ * `showAtMouseEvent(e)` is `this.showAtPosition({ x, y }, e.doc)` (`app.js:64501` in 1.15.0), so the call it makes
+ * is skipped rather than announced twice. Any other call is told apart in one of two ways. Shown while a recorded
+ * `contextmenu` event is still being dispatched, as a view header's history buttons show theirs (`:64819`), the
+ * menu goes to the {@link MenuAnnouncer}s with that event, whose `currentTarget` is the listener's element, exactly
+ * as a menu shown with `showAtMouseEvent` would. Shown at any other time, as a button's click shows one, it goes to
+ * the {@link PositionedMenuAnnouncer}s when it was anchored with `setParentElement`, and that element names it. A
+ * submenu, and a menu anchored to nothing, reaches no announcer.
+ *
  * **Transparent.** The announcer runs before the original, while `addItem` still accepts items, and the
  * original's return value is passed through untouched. The recording listener only reads the event.
  */
@@ -89,7 +131,10 @@ export class MenuPatchComponent extends MonkeyAroundComponent {
   private readonly app: App;
   private readonly deferredMenuAnnouncers: readonly DeferredMenuAnnouncer[];
   private readonly eventPaths = new WeakMap<Event, readonly EventTarget[]>();
+  private isShowingAtMouseEvent = false;
+  private lastContextMenuEvent: MouseEvent | null = null;
   private readonly menuAnnouncers: readonly MenuAnnouncer[];
+  private readonly positionedMenuAnnouncers: readonly PositionedMenuAnnouncer[];
   private readonly recordedWindows = new Map<Window, () => void>();
 
   /**
@@ -102,6 +147,7 @@ export class MenuPatchComponent extends MonkeyAroundComponent {
     this.app = params.app;
     this.deferredMenuAnnouncers = params.deferredMenuAnnouncers;
     this.menuAnnouncers = params.menuAnnouncers;
+    this.positionedMenuAnnouncers = params.positionedMenuAnnouncers;
   }
 
   /**
@@ -124,6 +170,7 @@ export class MenuPatchComponent extends MonkeyAroundComponent {
       for (const stopRecording of this.recordedWindows.values()) {
         stopRecording();
       }
+      this.lastContextMenuEvent = null;
     });
 
     this.registerMethodPatch({
@@ -143,9 +190,43 @@ export class MenuPatchComponent extends MonkeyAroundComponent {
             this.deferredMenuAnnouncers.some((deferredMenuAnnouncer) => deferredMenuAnnouncer.announceDeferredMenu(originalThis, mouseEvent, eventPath));
           }
         }
+        // The original shows the menu through `showAtPosition`, which must not announce it a second time.
+        this.isShowingAtMouseEvent = true;
+        try {
+          return fallback();
+        } finally {
+          this.isShowingAtMouseEvent = false;
+        }
+      }
+    });
+
+    this.registerMethodPatch({
+      $object: Menu.prototype,
+      methodName: 'showAtPosition',
+      patchHandler: ({
+        fallback,
+        originalThis
+      }) => {
+        if (!this.isShowingAtMouseEvent) {
+          this.announcePositionedMenu(originalThis);
+        }
         return fallback();
       }
     });
+  }
+
+  private announcePositionedMenu(menu: MenuOriginal): void {
+    // `currentTarget` is `null` again once the event's dispatch has finished, so this is a menu shown during it.
+    const contextMenuEvent = this.lastContextMenuEvent;
+    if (contextMenuEvent?.currentTarget) {
+      this.menuAnnouncers.some((menuAnnouncer) => menuAnnouncer.announceMenu(menu, contextMenuEvent));
+      return;
+    }
+
+    const { parentEl } = castTo<MenuWithParentEl>(menu);
+    if (parentEl) {
+      this.positionedMenuAnnouncers.some((positionedMenuAnnouncer) => positionedMenuAnnouncer.announcePositionedMenu(menu, parentEl));
+    }
   }
 
   private recordWindow(win: Window): void {
@@ -155,6 +236,7 @@ export class MenuPatchComponent extends MonkeyAroundComponent {
 
     const recordEventPath = (event_: MouseEvent): void => {
       this.eventPaths.set(event_, event_.composedPath());
+      this.lastContextMenuEvent = event_;
     };
     // Capture phase on the window, so the path is recorded before any listener on the way can stop the event.
     win.addEventListener('contextmenu', recordEventPath, { capture: true });

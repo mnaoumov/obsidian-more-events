@@ -15,6 +15,7 @@ import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-even
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 import { CssSnippetMenuEventsComponent } from './css-snippet-menu-events-component.ts';
 import { ExternalImageMenuEventsComponent } from './external-image-menu-events-component.ts';
+import { HistoryMenuEventsComponent } from './history-menu-events-component.ts';
 import { MarkdownMenuEventsComponent } from './markdown-menu-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
 import {
@@ -193,6 +194,12 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const historyMenuEventsComponent = this.addChild(
+      new HistoryMenuEventsComponent({
+        app: this.app
+      })
+    );
+
     this.addChild(
       new WorkspaceMenuEventsComponent({
         app: this.app
@@ -246,7 +253,11 @@ export class Plugin extends PluginBase {
           pdfThumbnailMenuEventsComponent,
           tableMenuEventsComponent,
           propertyMenuEventsComponent,
-          pdfOutlineMenuEventsComponent
+          pdfOutlineMenuEventsComponent,
+          historyMenuEventsComponent
+        ],
+        positionedMenuAnnouncers: [
+          communityPluginMenuEventsComponent
         ]
       })
     );

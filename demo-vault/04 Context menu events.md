@@ -24,6 +24,7 @@ They are shaped like Obsidian's own: the listener receives the `Menu` first, the
 - **`more-events:pdf-page-menu`** is the menu of a page in a PDF, on the desktop app, where Obsidian offers **Copy** and its quote and link items for a text selection. The listener gets the PDF's leaf and the page number.
 - **`more-events:external-image-menu`** is the menu of an image embedded from a URL in a note's Live Preview editor, where Obsidian offers **Copy image** and **Remove image**. The listener gets the note's leaf, and the image's line and URL.
 - **`more-events:bases-kanban-column-menu`** is the menu of a column's empty area in a base's board view, where Obsidian offers **Add item** and **Hide column**. The listener gets the base's leaf, the value the column groups by and the name of the base's view.
+- **`more-events:history-menu`** is the menu of the back or forward arrow at the left of a note's header, where Obsidian lists the pages that way. The listener gets the note's leaf and which way the menu goes.
 
 ## Try the bookmarks ones
 
@@ -160,7 +161,7 @@ caption: Start listening to the sidebar toggle and community plugin menus
 require('/demoSetup.ts').startListeningToSidebarToggleAndCommunityPluginMenus(app);
 ```
 
-Now right-click the button at the top of the left sidebar that opens and closes it: below Obsidian's **Left sidebar** and **Ribbon** is **Which sidebar is this? (added by a listener)**. Then open **Settings -> Community plugins** and right-click `More Events` in the list of installed plugins: below Obsidian's **Uninstall** is **Which plugin is this? (added by a listener)**. Then stop:
+Now right-click the button at the top of the left sidebar that opens and closes it: below Obsidian's **Left sidebar** and **Ribbon** is **Which sidebar is this? (added by a listener)**. Then open **Settings -> Community plugins** and right-click `More Events` in the list of installed plugins: below Obsidian's **Uninstall** is **Which plugin is this? (added by a listener)**. The three-dot **More options** button on the same row opens the same menu with the same item. Then stop:
 
 ```code-button
 ---
@@ -306,24 +307,24 @@ caption: Stop listening to the external image and board column menus
 require('/demoSetup.ts').stopListeningToExternalImageAndBasesKanbanColumnMenus();
 ```
 
-## Try the vault name, tab and tab group ones
+## Try the vault name, history, tab and tab group ones
 
-The vault name's menu raises nothing in Obsidian, while a tab's and a tab group's raise events of Obsidian's own that it documents nowhere, which `More Events` relays. Start listening:
+The vault name's and the back arrow's menus raise nothing in Obsidian, while a tab's and a tab group's raise events of Obsidian's own that it documents nowhere, which `More Events` relays. Start listening:
 
 ```code-button
 ---
-caption: Start listening to the vault name, tab and tab group menus
+caption: Start listening to the vault name, history, tab and tab group menus
 ---
 require('/demoSetup.ts').startListeningToVaultAndTabMenus(app);
 ```
 
-Now right-click the vault name at the bottom of the left sidebar, on the desktop app: below Obsidian's **Show in system explorer** and **Copy path** is **Which vault is this? (added by a listener)**. Then right-click this note's tab header: among Obsidian's **Close** and split items is **Which tab is this? (added by a listener)**. Then click the chevron at the right end of the tab headers: below Obsidian's **Close all** is **Which tab group is this? (added by a listener)**, and clicking it names the tabs in the group.
+Now right-click the vault name at the bottom of the left sidebar, on the desktop app: below Obsidian's **Show in system explorer** and **Copy path** is **Which vault is this? (added by a listener)**. Then open another note in this tab and right-click the back arrow at the left of its header: below the page it would go back to is **Which history is this? (added by a listener)**, and clicking it counts the pages that way. Then right-click this note's tab header: among Obsidian's **Close** and split items is **Which tab is this? (added by a listener)**. Then click the chevron at the right end of the tab headers: below Obsidian's **Close all** is **Which tab group is this? (added by a listener)**, and clicking it names the tabs in the group.
 
 Then stop:
 
 ```code-button
 ---
-caption: Stop listening to the vault name, tab and tab group menus
+caption: Stop listening to the vault name, history, tab and tab group menus
 ---
 require('/demoSetup.ts').stopListeningToVaultAndTabMenus();
 ```
@@ -361,4 +362,4 @@ require('/demoSetup.ts').stopListeningToNoteAndSearchMenus();
 
 Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, for the tab and tab group menus, `leaf-menu` and `tab-group-menu`, for the note margin, Properties and Search results menus, `markdown-viewport-menu`, `markdown-properties-menu` and `search:results-menu`, and for the canvas node, connection and selection menus, `canvas:node-menu`, `canvas:edge-menu` and `canvas:selection-menu`, but documents and types them nowhere. `More Events` relays them under names it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
-The vault name menu, the bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu, the CSS snippet menu, the external image menu and the board column menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
+The vault name menu, the back and forward history menus, the bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu, the CSS snippet menu, the external image menu and the board column menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.

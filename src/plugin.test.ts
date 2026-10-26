@@ -3,6 +3,7 @@ import type {
   App as AppType,
   PluginManifest
 } from 'obsidian';
+import type { Mock } from 'vitest';
 
 import { castTo } from '@mnaoumov/typescript-lib/object-utils';
 import { App } from 'obsidian-test-mocks/obsidian';
@@ -27,6 +28,7 @@ import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-even
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 import { CssSnippetMenuEventsComponent } from './css-snippet-menu-events-component.ts';
 import { ExternalImageMenuEventsComponent } from './external-image-menu-events-component.ts';
+import { HistoryMenuEventsComponent } from './history-menu-events-component.ts';
 import { MarkdownMenuEventsComponent } from './markdown-menu-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
 import {
@@ -154,6 +156,16 @@ vi.mock('./bases-kanban-column-menu-events-component.ts', async () => {
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     BasesKanbanColumnMenuEventsComponent: vi.fn(function basesKanbanColumnMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./history-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    HistoryMenuEventsComponent: vi.fn(function historyMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -439,16 +451,17 @@ describe('Plugin', () => {
     expect(menuPatchCalls).toHaveLength(1);
     expect(menuPatchCalls[0]?.[0].app).toBe(plugin.app);
     expect(menuPatchCalls[0]?.[0].menuAnnouncers).toEqual([
-      vi.mocked(BookmarksMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(CanvasMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(RibbonMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(AllPropertiesMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(WebViewerHistoryMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(PdfThumbnailMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(TableMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(PropertyMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(PdfOutlineMenuEventsComponent).mock.results[0]?.value
-    ]);
+      BookmarksMenuEventsComponent,
+      CanvasMenuEventsComponent,
+      RibbonMenuEventsComponent,
+      AllPropertiesMenuEventsComponent,
+      WebViewerHistoryMenuEventsComponent,
+      PdfThumbnailMenuEventsComponent,
+      TableMenuEventsComponent,
+      PropertyMenuEventsComponent,
+      PdfOutlineMenuEventsComponent,
+      HistoryMenuEventsComponent
+    ].map((componentClass) => getFirstInstance(componentClass)));
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();
@@ -585,6 +598,21 @@ describe('Plugin', () => {
     plugin.unload();
   });
 
+  it('should add the history menu events component as an immediate announcer, and the community plugin one as a positioned one too', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+
+    const historyCalls = vi.mocked(HistoryMenuEventsComponent).mock.calls;
+    expect(historyCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(historyCalls[0]?.[0]).app).toBe(plugin.app);
+    expect(vi.mocked(MenuPatchComponent).mock.calls[0]?.[0].positionedMenuAnnouncers).toEqual([
+      vi.mocked(CommunityPluginMenuEventsComponent).mock.results[0]?.value
+    ]);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
   it('should add the table menu events component once, as both a deferred and an immediate announcer', async () => {
     const plugin = new Plugin(app, manifest);
     await plugin.onload();
@@ -633,6 +661,16 @@ describe('Plugin', () => {
     plugin.unload();
   });
 });
+
+/**
+ * The instance a mocked component class constructed first.
+ *
+ * @param componentClass - The mocked class.
+ * @returns The instance.
+ */
+function getFirstInstance(componentClass: object): unknown {
+  return castTo<Mock>(componentClass).mock.results[0]?.value;
+}
 
 function seedOnRawTarget(strictProxiedObject: object, key: string, value: unknown): void {
   const rawTarget = castTo<object | undefined>(Reflect.get(strictProxiedObject, STRICT_PROXY_TARGET_SYMBOL)) ?? strictProxiedObject;
