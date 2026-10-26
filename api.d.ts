@@ -275,6 +275,12 @@ export interface MoreEventsApi {
 }
 
 /**
+ * The name of the event triggered when the context menu of a page thumbnail in the PDF view's sidebar is
+ * about to open — the right-click on a thumbnail, which offers **Copy link to page**.
+ */
+export type PdfThumbnailMenuEventName = 'more-events:pdf-thumbnail-menu';
+
+/**
  * The name of the event triggered when the context menu of the ribbon's empty area is about to open — the
  * right-click below its icons, which offers a checkbox per ribbon action and **Hide ribbon**.
  */
@@ -425,6 +431,21 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: CorePluginEventName, callback: (payload: CorePluginEventPayload) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of a page thumbnail in the PDF view's sidebar.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown,
+     * for a PDF opened in its own tab. A PDF embedded in a note is not announced.
+     *
+     * @param name - Should be `'more-events:pdf-thumbnail-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the PDF view (its `view.file` is
+     * the PDF), and the number of the page right-clicked, counted from 1 as in a `#page=` link.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: PdfThumbnailMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, pageNumber: number) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of the ribbon's empty area, below its icons.

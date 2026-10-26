@@ -65,6 +65,7 @@ Obsidian raises `file-menu`, `editor-menu` and a few others so a plugin can add 
 - **`more-events:ribbon-menu`** fires for the ribbon's empty area, below its icons, where Obsidian offers **Hide ribbon**, with which ribbon it is. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 - **`more-events:all-properties-menu`** fires for a property in the **All properties** view, where Obsidian offers its types, **Rename** and **Delete**, with the names of the properties the menu acts on: the whole selection when the property is part of one. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 - **`more-events:web-viewer-history-menu`** fires for a visited page in the **Web viewer**'s History view, where Obsidian offers **Copy URL** and **Remove from history**, with that page's title and address. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
+- **`more-events:pdf-thumbnail-menu`** fires for a page thumbnail in the sidebar of a PDF open in its own tab, where Obsidian offers **Copy link to page**, with the PDF's leaf and the page number. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 
 Obsidian does trigger an event of its own for the first one, `bookmarks:bookmarks-menu`, but documents and types it nowhere; `More Events` relays it under a name it keeps stable. The others fire nothing at all in Obsidian.
 

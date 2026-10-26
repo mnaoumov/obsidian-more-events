@@ -61,6 +61,7 @@ const ALL_PROPERTIES_MENU_EVENT_NAME = 'more-events:all-properties-menu';
 const BOOKMARKS_MENU_EVENT_NAME = 'more-events:bookmarks-menu';
 const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
 const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
+const PDF_THUMBNAIL_MENU_EVENT_NAME = 'more-events:pdf-thumbnail-menu';
 const RIBBON_MENU_EVENT_NAME = 'more-events:ribbon-menu';
 const WEB_VIEWER_HISTORY_MENU_EVENT_NAME = 'more-events:web-viewer-history-menu';
 const DEMO_HISTORY_TITLE = 'Obsidian';
@@ -69,6 +70,9 @@ const HISTORY_STORE_WAIT_IN_MILLISECONDS = 5000;
 const HISTORY_STORE_POLL_IN_MILLISECONDS = 100;
 const CONTEXT_MENU_NOTE_PATH = '04 Context menu events.md';
 const DEMO_CANVAS_PATH = '_assets/Context menu demo.canvas';
+const DEMO_PDF_PATH = '_assets/Context menu demo.pdf';
+const PDF_SIDEBAR_WAIT_IN_MILLISECONDS = 5000;
+const PDF_SIDEBAR_POLL_IN_MILLISECONDS = 100;
 
 // The subscriptions the listen buttons create, kept here so the stop buttons can find them again. A real
 // plugin has its own `Component` for this and never needs a module-level handle.
@@ -77,6 +81,7 @@ let bookmarksMenuListeningComponent: Component | null = null;
 let canvasAndRibbonMenuListeningComponent: Component | null = null;
 let communityPluginListeningComponent: Component | null = null;
 let corePluginListeningComponent: Component | null = null;
+let pdfThumbnailMenuListeningComponent: Component | null = null;
 
 /**
  * Lists the community plugins that are loaded right now, straight from the plugin's API.
@@ -412,6 +417,96 @@ export function stopListeningToAllPropertiesAndHistoryMenus(): void {
 
   allPropertiesAndHistoryMenuListeningComponent.unload();
   allPropertiesAndHistoryMenuListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
+/**
+ * The PDF view, as far as this demo needs it to open its sidebar. No typings describe it.
+ */
+interface PdfViewWithSidebar {
+  readonly viewer?: {
+    readonly child: null | {
+      readonly pdfViewer: null | {
+        readonly pdfSidebar?: {
+          readonly isOpen: boolean;
+          open(): void;
+        };
+      };
+    };
+  };
+}
+
+/**
+ * Opens the demo PDF in a new tab with its thumbnail sidebar open, so there is a thumbnail to right-click.
+ *
+ * Manual equivalent: open `_assets/Context menu demo.pdf` from the file explorer, then the sidebar button at
+ * the left end of the PDF toolbar.
+ */
+export async function openDemoPdf(app: App): Promise<void> {
+  const file = app.vault.getFileByPath(DEMO_PDF_PATH);
+  if (!file) {
+    new Notice(`${DEMO_PDF_PATH} is missing from this vault.`);
+    return;
+  }
+
+  const leaf = app.workspace.getLeaf('tab');
+  await leaf.openFile(file, { active: true });
+
+  // The viewer loads the document after the view is shown, and the sidebar can only be opened once it has.
+  for (let waited = 0; waited < PDF_SIDEBAR_WAIT_IN_MILLISECONDS; waited += PDF_SIDEBAR_POLL_IN_MILLISECONDS) {
+    const pdfSidebar = (leaf.view as unknown as PdfViewWithSidebar).viewer?.child?.pdfViewer?.pdfSidebar;
+    if (pdfSidebar?.isOpen) {
+      return;
+    }
+    pdfSidebar?.open();
+    await sleep(PDF_SIDEBAR_POLL_IN_MILLISECONDS);
+  }
+}
+
+/**
+ * Subscribes to the PDF thumbnail menu event and adds one item to the menu, until the stop button below.
+ *
+ * Manual equivalent: the same `app.workspace.on(...)` call from your own plugin's `onload`.
+ */
+export function startListeningToPdfThumbnailMenu(app: App): void {
+  if (pdfThumbnailMenuListeningComponent) {
+    new Notice('Already listening. Right-click a page thumbnail in the PDF sidebar.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(PDF_THUMBNAIL_MENU_EVENT_NAME, (menu, leaf, pageNumber) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which page is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`${leaf.getDisplayText()}: page ${String(pageNumber)}`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.load();
+  pdfThumbnailMenuListeningComponent = component;
+
+  new Notice('Listening. Now right-click a page thumbnail in the PDF sidebar.');
+}
+
+/**
+ * Drops the PDF thumbnail menu subscription.
+ *
+ * Manual equivalent: unloading the component that registered it, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToPdfThumbnailMenu(): void {
+  if (!pdfThumbnailMenuListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  pdfThumbnailMenuListeningComponent.unload();
+  pdfThumbnailMenuListeningComponent = null;
   new Notice('Stopped listening.');
 }
 
