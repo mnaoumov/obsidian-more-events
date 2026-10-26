@@ -26,6 +26,8 @@ import type {
   PdfThumbnailMenuEventName,
   RibbonMenuEventName,
   SidebarToggleMenuEventName,
+  TableCellMenuEventName,
+  TableHandleMenuEventName,
   WebViewerHistoryMenuEventName
 } from '../api.d.ts';
 
@@ -57,6 +59,12 @@ export type {
   RibbonSide,
   SidebarSide,
   SidebarToggleMenuEventName,
+  TableCellMenuEventName,
+  TableCellMenuItem,
+  TableCellPosition,
+  TableHandleAxis,
+  TableHandleMenuEventName,
+  TableHandleMenuItem,
   WebViewerHistoryMenuEventName,
   WebViewerHistoryMenuItem
 } from '../api.d.ts';
@@ -137,6 +145,16 @@ export const RIBBON_MENU_EVENT_NAME: RibbonMenuEventName = 'more-events:ribbon-m
 export const SIDEBAR_TOGGLE_MENU_EVENT_NAME: SidebarToggleMenuEventName = 'more-events:sidebar-toggle-menu';
 
 /**
+ * Triggered on `app.workspace` when the context menu of a table cell in a Live Preview editor is about to open.
+ */
+export const TABLE_CELL_MENU_EVENT_NAME: TableCellMenuEventName = 'more-events:table-cell-menu';
+
+/**
+ * Triggered on `app.workspace` when the context menu of a table's row or column drag handle in a Live Preview editor is about to open.
+ */
+export const TABLE_HANDLE_MENU_EVENT_NAME: TableHandleMenuEventName = 'more-events:table-handle-menu';
+
+/**
  * Triggered on `app.workspace` when the context menu of an entry in the **Web viewer** History view is about to open.
  */
 export const WEB_VIEWER_HISTORY_MENU_EVENT_NAME: WebViewerHistoryMenuEventName = 'more-events:web-viewer-history-menu';
@@ -161,6 +179,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * `isUserInitiated` to both, `1.3.0` added the context-menu events: the bookmarks pair, the canvas view
  * one and the ribbon one, all in the same release, and `1.4.0` added the **All properties** and **Web viewer**
  * History item menus, the PDF view's thumbnail menu, the sidebar toggle buttons' menu, a community plugin's
- * settings row menu, a callout's menu and the core and community plugin settings tab menus.
+ * settings row menu, a callout's menu, the core and community plugin settings tab menus, and a Live Preview
+ * table's cell and drag handle menus.
  */
 export const PLUGIN_API_VERSION = '1.4.0';

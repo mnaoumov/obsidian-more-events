@@ -20,6 +20,7 @@ import { PdfThumbnailMenuEventsComponent } from './pdf-thumbnail-menu-events-com
 import { PluginSettingTabMenuEventsComponent } from './plugin-setting-tab-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
+import { TableMenuEventsComponent } from './table-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './web-viewer-history-menu-events-component.ts';
 
 export class Plugin extends PluginBase {
@@ -119,6 +120,12 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const tableMenuEventsComponent = this.addChild(
+      new TableMenuEventsComponent({
+        app: this.app
+      })
+    );
+
     this.addChild(
       new MenuPatchComponent({
         app: this.app,
@@ -126,7 +133,8 @@ export class Plugin extends PluginBase {
           sidebarToggleMenuEventsComponent,
           communityPluginMenuEventsComponent,
           calloutMenuEventsComponent,
-          pluginSettingTabMenuEventsComponent
+          pluginSettingTabMenuEventsComponent,
+          tableMenuEventsComponent
         ],
         menuAnnouncers: [
           bookmarksMenuEventsComponent,
@@ -134,7 +142,8 @@ export class Plugin extends PluginBase {
           ribbonMenuEventsComponent,
           allPropertiesMenuEventsComponent,
           webViewerHistoryMenuEventsComponent,
-          pdfThumbnailMenuEventsComponent
+          pdfThumbnailMenuEventsComponent,
+          tableMenuEventsComponent
         ]
       })
     );

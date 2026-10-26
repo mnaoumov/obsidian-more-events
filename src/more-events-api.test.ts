@@ -22,6 +22,8 @@ import {
   PLUGIN_API_VERSION,
   RIBBON_MENU_EVENT_NAME,
   SIDEBAR_TOGGLE_MENU_EVENT_NAME,
+  TABLE_CELL_MENU_EVENT_NAME,
+  TABLE_HANDLE_MENU_EVENT_NAME,
   WEB_VIEWER_HISTORY_MENU_EVENT_NAME
 } from './more-events-api.ts';
 
@@ -49,6 +51,8 @@ describe('the published contract', () => {
     expect(CALLOUT_MENU_EVENT_NAME).toBe('more-events:callout-menu');
     expect(CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME).toBe('more-events:core-plugin-setting-tab-menu');
     expect(COMMUNITY_PLUGIN_SETTING_TAB_MENU_EVENT_NAME).toBe('more-events:community-plugin-setting-tab-menu');
+    expect(TABLE_CELL_MENU_EVENT_NAME).toBe('more-events:table-cell-menu');
+    expect(TABLE_HANDLE_MENU_EVENT_NAME).toBe('more-events:table-handle-menu');
   });
 
   it('should declare every member of the api in the contract', () => {

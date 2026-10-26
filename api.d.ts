@@ -351,6 +351,84 @@ export type SidebarSide = 'left' | 'right';
 export type SidebarToggleMenuEventName = 'more-events:sidebar-toggle-menu';
 
 /**
+ * The name of the event triggered when the context menu of a table cell in a Live Preview editor is about to
+ * open — the right-click on a cell that is not the one being edited, which offers **Row** and **Column**
+ * submenus and the sort items, or on a cell of a cell selection, which offers the selection's items.
+ */
+export type TableCellMenuEventName = 'more-events:table-cell-menu';
+
+/**
+ * One cell of a Live Preview table, and the table it is in — the cell a table cell menu is for.
+ *
+ * Plain data, read from the rendered table when the menu opens, and additive only, like the other payloads in
+ * this file.
+ */
+export interface TableCellMenuItem extends TableCellPosition {
+  /**
+   * The line of the table's header row, counted from 0 as `Editor.getLine` counts it.
+   */
+  readonly line: number;
+
+  /**
+   * The selected cells, row by row, when the table has a cell selection; the menu then acts on them. Empty when
+   * it has none.
+   */
+  readonly selectedCells: readonly TableCellPosition[];
+}
+
+/**
+ * Where a cell is in its table.
+ */
+export interface TableCellPosition {
+  /**
+   * The cell's column, counted from 0.
+   */
+  readonly column: number;
+
+  /**
+   * The cell's row, counted from 0 for the header row. The delimiter row (`| --- |`) is not counted, so row `n`
+   * of a table whose header row is on line `line` is on line `line + n + 1` for every `n` above 0.
+   */
+  readonly row: number;
+}
+
+/**
+ * What a table's drag handle moves: a column, from the handle above its header cell, or a row, from the handle
+ * left of its first cell.
+ */
+export type TableHandleAxis = 'column' | 'row';
+
+/**
+ * The name of the event triggered when the context menu of a table's row or column drag handle in a Live
+ * Preview editor is about to open — the right-click on the grip, which offers the row items, or the sort and
+ * column items.
+ */
+export type TableHandleMenuEventName = 'more-events:table-handle-menu';
+
+/**
+ * One drag handle of a Live Preview table, and the table it is in — the handle a table handle menu is for.
+ *
+ * Plain data, read from the rendered table when the menu opens, and additive only, like the other payloads in
+ * this file.
+ */
+export interface TableHandleMenuItem {
+  /**
+   * Whether the handle moves a column or a row.
+   */
+  readonly axis: TableHandleAxis;
+
+  /**
+   * The column or the row the handle moves, counted from 0 as {@link TableCellPosition} counts them.
+   */
+  readonly index: number;
+
+  /**
+   * The line of the table's header row, counted from 0 as `Editor.getLine` counts it.
+   */
+  readonly line: number;
+}
+
+/**
  * The name of the event triggered when the context menu of an entry in the **Web viewer** core plugin's
  * History view is about to open — the right-click on a visited page, which offers **Copy URL** and **Remove
  * from history**.
@@ -592,6 +670,38 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: SidebarToggleMenuEventName, callback: (menu: Menu, side: SidebarSide) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of a table cell in a Live Preview editor.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a
+     * right-click on a cell of a table in a Markdown view that is not the cell being edited, or that is part of a
+     * cell selection. A right-click in the cell being edited opens the editor menu, which Obsidian announces as
+     * `editor-menu`, and is not announced here.
+     *
+     * @param name - Should be `'more-events:table-cell-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the Markdown view (its `view.editor`
+     * is the editor the table is in), and the cell.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: TableCellMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, cell: TableCellMenuItem) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of a table's row or column drag handle in a Live Preview editor.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a
+     * right-click on a handle of a table in a Markdown view.
+     *
+     * @param name - Should be `'more-events:table-handle-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the Markdown view (its `view.editor`
+     * is the editor the table is in), and the handle.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: TableHandleMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, handle: TableHandleMenuItem) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of an entry in the **Web viewer** core plugin's History view.

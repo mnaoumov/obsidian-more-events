@@ -68,6 +68,8 @@ const COMMUNITY_PLUGIN_SETTING_TAB_MENU_EVENT_NAME = 'more-events:community-plug
 const CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME = 'more-events:core-plugin-setting-tab-menu';
 const RIBBON_MENU_EVENT_NAME = 'more-events:ribbon-menu';
 const SIDEBAR_TOGGLE_MENU_EVENT_NAME = 'more-events:sidebar-toggle-menu';
+const TABLE_CELL_MENU_EVENT_NAME = 'more-events:table-cell-menu';
+const TABLE_HANDLE_MENU_EVENT_NAME = 'more-events:table-handle-menu';
 const WEB_VIEWER_HISTORY_MENU_EVENT_NAME = 'more-events:web-viewer-history-menu';
 const DEMO_HISTORY_TITLE = 'Obsidian';
 const DEMO_HISTORY_URL = 'https://obsidian.md/';
@@ -89,6 +91,7 @@ let communityPluginListeningComponent: Component | null = null;
 let corePluginListeningComponent: Component | null = null;
 let pdfThumbnailMenuListeningComponent: Component | null = null;
 let sidebarToggleAndCommunityPluginMenuListeningComponent: Component | null = null;
+let tableMenuListeningComponent: Component | null = null;
 
 /**
  * Lists the community plugins that are loaded right now, straight from the plugin's API.
@@ -654,6 +657,73 @@ export function stopListeningToCalloutAndPluginSettingTabMenus(): void {
 
   calloutAndPluginSettingTabMenuListeningComponent.unload();
   calloutAndPluginSettingTabMenuListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
+/**
+ * Subscribes to the table cell and drag handle menu events and adds one item to each menu, until the stop
+ * button below.
+ *
+ * Manual equivalent: the same two `app.workspace.on(...)` calls from your own plugin's `onload`.
+ */
+export function startListeningToTableMenus(app: App): void {
+  if (tableMenuListeningComponent) {
+    new Notice('Already listening. Right-click a cell of the table, or one of its drag handles.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(TABLE_CELL_MENU_EVENT_NAME, (menu, leaf, cell) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which cell is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            const selection = cell.selectedCells.length > 0 ? `, in a selection of ${String(cell.selectedCells.length)} cells` : '';
+            new Notice(
+              `Row ${String(cell.row)}, column ${String(cell.column)}${selection}, of the table on line ${String(cell.line + 1)} of ${leaf.getDisplayText()}`,
+              NOTICE_DURATION_IN_MILLISECONDS
+            );
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(TABLE_HANDLE_MENU_EVENT_NAME, (menu, leaf, handle) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which handle is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(
+              `The handle of ${handle.axis} ${String(handle.index)} of the table on line ${String(handle.line + 1)} of ${leaf.getDisplayText()}`,
+              NOTICE_DURATION_IN_MILLISECONDS
+            );
+          });
+      });
+    })
+  );
+  component.load();
+  tableMenuListeningComponent = component;
+
+  new Notice('Listening. Now right-click a cell of the table in this note, or one of its drag handles.');
+}
+
+/**
+ * Drops the table cell and drag handle menu subscriptions.
+ *
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToTableMenus(): void {
+  if (!tableMenuListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  tableMenuListeningComponent.unload();
+  tableMenuListeningComponent = null;
   new Notice('Stopped listening.');
 }
 
