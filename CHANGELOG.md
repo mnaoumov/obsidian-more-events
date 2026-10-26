@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.2.0
+
+- feat: publish the canvas view and ribbon context-menu events
+- feat: publish the bookmarks context-menu events
+- docs: record the 1.1.1 release and the `CodeScript Toolkit` floor in AGENTS.md
+
 ## 1.1.1
 
 - test(demo-vault): require `CodeScript Toolkit` 15.0.0, the first to serve obsidian-lib 6
