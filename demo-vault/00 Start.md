@@ -14,3 +14,4 @@ If you are reading it as a plugin developer, this vault is the documentation. Ev
 - [02 Community plugin events](<./02 Community plugin events.md>)
 - [03 For plugin developers](<./03 For plugin developers.md>)
 - [04 Context menu events](<./04 Context menu events.md>)
+- [05 Why it patches](<./05 Why it patches.md>)
