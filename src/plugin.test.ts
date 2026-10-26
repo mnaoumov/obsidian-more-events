@@ -17,6 +17,7 @@ import {
 
 import { AllPropertiesMenuEventsComponent } from './all-properties-menu-events-component.ts';
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
+import { CalloutMenuEventsComponent } from './callout-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
 import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-events-component.ts';
@@ -28,6 +29,7 @@ import {
 } from './more-events-api.ts';
 import { MenuPatchComponent } from './patches/menu-patch-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './pdf-thumbnail-menu-events-component.ts';
+import { PluginSettingTabMenuEventsComponent } from './plugin-setting-tab-menu-events-component.ts';
 import { Plugin } from './plugin.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
@@ -118,6 +120,26 @@ vi.mock('./community-plugin-menu-events-component.ts', async () => {
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     CommunityPluginMenuEventsComponent: vi.fn(function communityPluginMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./callout-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    CalloutMenuEventsComponent: vi.fn(function calloutMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./plugin-setting-tab-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    PluginSettingTabMenuEventsComponent: vi.fn(function pluginSettingTabMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -263,10 +285,6 @@ describe('Plugin', () => {
     const menuPatchCalls = vi.mocked(MenuPatchComponent).mock.calls;
     expect(menuPatchCalls).toHaveLength(1);
     expect(menuPatchCalls[0]?.[0].app).toBe(plugin.app);
-    expect(menuPatchCalls[0]?.[0].deferredMenuAnnouncers).toEqual([
-      vi.mocked(SidebarToggleMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(CommunityPluginMenuEventsComponent).mock.results[0]?.value
-    ]);
     expect(menuPatchCalls[0]?.[0].menuAnnouncers).toEqual([
       vi.mocked(BookmarksMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(CanvasMenuEventsComponent).mock.results[0]?.value,
@@ -280,6 +298,27 @@ describe('Plugin', () => {
     plugin.unload();
   });
 
+  it('should add the callout and plugin settings tab menu events components and announce their menus as deferred', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+
+    const calloutCalls = vi.mocked(CalloutMenuEventsComponent).mock.calls;
+    expect(calloutCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(calloutCalls[0]?.[0]).app).toBe(plugin.app);
+
+    const pluginSettingTabCalls = vi.mocked(PluginSettingTabMenuEventsComponent).mock.calls;
+    expect(pluginSettingTabCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(pluginSettingTabCalls[0]?.[0]).app).toBe(plugin.app);
+    expect(vi.mocked(MenuPatchComponent).mock.calls[0]?.[0].deferredMenuAnnouncers).toEqual([
+      vi.mocked(SidebarToggleMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(CommunityPluginMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(CalloutMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(PluginSettingTabMenuEventsComponent).mock.results[0]?.value
+    ]);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
   it('should register the open demo vault command', async () => {
     const plugin = new Plugin(app, manifest);
     const addCommandSpy = vi.spyOn(plugin, 'addCommand');

@@ -98,6 +98,31 @@ export type BookmarksMenuEventName = 'more-events:bookmarks-menu';
 export type BookmarksViewMenuEventName = 'more-events:bookmarks-view-menu';
 
 /**
+ * The name of the event triggered when the context menu of a callout in a Live Preview editor is about to open
+ * — the right-click on a rendered callout, which offers **Edit**, a **Callout type** submenu and **Delete**.
+ */
+export type CalloutMenuEventName = 'more-events:callout-menu';
+
+/**
+ * One callout in a Markdown note — the callout a callout menu is for.
+ *
+ * Plain data, read from the note when the menu opens, and additive only, like the other payloads in this file.
+ */
+export interface CalloutMenuItem {
+  /**
+   * The line of the callout's header, such as `> [!note] Title`, counted from 0 as `Editor.getLine` counts
+   * it.
+   */
+  readonly line: number;
+
+  /**
+   * The callout's type, such as `note` or `warning`, as written in its header: the case is the note's, not
+   * lowered.
+   */
+  readonly type: string;
+}
+
+/**
  * A point on a canvas, in the canvas's own coordinates: the ones a node's `x` and `y` are stored in, which
  * do not move when the view is panned or zoomed.
  *
@@ -185,6 +210,13 @@ export interface CommunityPluginEventPayload {
 export type CommunityPluginMenuEventName = 'more-events:community-plugin-menu';
 
 /**
+ * The name of the event triggered when the context menu of a community plugin's tab in the Settings sidebar is
+ * about to open — the right-click on the tab under **Community plugins**, which offers **Reveal in plugin
+ * list**.
+ */
+export type CommunityPluginSettingTabMenuEventName = 'more-events:community-plugin-setting-tab-menu';
+
+/**
  * The name of the event triggered after a core plugin has been disabled.
  */
 export type CorePluginDisabledEventName = 'more-events:core-plugin-disabled';
@@ -198,6 +230,12 @@ export type CorePluginEnabledEventName = 'more-events:core-plugin-enabled';
  * Either core-plugin event name.
  */
 export type CorePluginEventName = CorePluginDisabledEventName | CorePluginEnabledEventName;
+
+/**
+ * The name of the event triggered when the context menu of a core plugin's tab in the Settings sidebar is
+ * about to open — the right-click on the tab under **Core plugins**, which offers **Reveal in plugin list**.
+ */
+export type CorePluginSettingTabMenuEventName = 'more-events:core-plugin-setting-tab-menu';
 
 /**
  * The payload both core-plugin events carry.
@@ -391,6 +429,22 @@ declare module 'obsidian' {
     on(name: BookmarksViewMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf) => unknown, context?: unknown): EventRef;
 
     /**
+     * Subscribes to the context menu of a callout in a Live Preview editor.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a
+     * right-click on a rendered callout in a Markdown view. A callout in another editor, such as a canvas card's,
+     * and one in Reading view are not announced.
+     *
+     * @param name - Should be `'more-events:callout-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the Markdown view (its `view.editor`
+     * is the editor the callout is in), and the callout.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CalloutMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, callout: CalloutMenuItem) => unknown, context?: unknown): EventRef;
+
+    /**
      * Subscribes to the context menu of the **Canvas** view's empty background.
      *
      * Add items to `menu` and they appear in it, after Obsidian's own. Triggered only where Obsidian shows
@@ -449,6 +503,21 @@ declare module 'obsidian' {
     on(name: CommunityPluginMenuEventName, callback: (menu: Menu, communityPluginId: string) => unknown, context?: unknown): EventRef;
 
     /**
+     * Subscribes to the context menu of a community plugin's tab in the Settings sidebar.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown. A core
+     * plugin's tab triggers `'more-events:core-plugin-setting-tab-menu'` instead.
+     *
+     * @param name - Should be `'more-events:community-plugin-setting-tab-menu'`.
+     * @param callback - The callback receiving the menu, and the community plugin's id, as
+     * {@link CommunityPluginEventPayload.communityPluginId} carries it.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CommunityPluginSettingTabMenuEventName, callback: (menu: Menu, communityPluginId: string) => unknown, context?: unknown): EventRef;
+
+    /**
      * Subscribes to a core plugin being enabled or disabled.
      *
      * Triggered after the change has happened, so `getEnabledCorePluginIds()` already reflects it. Nothing
@@ -466,6 +535,21 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: CorePluginEventName, callback: (payload: CorePluginEventPayload) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of a core plugin's tab in the Settings sidebar.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown. A
+     * community plugin's tab triggers `'more-events:community-plugin-setting-tab-menu'` instead.
+     *
+     * @param name - Should be `'more-events:core-plugin-setting-tab-menu'`.
+     * @param callback - The callback receiving the menu, and the core plugin's id, as
+     * {@link CorePluginEventPayload.corePluginId} carries it.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CorePluginSettingTabMenuEventName, callback: (menu: Menu, corePluginId: string) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of a page thumbnail in the PDF view's sidebar.

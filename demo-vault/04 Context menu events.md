@@ -160,6 +160,31 @@ caption: Stop listening to the sidebar toggle and community plugin menus
 require('/demoSetup.ts').stopListeningToSidebarToggleAndCommunityPluginMenus();
 ```
 
+## Try the callout and plugin settings tab ones
+
+These are shown a moment after the right-click too. Start listening:
+
+```code-button
+---
+caption: Start listening to the callout and plugin settings tab menus
+---
+require('/demoSetup.ts').startListeningToCalloutAndPluginSettingTabMenus(app);
+```
+
+Now, in Live Preview, right-click the callout below: below Obsidian's **Edit** and **Callout type** is **Which callout is this? (added by a listener)**, and clicking it names the callout's type and line.
+
+> [!tip] Right-click me
+> This callout is here to be right-clicked.
+
+Then open **Settings** and right-click a plugin's tab in the sidebar, such as **File recovery** under **Core plugins** or one of your own under **Community plugins**: below Obsidian's **Reveal in plugin list** is **Which plugin is this? (added by a listener)**. Then stop:
+
+```code-button
+---
+caption: Stop listening to the callout and plugin settings tab menus
+---
+require('/demoSetup.ts').stopListeningToCalloutAndPluginSettingTabMenus();
+```
+
 ## What the events promise
 
 - **They fire before the menu opens**, after Obsidian has added its own items, so an item you add appears in the menu.
@@ -170,4 +195,4 @@ require('/demoSetup.ts').stopListeningToSidebarToggleAndCommunityPluginMenus();
 
 Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, but documents and types it nowhere. `More Events` relays it under a name it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
-The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail menu, the sidebar toggle menu and the community plugin menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
+The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail menu, the sidebar toggle menu, the community plugin menu, the callout menu and the plugin settings tab menus raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.

@@ -60,9 +60,12 @@ const DEMO_COMMUNITY_PLUGIN_MANIFEST_JSON = JSON.stringify(
 const ALL_PROPERTIES_MENU_EVENT_NAME = 'more-events:all-properties-menu';
 const BOOKMARKS_MENU_EVENT_NAME = 'more-events:bookmarks-menu';
 const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
+const CALLOUT_MENU_EVENT_NAME = 'more-events:callout-menu';
 const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
 const PDF_THUMBNAIL_MENU_EVENT_NAME = 'more-events:pdf-thumbnail-menu';
 const COMMUNITY_PLUGIN_MENU_EVENT_NAME = 'more-events:community-plugin-menu';
+const COMMUNITY_PLUGIN_SETTING_TAB_MENU_EVENT_NAME = 'more-events:community-plugin-setting-tab-menu';
+const CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME = 'more-events:core-plugin-setting-tab-menu';
 const RIBBON_MENU_EVENT_NAME = 'more-events:ribbon-menu';
 const SIDEBAR_TOGGLE_MENU_EVENT_NAME = 'more-events:sidebar-toggle-menu';
 const WEB_VIEWER_HISTORY_MENU_EVENT_NAME = 'more-events:web-viewer-history-menu';
@@ -80,6 +83,7 @@ const PDF_SIDEBAR_POLL_IN_MILLISECONDS = 100;
 // plugin has its own `Component` for this and never needs a module-level handle.
 let allPropertiesAndHistoryMenuListeningComponent: Component | null = null;
 let bookmarksMenuListeningComponent: Component | null = null;
+let calloutAndPluginSettingTabMenuListeningComponent: Component | null = null;
 let canvasAndRibbonMenuListeningComponent: Component | null = null;
 let communityPluginListeningComponent: Component | null = null;
 let corePluginListeningComponent: Component | null = null;
@@ -574,6 +578,82 @@ export function stopListeningToSidebarToggleAndCommunityPluginMenus(): void {
 
   sidebarToggleAndCommunityPluginMenuListeningComponent.unload();
   sidebarToggleAndCommunityPluginMenuListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
+/**
+ * Subscribes to the callout and plugin settings tab menu events and adds one item to each menu, until the stop
+ * button below.
+ *
+ * Manual equivalent: the same three `app.workspace.on(...)` calls from your own plugin's `onload`.
+ */
+export function startListeningToCalloutAndPluginSettingTabMenus(app: App): void {
+  if (calloutAndPluginSettingTabMenuListeningComponent) {
+    new Notice('Already listening. Right-click a callout, or a plugin\'s tab in the Settings sidebar.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(CALLOUT_MENU_EVENT_NAME, (menu, leaf, callout) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which callout is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`A "${callout.type}" callout on line ${String(callout.line + 1)} of ${leaf.getDisplayText()}`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME, (menu, corePluginId) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which plugin is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`The core plugin ${corePluginId}`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(COMMUNITY_PLUGIN_SETTING_TAB_MENU_EVENT_NAME, (menu, communityPluginId) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which plugin is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            const manifest = app.plugins.manifests[communityPluginId];
+            new Notice(
+              createPluginNameFragment('The ', manifest?.name ?? communityPluginId, ` community plugin (${communityPluginId})`),
+              NOTICE_DURATION_IN_MILLISECONDS
+            );
+          });
+      });
+    })
+  );
+  component.load();
+  calloutAndPluginSettingTabMenuListeningComponent = component;
+
+  new Notice('Listening. Now right-click the callout in this note, or a plugin\'s tab in the Settings sidebar.');
+}
+
+/**
+ * Drops the callout and plugin settings tab menu subscriptions.
+ *
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToCalloutAndPluginSettingTabMenus(): void {
+  if (!calloutAndPluginSettingTabMenuListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  calloutAndPluginSettingTabMenuListeningComponent.unload();
+  calloutAndPluginSettingTabMenuListeningComponent = null;
   new Notice('Stopped listening.');
 }
 
