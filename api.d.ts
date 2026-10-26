@@ -364,6 +364,36 @@ export interface MoreEventsApi {
 }
 
 /**
+ * The name of the event triggered when the context menu of an item in the PDF view's outline is about to open —
+ * the right-click on a heading in the sidebar's outline, which offers **Copy link to section**.
+ */
+export type PdfOutlineMenuEventName = 'more-events:pdf-outline-menu';
+
+/**
+ * One item of a PDF's outline — the item a PDF outline menu is for.
+ *
+ * Plain data, read when the menu opens, and additive only, like the other payloads in this file.
+ */
+export interface PdfOutlineMenuItem {
+  /**
+   * The number of the page the item points to, counted from 1 as in a `#page=` link.
+   */
+  readonly pageNumber: number;
+
+  /**
+   * The item's title, as the PDF stores it and as the outline shows it.
+   */
+  readonly title: string;
+}
+
+/**
+ * The name of the event triggered when the context menu of a page in the PDF view is about to open — the
+ * right-click on a page, which offers **Copy** for a text selection, the selection's quote and link items, and the
+ * annotation items when it lands on an annotation. Desktop only: Obsidian gives a page no menu on mobile.
+ */
+export type PdfPageMenuEventName = 'more-events:pdf-page-menu';
+
+/**
  * The name of the event triggered when the context menu of a page thumbnail in the PDF view's sidebar is
  * about to open — the right-click on a thumbnail, which offers **Copy link to page**.
  */
@@ -753,6 +783,38 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: CssSnippetMenuEventName, callback: (menu: Menu, snippet: CssSnippetMenuItem) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of an item in the PDF view's outline.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown,
+     * for a PDF opened in its own tab, and only for an item that points to a page, as Obsidian shows no menu for
+     * any other. A PDF embedded in a note is not announced.
+     *
+     * @param name - Should be `'more-events:pdf-outline-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the PDF view (its `view.file` is
+     * the PDF), and the outline item.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: PdfOutlineMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, outlineItem: PdfOutlineMenuItem) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of a page in the PDF view.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown,
+     * on the desktop app only, for a PDF opened in its own tab. A PDF embedded in a note is not announced. The
+     * text selection the menu offers to copy is still the window's selection when the event is triggered.
+     *
+     * @param name - Should be `'more-events:pdf-page-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the PDF view (its `view.file` is
+     * the PDF), and the number of the page right-clicked, counted from 1 as in a `#page=` link.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: PdfPageMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, pageNumber: number) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of a page thumbnail in the PDF view's sidebar.

@@ -19,6 +19,8 @@ import {
   CORE_PLUGIN_ENABLED_EVENT_NAME,
   CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME,
   CSS_SNIPPET_MENU_EVENT_NAME,
+  PDF_OUTLINE_MENU_EVENT_NAME,
+  PDF_PAGE_MENU_EVENT_NAME,
   PDF_THUMBNAIL_MENU_EVENT_NAME,
   PLUGIN_API_CONTRACT,
   PLUGIN_API_VERSION,
@@ -61,6 +63,8 @@ describe('the published contract', () => {
     expect(BASES_COLUMN_MENU_EVENT_NAME).toBe('more-events:bases-column-menu');
     expect(PROPERTY_MENU_EVENT_NAME).toBe('more-events:property-menu');
     expect(CSS_SNIPPET_MENU_EVENT_NAME).toBe('more-events:css-snippet-menu');
+    expect(PDF_OUTLINE_MENU_EVENT_NAME).toBe('more-events:pdf-outline-menu');
+    expect(PDF_PAGE_MENU_EVENT_NAME).toBe('more-events:pdf-page-menu');
   });
 
   it('should declare every member of the api in the contract', () => {

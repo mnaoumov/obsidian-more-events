@@ -25,6 +25,8 @@ import type {
   CorePluginEnabledEventName,
   CorePluginSettingTabMenuEventName,
   CssSnippetMenuEventName,
+  PdfOutlineMenuEventName,
+  PdfPageMenuEventName,
   PdfThumbnailMenuEventName,
   PropertyMenuEventName,
   PropertyValueMenuEventName,
@@ -62,6 +64,9 @@ export type {
   CssSnippetMenuEventName,
   CssSnippetMenuItem,
   MoreEventsApi,
+  PdfOutlineMenuEventName,
+  PdfOutlineMenuItem,
+  PdfPageMenuEventName,
   PdfThumbnailMenuEventName,
   PropertyMenuEventName,
   PropertyMenuItem,
@@ -152,6 +157,16 @@ export const CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME: CorePluginSettingTabMenuEv
 export const CSS_SNIPPET_MENU_EVENT_NAME: CssSnippetMenuEventName = 'more-events:css-snippet-menu';
 
 /**
+ * Triggered on `app.workspace` when the context menu of an item in the PDF view's outline is about to open.
+ */
+export const PDF_OUTLINE_MENU_EVENT_NAME: PdfOutlineMenuEventName = 'more-events:pdf-outline-menu';
+
+/**
+ * Triggered on `app.workspace` when the context menu of a page in the PDF view is about to open.
+ */
+export const PDF_PAGE_MENU_EVENT_NAME: PdfPageMenuEventName = 'more-events:pdf-page-menu';
+
+/**
  * Triggered on `app.workspace` when the context menu of a page thumbnail in the PDF view is about to open.
  */
 export const PDF_THUMBNAIL_MENU_EVENT_NAME: PdfThumbnailMenuEventName = 'more-events:pdf-thumbnail-menu';
@@ -210,7 +225,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * The history: `1.0.0` was the core-plugin pair, `1.1.0` added the community-plugin pair, `1.2.0` added
  * `isUserInitiated` to both, `1.3.0` added the context-menu events: the bookmarks pair, the canvas view
  * one and the ribbon one, all in the same release, and `1.4.0` added the **All properties** and **Web viewer**
- * History item menus, the PDF view's thumbnail menu, the sidebar toggle buttons' menu, a community plugin's
+ * History item menus, the PDF view's thumbnail, outline item and page menus, the sidebar toggle buttons' menu, a community plugin's
  * settings row menu, a callout's menu, the core and community plugin settings tab menus, a Live Preview
  * table's cell and drag handle menus, a property value's menu, a Bases table column header's menu, a property's own
  * menu and a CSS snippet row's menu.

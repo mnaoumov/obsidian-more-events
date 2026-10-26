@@ -18,6 +18,8 @@ import {
   PLUGIN_API_VERSION
 } from './more-events-api.ts';
 import { MenuPatchComponent } from './patches/menu-patch-component.ts';
+import { PdfOutlineMenuEventsComponent } from './pdf-outline-menu-events-component.ts';
+import { PdfPageMenuEventsComponent } from './pdf-page-menu-events-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './pdf-thumbnail-menu-events-component.ts';
 import { PluginSettingTabMenuEventsComponent } from './plugin-setting-tab-menu-events-component.ts';
 import { PropertyMenuEventsComponent } from './property-menu-events-component.ts';
@@ -154,6 +156,18 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const pdfOutlineMenuEventsComponent = this.addChild(
+      new PdfOutlineMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    const pdfPageMenuEventsComponent = this.addChild(
+      new PdfPageMenuEventsComponent({
+        app: this.app
+      })
+    );
+
     this.addChild(
       new MenuPatchComponent({
         app: this.app,
@@ -165,7 +179,9 @@ export class Plugin extends PluginBase {
           tableMenuEventsComponent,
           propertyValueMenuEventsComponent,
           basesColumnMenuEventsComponent,
-          cssSnippetMenuEventsComponent
+          cssSnippetMenuEventsComponent,
+          pdfOutlineMenuEventsComponent,
+          pdfPageMenuEventsComponent
         ],
         menuAnnouncers: [
           bookmarksMenuEventsComponent,
@@ -175,7 +191,8 @@ export class Plugin extends PluginBase {
           webViewerHistoryMenuEventsComponent,
           pdfThumbnailMenuEventsComponent,
           tableMenuEventsComponent,
-          propertyMenuEventsComponent
+          propertyMenuEventsComponent,
+          pdfOutlineMenuEventsComponent
         ]
       })
     );
