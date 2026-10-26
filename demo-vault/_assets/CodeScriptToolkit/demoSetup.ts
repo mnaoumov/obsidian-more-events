@@ -59,11 +59,15 @@ const DEMO_COMMUNITY_PLUGIN_MANIFEST_JSON = JSON.stringify(
 
 const BOOKMARKS_MENU_EVENT_NAME = 'more-events:bookmarks-menu';
 const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
+const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
+const RIBBON_MENU_EVENT_NAME = 'more-events:ribbon-menu';
 const CONTEXT_MENU_NOTE_PATH = '04 Context menu events.md';
+const DEMO_CANVAS_PATH = '_assets/Context menu demo.canvas';
 
 // The subscriptions the listen buttons create, kept here so the stop buttons can find them again. A real
 // plugin has its own `Component` for this and never needs a module-level handle.
 let bookmarksMenuListeningComponent: Component | null = null;
+let canvasAndRibbonMenuListeningComponent: Component | null = null;
 let communityPluginListeningComponent: Component | null = null;
 let corePluginListeningComponent: Component | null = null;
 
@@ -203,6 +207,81 @@ export function stopListeningToBookmarksMenus(): void {
 
   bookmarksMenuListeningComponent.unload();
   bookmarksMenuListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
+/**
+ * Opens the demo canvas in a new tab, so there is a canvas background to right-click.
+ *
+ * Manual equivalent: open `_assets/Context menu demo.canvas` from the file explorer.
+ */
+export async function openDemoCanvas(app: App): Promise<void> {
+  const file = app.vault.getFileByPath(DEMO_CANVAS_PATH);
+  if (!file) {
+    new Notice(`${DEMO_CANVAS_PATH} is missing from this vault.`);
+    return;
+  }
+
+  await app.workspace.getLeaf('tab').openFile(file);
+}
+
+/**
+ * Subscribes to the canvas view and ribbon menu events and adds one item to each menu, until the stop
+ * button below.
+ *
+ * Manual equivalent: the same two `app.workspace.on(...)` calls from your own plugin's `onload`.
+ */
+export function startListeningToCanvasAndRibbonMenus(app: App): void {
+  if (canvasAndRibbonMenuListeningComponent) {
+    new Notice('Already listening. Right-click the empty canvas, or the ribbon below its icons.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(CANVAS_VIEW_MENU_EVENT_NAME, (menu, leaf, position) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Where did I click? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`${leaf.getDisplayText()}: x ${String(Math.round(position.x))}, y ${String(Math.round(position.y))} in canvas coordinates.`);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(RIBBON_MENU_EVENT_NAME, (menu, side) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Added by a listener to the ribbon')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`This item came from a listener. The menu is for the ${side} ribbon.`);
+          });
+      });
+    })
+  );
+  component.load();
+  canvasAndRibbonMenuListeningComponent = component;
+
+  new Notice('Listening. Now right-click the empty canvas, or the ribbon below its icons.');
+}
+
+/**
+ * Drops both canvas view and ribbon menu subscriptions.
+ *
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToCanvasAndRibbonMenus(): void {
+  if (!canvasAndRibbonMenuListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  canvasAndRibbonMenuListeningComponent.unload();
+  canvasAndRibbonMenuListeningComponent = null;
   new Notice('Stopped listening.');
 }
 

@@ -13,10 +13,12 @@ import type { ApiContract } from '@mnaoumov/typescript-lib/api-contract';
 import type {
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
+  CanvasViewMenuEventName,
   CommunityPluginDisabledEventName,
   CommunityPluginEnabledEventName,
   CorePluginDisabledEventName,
-  CorePluginEnabledEventName
+  CorePluginEnabledEventName,
+  RibbonMenuEventName
 } from '../api.d.ts';
 
 import { MORE_EVENTS_API_CONTRACT } from '../api-contract.ts';
@@ -25,6 +27,8 @@ export type {
   BookmarkMenuItem,
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
+  CanvasMenuPosition,
+  CanvasViewMenuEventName,
   CommunityPluginDisabledEventName,
   CommunityPluginEnabledEventName,
   CommunityPluginEventName,
@@ -33,7 +37,9 @@ export type {
   CorePluginEnabledEventName,
   CorePluginEventName,
   CorePluginEventPayload,
-  MoreEventsApi
+  MoreEventsApi,
+  RibbonMenuEventName,
+  RibbonSide
 } from '../api.d.ts';
 
 /**
@@ -45,6 +51,11 @@ export const BOOKMARKS_MENU_EVENT_NAME: BookmarksMenuEventName = 'more-events:bo
  * Triggered on `app.workspace` when the context menu of the **Bookmarks** view's empty area is about to open.
  */
 export const BOOKMARKS_VIEW_MENU_EVENT_NAME: BookmarksViewMenuEventName = 'more-events:bookmarks-view-menu';
+
+/**
+ * Triggered on `app.workspace` when the context menu of the **Canvas** view's empty background is about to open.
+ */
+export const CANVAS_VIEW_MENU_EVENT_NAME: CanvasViewMenuEventName = 'more-events:canvas-view-menu';
 
 /**
  * Triggered on `app.workspace` after a community plugin has been disabled.
@@ -67,6 +78,11 @@ export const CORE_PLUGIN_DISABLED_EVENT_NAME: CorePluginDisabledEventName = 'mor
 export const CORE_PLUGIN_ENABLED_EVENT_NAME: CorePluginEnabledEventName = 'more-events:core-plugin-enabled';
 
 /**
+ * Triggered on `app.workspace` when the context menu of the ribbon's empty area is about to open.
+ */
+export const RIBBON_MENU_EVENT_NAME: RibbonMenuEventName = 'more-events:ribbon-menu';
+
+/**
  * The contract this plugin publishes: the repo-root `api-contract.ts` constant a consumer copies, so the
  * provider and its consumers validate against one definition. Assigning it here is also what checks that
  * its schemas are Standard Schemas the registry accepts.
@@ -77,12 +93,13 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * The version of the contract above — independent of the plugin's own version, so a consumer asks for
  * `'^1'` and keeps working across releases that change nothing it depends on.
  *
- * `1.3.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the two bookmarks menu
- * events were ADDED and nothing already published changed its meaning, so a consumer written against any
+ * `1.3.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the context-menu events
+ * were ADDED and nothing already published changed its meaning, so a consumer written against any
  * `1.x` compiles and runs unaltered. The payloads are declared additive-only in `api.d.ts` precisely so
  * this stays a minor.
  *
  * The history: `1.0.0` was the core-plugin pair, `1.1.0` added the community-plugin pair, `1.2.0` added
- * `isUserInitiated` to both, `1.3.0` added the bookmarks menu events.
+ * `isUserInitiated` to both, `1.3.0` added the context-menu events: the bookmarks pair, the canvas view
+ * one and the ribbon one, all in the same release.
  */
 export const PLUGIN_API_VERSION = '1.3.0';

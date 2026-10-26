@@ -16,6 +16,7 @@ import {
 } from 'vitest';
 
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
+import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
@@ -25,6 +26,7 @@ import {
 } from './more-events-api.ts';
 import { MenuPatchComponent } from './patches/menu-patch-component.ts';
 import { Plugin } from './plugin.ts';
+import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
 
 vi.mock('./community-plugin-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
@@ -41,6 +43,26 @@ vi.mock('./bookmarks-menu-events-component.ts', async () => {
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     BookmarksMenuEventsComponent: vi.fn(function bookmarksMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./canvas-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    CanvasMenuEventsComponent: vi.fn(function canvasMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./ribbon-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    RibbonMenuEventsComponent: vi.fn(function ribbonMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -147,7 +169,7 @@ describe('Plugin', () => {
     plugin.unload();
   });
 
-  it('should add the bookmarks menu events component and announce its menus through the menu patch', async () => {
+  it('should add the menu events components and announce their menus through the menu patch', async () => {
     const plugin = new Plugin(app, manifest);
     await plugin.onload();
 
@@ -155,9 +177,21 @@ describe('Plugin', () => {
     expect(bookmarksCalls).toHaveLength(1);
     expect(castTo<PluginEventsComponentConstructorParams>(bookmarksCalls[0]?.[0]).app).toBe(plugin.app);
 
+    const canvasCalls = vi.mocked(CanvasMenuEventsComponent).mock.calls;
+    expect(canvasCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(canvasCalls[0]?.[0]).app).toBe(plugin.app);
+
+    const ribbonCalls = vi.mocked(RibbonMenuEventsComponent).mock.calls;
+    expect(ribbonCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(ribbonCalls[0]?.[0]).app).toBe(plugin.app);
+
     const menuPatchCalls = vi.mocked(MenuPatchComponent).mock.calls;
     expect(menuPatchCalls).toHaveLength(1);
-    expect(menuPatchCalls[0]?.[0].menuAnnouncers).toEqual([vi.mocked(BookmarksMenuEventsComponent).mock.results[0]?.value]);
+    expect(menuPatchCalls[0]?.[0].menuAnnouncers).toEqual([
+      vi.mocked(BookmarksMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(CanvasMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(RibbonMenuEventsComponent).mock.results[0]?.value
+    ]);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();

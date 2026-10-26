@@ -4,6 +4,7 @@ import { OpenDemoVaultCommandHandler } from '@mnaoumov/obsidian-lib/command-hand
 import { PluginBase } from '@mnaoumov/obsidian-lib/plugin/plugin';
 
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
+import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
@@ -12,6 +13,7 @@ import {
   PLUGIN_API_VERSION
 } from './more-events-api.ts';
 import { MenuPatchComponent } from './patches/menu-patch-component.ts';
+import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
 
 export class Plugin extends PluginBase {
   private moreEventsApi: MoreEventsApiImpl | null = null;
@@ -56,9 +58,21 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const canvasMenuEventsComponent = this.addChild(
+      new CanvasMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    const ribbonMenuEventsComponent = this.addChild(
+      new RibbonMenuEventsComponent({
+        app: this.app
+      })
+    );
+
     this.addChild(
       new MenuPatchComponent({
-        menuAnnouncers: [bookmarksMenuEventsComponent]
+        menuAnnouncers: [bookmarksMenuEventsComponent, canvasMenuEventsComponent, ribbonMenuEventsComponent]
       })
     );
 

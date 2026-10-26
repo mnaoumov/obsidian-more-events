@@ -6,8 +6,10 @@ They are shaped like Obsidian's own: the listener receives the `Menu` first, the
 
 - **`more-events:bookmarks-menu`** is the menu of one or more bookmarks. The listener gets the bookmarks: the one you right-clicked, or every selected one.
 - **`more-events:bookmarks-view-menu`** is the menu of the view's empty area, below the last bookmark, where Obsidian offers **New group**. The listener gets the view's leaf.
+- **`more-events:canvas-view-menu`** is the menu of a canvas's empty background, where Obsidian offers **Add card**. The listener gets the canvas's leaf and the point you right-clicked, in the canvas's own coordinates.
+- **`more-events:ribbon-menu`** is the menu of the ribbon's empty area, below its icons, where Obsidian offers **Hide ribbon**. The listener gets which ribbon it is.
 
-## Try them
+## Try the bookmarks ones
 
 First, a bookmark to right-click. This bookmarks this note and opens the **Bookmarks** view in the left sidebar:
 
@@ -38,6 +40,37 @@ caption: Stop listening
 require('/demoSetup.ts').stopListeningToBookmarksMenus();
 ```
 
+## Try the canvas and ribbon ones
+
+First, an empty canvas to right-click. This opens the demo canvas in a new tab:
+
+```code-button
+---
+caption: Open the demo canvas
+---
+await require('/demoSetup.ts').openDemoCanvas(app);
+```
+
+Manual equivalent: open `_assets/Context menu demo.canvas` from the file explorer.
+
+Then start listening:
+
+```code-button
+---
+caption: Start listening to the canvas and ribbon menus
+---
+require('/demoSetup.ts').startListeningToCanvasAndRibbonMenus(app);
+```
+
+Now right-click the empty canvas: below Obsidian's own items is **Where did I click? (added by a listener)**, and clicking it shows the point in canvas coordinates. Then right-click the ribbon on the far left, in the gap below its icons: Obsidian's **Hide ribbon** is joined by **Added by a listener to the ribbon**. Then stop:
+
+```code-button
+---
+caption: Stop listening to the canvas and ribbon menus
+---
+require('/demoSetup.ts').stopListeningToCanvasAndRibbonMenus();
+```
+
 ## What the events promise
 
 - **They fire before the menu opens**, after Obsidian has added its own items, so an item you add appears in the menu.
@@ -47,4 +80,4 @@ require('/demoSetup.ts').stopListeningToBookmarksMenus();
 
 Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, but documents and types it nowhere. `More Events` relays it under a name it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
-The empty-area menu raises nothing at all. `More Events` recognizes it as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
+The bookmarks empty-area menu, the canvas background menu and the ribbon menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
