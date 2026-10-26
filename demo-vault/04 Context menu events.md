@@ -21,6 +21,8 @@ They are shaped like Obsidian's own: the listener receives the `Menu` first, the
 - **`more-events:pdf-thumbnail-menu`** is the menu of a page thumbnail in a PDF's sidebar, where Obsidian offers **Copy link to page**. The listener gets the PDF's leaf and the page number.
 - **`more-events:pdf-outline-menu`** is the menu of an entry in a PDF's outline, where Obsidian offers **Copy link to** that section. The listener gets the PDF's leaf, and the entry's title and page number.
 - **`more-events:pdf-page-menu`** is the menu of a page in a PDF, on the desktop app, where Obsidian offers **Copy** and its quote and link items for a text selection. The listener gets the PDF's leaf and the page number.
+- **`more-events:external-image-menu`** is the menu of an image embedded from a URL in a note's Live Preview editor, where Obsidian offers **Copy image** and **Remove image**. The listener gets the note's leaf, and the image's line and URL.
+- **`more-events:bases-kanban-column-menu`** is the menu of a column's empty area in a base's board view, where Obsidian offers **Add item** and **Hide column**. The listener gets the base's leaf, the value the column groups by and the name of the base's view.
 
 ## Try the bookmarks ones
 
@@ -270,6 +272,39 @@ caption: Stop listening to the property and CSS snippet menus
 require('/demoSetup.ts').stopListeningToPropertyAndCssSnippetMenus();
 ```
 
+## Try the external image and board column ones
+
+These two menus are shown a moment after the right-click too. The image below is embedded from a URL rather than from the vault, a `data:` URL, so it shows with no network; an image from the vault already fires Obsidian's own `file-menu` and is not announced again. Start listening:
+
+```code-button
+---
+caption: Start listening to the external image and board column menus
+---
+require('/demoSetup.ts').startListeningToExternalImageAndBasesKanbanColumnMenus(app);
+```
+
+Now, in Live Preview, right-click the image below: below Obsidian's **Copy image**, **Remove image** and **Reset size** is **Which image is this? (added by a listener)**, and clicking it names the image's line and URL.
+
+![Right-click me](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNDAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMjQwIiBoZWlnaHQ9IjEyMCIgcng9IjEyIiBmaWxsPSIjN2MzYWVkIi8+PHRleHQgeD0iMTIwIiB5PSI2OCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmYiPlJpZ2h0LWNsaWNrIG1lPC90ZXh0Pjwvc3ZnPg==)
+
+Then open the demo base's board and right-click a column's empty area, below its cards: below Obsidian's **Add item**, **Hide column** and **Edit columns** is **Which column is this? (added by a listener)**, and clicking it names the value the column groups by.
+
+```code-button
+---
+caption: Open the demo base's board
+---
+await require('/demoSetup.ts').openDemoBase(app, 'Demo board');
+```
+
+Then stop:
+
+```code-button
+---
+caption: Stop listening to the external image and board column menus
+---
+require('/demoSetup.ts').stopListeningToExternalImageAndBasesKanbanColumnMenus();
+```
+
 ## What the events promise
 
 - **They fire before the menu opens**, after Obsidian has added its own items, so an item you add appears in the menu.
@@ -280,4 +315,4 @@ require('/demoSetup.ts').stopListeningToPropertyAndCssSnippetMenus();
 
 Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, but documents and types it nowhere. `More Events` relays it under a name it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
-The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu and the CSS snippet menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
+The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu, the CSS snippet menu, the external image menu and the board column menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.

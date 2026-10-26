@@ -7,6 +7,7 @@ import {
 import {
   ALL_PROPERTIES_MENU_EVENT_NAME,
   BASES_COLUMN_MENU_EVENT_NAME,
+  BASES_KANBAN_COLUMN_MENU_EVENT_NAME,
   BOOKMARKS_MENU_EVENT_NAME,
   BOOKMARKS_VIEW_MENU_EVENT_NAME,
   CALLOUT_MENU_EVENT_NAME,
@@ -19,6 +20,7 @@ import {
   CORE_PLUGIN_ENABLED_EVENT_NAME,
   CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME,
   CSS_SNIPPET_MENU_EVENT_NAME,
+  EXTERNAL_IMAGE_MENU_EVENT_NAME,
   PDF_OUTLINE_MENU_EVENT_NAME,
   PDF_PAGE_MENU_EVENT_NAME,
   PDF_THUMBNAIL_MENU_EVENT_NAME,
@@ -65,6 +67,8 @@ describe('the published contract', () => {
     expect(CSS_SNIPPET_MENU_EVENT_NAME).toBe('more-events:css-snippet-menu');
     expect(PDF_OUTLINE_MENU_EVENT_NAME).toBe('more-events:pdf-outline-menu');
     expect(PDF_PAGE_MENU_EVENT_NAME).toBe('more-events:pdf-page-menu');
+    expect(EXTERNAL_IMAGE_MENU_EVENT_NAME).toBe('more-events:external-image-menu');
+    expect(BASES_KANBAN_COLUMN_MENU_EVENT_NAME).toBe('more-events:bases-kanban-column-menu');
   });
 
   it('should declare every member of the api in the contract', () => {

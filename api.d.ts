@@ -111,6 +111,31 @@ export interface BasesColumnMenuItem {
 }
 
 /**
+ * The name of the event triggered when the context menu of a column in a Bases board view is about to open —
+ * the right-click on the column's empty area, which offers **Add item**, **Hide column** and **Edit columns**. A
+ * right-click on a card or on one of the column's buttons is not announced: Obsidian shows no column menu for it.
+ */
+export type BasesKanbanColumnMenuEventName = 'more-events:bases-kanban-column-menu';
+
+/**
+ * One column of a Bases board view — the column a board column menu is for.
+ *
+ * Plain data, read from the view when the menu opens, and additive only, like the other payloads in this file.
+ */
+export interface BasesKanbanColumnMenuItem {
+  /**
+   * The value the column groups by, as text: the value of the base's group-by property that every card in the
+   * column shares. `null` for the column of the entries that have no value.
+   */
+  readonly groupKey: null | string;
+
+  /**
+   * The name of the base's view the board view renders, as the base's `views` list writes it.
+   */
+  readonly viewName: string;
+}
+
+/**
  * The name of the event triggered when the context menu of one or more bookmarks is about to open.
  */
 export type BookmarksMenuEventName = 'more-events:bookmarks-menu';
@@ -317,6 +342,31 @@ export interface CorePluginEventPayload {
    * without going through either method above.
    */
   readonly isUserInitiated: boolean;
+}
+
+/**
+ * The name of the event triggered when the context menu of an external image in a Live Preview editor is about to
+ * open — the right-click on an image embedded from a URL, such as `![](https://example.com/a.png)`, which offers
+ * **Copy image**, **Remove image** and **Reset size**. An image embedded from the vault is not announced: its menu
+ * already fires Obsidian's own `file-menu`.
+ */
+export type ExternalImageMenuEventName = 'more-events:external-image-menu';
+
+/**
+ * One external image in a Markdown note — the image an external image menu is for.
+ *
+ * Plain data, read from the note when the menu opens, and additive only, like the other payloads in this file.
+ */
+export interface ExternalImageMenuItem {
+  /**
+   * The line the image's embed starts on, counted from 0 as `Editor.getLine` counts it.
+   */
+  readonly line: number;
+
+  /**
+   * The image's URL, as written in the note.
+   */
+  readonly url: string;
 }
 
 /**
@@ -615,6 +665,22 @@ declare module 'obsidian' {
     on(name: BasesColumnMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, column: BasesColumnMenuItem) => unknown, context?: unknown): EventRef;
 
     /**
+     * Subscribes to the context menu of a column in a Bases board view.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a
+     * right-click on a column's empty area in a base opened in its own tab. A card, the column's buttons and a
+     * read-only base show no column menu, and a base embedded in a note is not announced.
+     *
+     * @param name - Should be `'more-events:bases-kanban-column-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the **Bases** view (its `view.file`
+     * is the base), and the column.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: BasesKanbanColumnMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, column: BasesKanbanColumnMenuItem) => unknown, context?: unknown): EventRef;
+
+    /**
      * Subscribes to the context menu of one or more bookmarks in the **Bookmarks** view.
      *
      * Shaped like Obsidian's own `files-menu`: add items to `menu` and they appear in it. Triggered before
@@ -661,6 +727,23 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: CalloutMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, callout: CalloutMenuItem) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of an external image in a Live Preview editor.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a
+     * right-click on an image embedded from a URL in a Markdown view. An image in another editor, such as a canvas
+     * card's, and one in Reading view are not announced, and neither is an image embedded from the vault, whose
+     * menu fires Obsidian's own `file-menu`.
+     *
+     * @param name - Should be `'more-events:external-image-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the Markdown view (its `view.editor`
+     * is the editor the image is in), and the image.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: ExternalImageMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, image: ExternalImageMenuItem) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of the **Canvas** view's empty background.
