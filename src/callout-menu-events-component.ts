@@ -1,6 +1,5 @@
 import type {
   App,
-  Editor,
   Menu
 } from 'obsidian';
 
@@ -10,12 +9,8 @@ import { Component } from 'obsidian';
 import type { CalloutMenuItem } from '../api.d.ts';
 import type { DeferredMenuAnnouncer } from './patches/menu-patch-component.ts';
 
+import { findMarkdownEditorLeaf } from './markdown-editor-leaf.ts';
 import { CALLOUT_MENU_EVENT_NAME } from './more-events-api.ts';
-
-/**
- * The view type of the Markdown view.
- */
-const MARKDOWN_VIEW_TYPE = 'markdown';
 
 /**
  * The class Obsidian gives a callout widget's element (`app.js:176450`).
@@ -30,16 +25,6 @@ export interface CalloutMenuEventsComponentConstructorParams {
    * The Obsidian application instance.
    */
   readonly app: App;
-}
-
-/**
- * The Markdown view, as far as telling its callout menus apart needs it.
- */
-interface MarkdownViewLike {
-  /**
-   * The view's editor, whose `cm` is its CodeMirror view.
-   */
-  readonly editor: Editor;
 }
 
 /**
@@ -83,23 +68,19 @@ export class CalloutMenuEventsComponent extends Component implements DeferredMen
       return false;
     }
 
-    for (const leaf of this.app.workspace.getLeavesOfType(MARKDOWN_VIEW_TYPE)) {
-      // `Partial`, because a deferred leaf reports the view type before its real view, and its editor, exist.
-      const { editor } = castTo<Partial<MarkdownViewLike>>(leaf.view);
-      if (!editor?.cm.dom.contains(calloutEl)) {
-        continue;
-      }
-
-      const { line } = editor.offsetToPos(editor.cm.posAtDOM(calloutEl));
-      const callout: CalloutMenuItem = {
-        line,
-        type: getCalloutType(editor.getLine(line))
-      };
-      this.app.workspace.trigger(CALLOUT_MENU_EVENT_NAME, menu, leaf, callout);
-      return true;
+    const markdownEditorLeaf = findMarkdownEditorLeaf(this.app, calloutEl);
+    if (!markdownEditorLeaf) {
+      return false;
     }
 
-    return false;
+    const { editor, leaf } = markdownEditorLeaf;
+    const { line } = editor.offsetToPos(editor.cm.posAtDOM(calloutEl));
+    const callout: CalloutMenuItem = {
+      line,
+      type: getCalloutType(editor.getLine(line))
+    };
+    this.app.workspace.trigger(CALLOUT_MENU_EVENT_NAME, menu, leaf, callout);
+    return true;
   }
 }
 

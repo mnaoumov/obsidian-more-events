@@ -33,6 +33,7 @@ import { PluginSettingTabMenuEventsComponent } from './plugin-setting-tab-menu-e
 import { Plugin } from './plugin.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
+import { TableMenuEventsComponent } from './table-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './web-viewer-history-menu-events-component.ts';
 
 vi.mock('./community-plugin-events-component.ts', async () => {
@@ -140,6 +141,16 @@ vi.mock('./plugin-setting-tab-menu-events-component.ts', async () => {
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     PluginSettingTabMenuEventsComponent: vi.fn(function pluginSettingTabMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./table-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    TableMenuEventsComponent: vi.fn(function tableMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -291,7 +302,8 @@ describe('Plugin', () => {
       vi.mocked(RibbonMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(AllPropertiesMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(WebViewerHistoryMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(PdfThumbnailMenuEventsComponent).mock.results[0]?.value
+      vi.mocked(PdfThumbnailMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(TableMenuEventsComponent).mock.results[0]?.value
     ]);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
@@ -313,12 +325,30 @@ describe('Plugin', () => {
       vi.mocked(SidebarToggleMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(CommunityPluginMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(CalloutMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(PluginSettingTabMenuEventsComponent).mock.results[0]?.value
+      vi.mocked(PluginSettingTabMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(TableMenuEventsComponent).mock.results[0]?.value
     ]);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();
   });
+
+  it('should add the table menu events component once, as both a deferred and an immediate announcer', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+
+    const tableCalls = vi.mocked(TableMenuEventsComponent).mock.calls;
+    expect(tableCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(tableCalls[0]?.[0]).app).toBe(plugin.app);
+    const tableComponent: unknown = vi.mocked(TableMenuEventsComponent).mock.results[0]?.value;
+    const menuPatchParams = vi.mocked(MenuPatchComponent).mock.calls[0]?.[0];
+    expect(menuPatchParams?.deferredMenuAnnouncers).toContain(tableComponent);
+    expect(menuPatchParams?.menuAnnouncers).toContain(tableComponent);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
   it('should register the open demo vault command', async () => {
     const plugin = new Plugin(app, manifest);
     const addCommandSpy = vi.spyOn(plugin, 'addCommand');
