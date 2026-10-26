@@ -7,12 +7,14 @@ import {
 import {
   BOOKMARKS_MENU_EVENT_NAME,
   BOOKMARKS_VIEW_MENU_EVENT_NAME,
+  CANVAS_VIEW_MENU_EVENT_NAME,
   COMMUNITY_PLUGIN_DISABLED_EVENT_NAME,
   COMMUNITY_PLUGIN_ENABLED_EVENT_NAME,
   CORE_PLUGIN_DISABLED_EVENT_NAME,
   CORE_PLUGIN_ENABLED_EVENT_NAME,
   PLUGIN_API_CONTRACT,
-  PLUGIN_API_VERSION
+  PLUGIN_API_VERSION,
+  RIBBON_MENU_EVENT_NAME
 } from './more-events-api.ts';
 
 /*
@@ -29,6 +31,8 @@ describe('the published contract', () => {
     expect(COMMUNITY_PLUGIN_DISABLED_EVENT_NAME).toBe('more-events:community-plugin-disabled');
     expect(BOOKMARKS_MENU_EVENT_NAME).toBe('more-events:bookmarks-menu');
     expect(BOOKMARKS_VIEW_MENU_EVENT_NAME).toBe('more-events:bookmarks-view-menu');
+    expect(CANVAS_VIEW_MENU_EVENT_NAME).toBe('more-events:canvas-view-menu');
+    expect(RIBBON_MENU_EVENT_NAME).toBe('more-events:ribbon-menu');
   });
 
   it('should declare every member of the api in the contract', () => {

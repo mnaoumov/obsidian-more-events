@@ -92,6 +92,30 @@ export type BookmarksMenuEventName = 'more-events:bookmarks-menu';
 export type BookmarksViewMenuEventName = 'more-events:bookmarks-view-menu';
 
 /**
+ * A point on a canvas, in the canvas's own coordinates: the ones a node's `x` and `y` are stored in, which
+ * do not move when the view is panned or zoomed.
+ *
+ * Plain data, and additive only, like the other payloads in this file.
+ */
+export interface CanvasMenuPosition {
+  /**
+   * The horizontal coordinate, growing to the right.
+   */
+  readonly x: number;
+
+  /**
+   * The vertical coordinate, growing downwards.
+   */
+  readonly y: number;
+}
+
+/**
+ * The name of the event triggered when the context menu of the **Canvas** view's empty background is about
+ * to open — the right-click on no node, edge or selection, which offers **Add card** and the rest.
+ */
+export type CanvasViewMenuEventName = 'more-events:canvas-view-menu';
+
+/**
  * The name of the event triggered after a community plugin has been disabled.
  */
 export type CommunityPluginDisabledEventName = 'more-events:community-plugin-disabled';
@@ -244,6 +268,19 @@ export interface MoreEventsApi {
   isCorePluginEnabled(corePluginId: string): boolean;
 }
 
+/**
+ * The name of the event triggered when the context menu of the ribbon's empty area is about to open — the
+ * right-click below its icons, which offers a checkbox per ribbon action and **Hide ribbon**.
+ */
+export type RibbonMenuEventName = 'more-events:ribbon-menu';
+
+/**
+ * Which ribbon a ribbon menu belongs to. `left` is the one with the icons. `right` is the narrow strip at the
+ * right edge that Obsidian shows while the right sidebar holds a tab; it has no icons, so its menu offers
+ * only **Hide ribbon**.
+ */
+export type RibbonSide = 'left' | 'right';
+
 declare module 'obsidian' {
   interface Workspace {
     /**
@@ -277,6 +314,22 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: BookmarksViewMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of the **Canvas** view's empty background.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered only where Obsidian shows
+     * that menu: on an editable canvas, for a right-click on no node, edge or selection. A canvas embedded
+     * in a note or shown in a hover popover is not announced.
+     *
+     * @param name - Should be `'more-events:canvas-view-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the **Canvas** view, and the
+     * point that was right-clicked in canvas coordinates — where a node created from the menu belongs.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CanvasViewMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, position: CanvasMenuPosition) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to a community plugin being enabled or disabled.
@@ -322,5 +375,19 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: CorePluginEventName, callback: (payload: CorePluginEventPayload) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of the ribbon's empty area, below its icons.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. A ribbon icon has no context menu
+     * at all, so nothing is triggered for one.
+     *
+     * @param name - Should be `'more-events:ribbon-menu'`.
+     * @param callback - The callback receiving the menu, and which ribbon it belongs to.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: RibbonMenuEventName, callback: (menu: Menu, side: RibbonSide) => unknown, context?: unknown): EventRef;
   }
 }
