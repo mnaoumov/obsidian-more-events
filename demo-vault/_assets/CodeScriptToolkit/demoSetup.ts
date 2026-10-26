@@ -67,6 +67,9 @@ const BASES_KANBAN_COLUMN_MENU_EVENT_NAME = 'more-events:bases-kanban-column-men
 const BOOKMARKS_MENU_EVENT_NAME = 'more-events:bookmarks-menu';
 const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
 const CALLOUT_MENU_EVENT_NAME = 'more-events:callout-menu';
+const CANVAS_EDGE_MENU_EVENT_NAME = 'more-events:canvas-edge-menu';
+const CANVAS_NODE_MENU_EVENT_NAME = 'more-events:canvas-node-menu';
+const CANVAS_SELECTION_MENU_EVENT_NAME = 'more-events:canvas-selection-menu';
 const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
 const CSS_SNIPPET_MENU_EVENT_NAME = 'more-events:css-snippet-menu';
 const EXTERNAL_IMAGE_MENU_EVENT_NAME = 'more-events:external-image-menu';
@@ -287,14 +290,14 @@ export async function openDemoCanvas(app: App): Promise<void> {
 }
 
 /**
- * Subscribes to the canvas view and ribbon menu events and adds one item to each menu, until the stop
- * button below.
+ * Subscribes to the canvas view, node, connection and selection menu events and the ribbon menu event, and adds one
+ * item to each menu, until the stop button below.
  *
- * Manual equivalent: the same two `app.workspace.on(...)` calls from your own plugin's `onload`.
+ * Manual equivalent: the same five `app.workspace.on(...)` calls from your own plugin's `onload`.
  */
 export function startListeningToCanvasAndRibbonMenus(app: App): void {
   if (canvasAndRibbonMenuListeningComponent) {
-    new Notice('Already listening. Right-click the empty canvas, or the ribbon below its icons.');
+    new Notice('Already listening. Right-click the canvas, a card, the connection or a selection, or the ribbon below its icons.');
     return;
   }
 
@@ -307,6 +310,42 @@ export function startListeningToCanvasAndRibbonMenus(app: App): void {
           .setIcon('lucide-info')
           .onClick(() => {
             new Notice(`${leaf.getDisplayText()}: x ${String(Math.round(position.x))}, y ${String(Math.round(position.y))} in canvas coordinates.`);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(CANVAS_NODE_MENU_EVENT_NAME, (menu, leaf, node) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which node is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`${leaf.getDisplayText()}: a ${node.type} node, ${String(node.width)} x ${String(node.height)}, id ${node.id}`);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(CANVAS_EDGE_MENU_EVENT_NAME, (menu, leaf, edge) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('What does this connect? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`This connection goes from node ${edge.fromNode} to node ${edge.toNode} in ${leaf.getDisplayText()}.`);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(CANVAS_SELECTION_MENU_EVENT_NAME, (menu, leaf, selection) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('What is selected? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`In ${leaf.getDisplayText()}: ${String(selection.nodes.length)} node(s) and ${String(selection.edges.length)} connection(s).`);
           });
       });
     })
@@ -326,11 +365,11 @@ export function startListeningToCanvasAndRibbonMenus(app: App): void {
   component.load();
   canvasAndRibbonMenuListeningComponent = component;
 
-  new Notice('Listening. Now right-click the empty canvas, or the ribbon below its icons.');
+  new Notice('Listening. Now right-click the canvas, a card, the connection or a selection, or the ribbon below its icons.');
 }
 
 /**
- * Drops both canvas view and ribbon menu subscriptions.
+ * Drops the canvas and ribbon menu subscriptions.
  *
  * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
  * disabled.

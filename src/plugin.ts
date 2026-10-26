@@ -9,6 +9,7 @@ import { BasesKanbanColumnMenuEventsComponent } from './bases-kanban-column-menu
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
 import { CalloutMenuEventsComponent } from './callout-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
+import { CanvasObjectMenuEventsComponent } from './canvas-object-menu-events-component.ts';
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
 import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-events-component.ts';
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
@@ -206,6 +207,12 @@ export class Plugin extends PluginBase {
 
     this.addChild(
       new MarkdownMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    this.addChild(
+      new CanvasObjectMenuEventsComponent({
         app: this.app
       })
     );
