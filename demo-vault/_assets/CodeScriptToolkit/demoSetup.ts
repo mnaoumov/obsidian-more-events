@@ -58,11 +58,13 @@ const DEMO_COMMUNITY_PLUGIN_MANIFEST_JSON = JSON.stringify(
 );
 
 const ALL_PROPERTIES_MENU_EVENT_NAME = 'more-events:all-properties-menu';
+const BASES_COLUMN_MENU_EVENT_NAME = 'more-events:bases-column-menu';
 const BOOKMARKS_MENU_EVENT_NAME = 'more-events:bookmarks-menu';
 const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
 const CALLOUT_MENU_EVENT_NAME = 'more-events:callout-menu';
 const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
 const PDF_THUMBNAIL_MENU_EVENT_NAME = 'more-events:pdf-thumbnail-menu';
+const PROPERTY_VALUE_MENU_EVENT_NAME = 'more-events:property-value-menu';
 const COMMUNITY_PLUGIN_MENU_EVENT_NAME = 'more-events:community-plugin-menu';
 const COMMUNITY_PLUGIN_SETTING_TAB_MENU_EVENT_NAME = 'more-events:community-plugin-setting-tab-menu';
 const CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME = 'more-events:core-plugin-setting-tab-menu';
@@ -76,6 +78,7 @@ const DEMO_HISTORY_URL = 'https://obsidian.md/';
 const HISTORY_STORE_WAIT_IN_MILLISECONDS = 5000;
 const HISTORY_STORE_POLL_IN_MILLISECONDS = 100;
 const CONTEXT_MENU_NOTE_PATH = '04 Context menu events.md';
+const DEMO_BASE_PATH = '_assets/Context menu demo.base';
 const DEMO_CANVAS_PATH = '_assets/Context menu demo.canvas';
 const DEMO_PDF_PATH = '_assets/Context menu demo.pdf';
 const PDF_SIDEBAR_WAIT_IN_MILLISECONDS = 5000;
@@ -90,6 +93,7 @@ let canvasAndRibbonMenuListeningComponent: Component | null = null;
 let communityPluginListeningComponent: Component | null = null;
 let corePluginListeningComponent: Component | null = null;
 let pdfThumbnailMenuListeningComponent: Component | null = null;
+let propertyValueAndBasesColumnMenuListeningComponent: Component | null = null;
 let sidebarToggleAndCommunityPluginMenuListeningComponent: Component | null = null;
 let tableMenuListeningComponent: Component | null = null;
 
@@ -725,6 +729,99 @@ export function stopListeningToTableMenus(): void {
   tableMenuListeningComponent.unload();
   tableMenuListeningComponent = null;
   new Notice('Stopped listening.');
+}
+
+/**
+ * Subscribes to the property value and Bases column header menu events and adds one item to each menu, until
+ * the stop button below.
+ *
+ * Manual equivalent: the same two `app.workspace.on(...)` calls from your own plugin's `onload`.
+ */
+export function startListeningToPropertyValueAndBasesColumnMenus(app: App): void {
+  if (propertyValueAndBasesColumnMenuListeningComponent) {
+    new Notice('Already listening. Right-click a value of a list property, or a column header of a base\'s table.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(PROPERTY_VALUE_MENU_EVENT_NAME, (menu, leaf, value) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which value is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(
+              `"${value.value}", value ${String(value.index + 1)} of the "${value.key}" property of ${leaf.getDisplayText()}`,
+              NOTICE_DURATION_IN_MILLISECONDS
+            );
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(BASES_COLUMN_MENU_EVENT_NAME, (menu, leaf, column) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which column is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(
+              `The ${column.propertyId} column of the "${column.viewName}" view of ${leaf.getDisplayText()}`,
+              NOTICE_DURATION_IN_MILLISECONDS
+            );
+          });
+      });
+    })
+  );
+  component.load();
+  propertyValueAndBasesColumnMenuListeningComponent = component;
+
+  new Notice('Listening. Now right-click a value of demo-topics in this note\'s properties, or a column header of the demo base.');
+}
+
+/**
+ * Drops the property value and Bases column header menu subscriptions.
+ *
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToPropertyValueAndBasesColumnMenus(): void {
+  if (!propertyValueAndBasesColumnMenuListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  propertyValueAndBasesColumnMenuListeningComponent.unload();
+  propertyValueAndBasesColumnMenuListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
+/**
+ * Opens the demo base in a new tab, turning the **Bases** core plugin on first if it is off, so there is a table
+ * header to right-click.
+ *
+ * Manual equivalent: turn on **Bases** in **Settings -> Core plugins**, then open `_assets/Context menu demo.base`
+ * from the file explorer.
+ */
+export async function openDemoBase(app: App): Promise<void> {
+  const file = app.vault.getFileByPath(DEMO_BASE_PATH);
+  if (!file) {
+    new Notice(`${DEMO_BASE_PATH} is missing from this vault.`);
+    return;
+  }
+
+  const basesCorePlugin = app.internalPlugins.getPluginById('bases');
+  if (!basesCorePlugin) {
+    new Notice('The Bases core plugin was not found.');
+    return;
+  }
+  if (!basesCorePlugin.enabled) {
+    await basesCorePlugin.enable(true);
+    new Notice(createPluginNameFragment('', 'Bases', ' was off, so it was turned on to open the demo base.'));
+  }
+
+  await app.workspace.getLeaf('tab').openFile(file, { active: true });
 }
 
 /**

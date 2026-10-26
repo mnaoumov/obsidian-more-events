@@ -12,6 +12,7 @@ import type { ApiContract } from '@mnaoumov/typescript-lib/api-contract';
 
 import type {
   AllPropertiesMenuEventName,
+  BasesColumnMenuEventName,
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
   CalloutMenuEventName,
@@ -24,6 +25,7 @@ import type {
   CorePluginEnabledEventName,
   CorePluginSettingTabMenuEventName,
   PdfThumbnailMenuEventName,
+  PropertyValueMenuEventName,
   RibbonMenuEventName,
   SidebarToggleMenuEventName,
   TableCellMenuEventName,
@@ -35,6 +37,8 @@ import { MORE_EVENTS_API_CONTRACT } from '../api-contract.ts';
 
 export type {
   AllPropertiesMenuEventName,
+  BasesColumnMenuEventName,
+  BasesColumnMenuItem,
   BookmarkMenuItem,
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
@@ -55,6 +59,8 @@ export type {
   CorePluginSettingTabMenuEventName,
   MoreEventsApi,
   PdfThumbnailMenuEventName,
+  PropertyValueMenuEventName,
+  PropertyValueMenuItem,
   RibbonMenuEventName,
   RibbonSide,
   SidebarSide,
@@ -73,6 +79,11 @@ export type {
  * Triggered on `app.workspace` when the context menu of a property in the **All properties** view is about to open.
  */
 export const ALL_PROPERTIES_MENU_EVENT_NAME: AllPropertiesMenuEventName = 'more-events:all-properties-menu';
+
+/**
+ * Triggered on `app.workspace` when the context menu of a column header in a Bases table is about to open.
+ */
+export const BASES_COLUMN_MENU_EVENT_NAME: BasesColumnMenuEventName = 'more-events:bases-column-menu';
 
 /**
  * Triggered on `app.workspace` when the context menu of one or more bookmarks is about to open.
@@ -135,6 +146,11 @@ export const CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME: CorePluginSettingTabMenuEv
 export const PDF_THUMBNAIL_MENU_EVENT_NAME: PdfThumbnailMenuEventName = 'more-events:pdf-thumbnail-menu';
 
 /**
+ * Triggered on `app.workspace` when the context menu of one value of a list or tags property is about to open.
+ */
+export const PROPERTY_VALUE_MENU_EVENT_NAME: PropertyValueMenuEventName = 'more-events:property-value-menu';
+
+/**
  * Triggered on `app.workspace` when the context menu of the ribbon's empty area is about to open.
  */
 export const RIBBON_MENU_EVENT_NAME: RibbonMenuEventName = 'more-events:ribbon-menu';
@@ -179,7 +195,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * `isUserInitiated` to both, `1.3.0` added the context-menu events: the bookmarks pair, the canvas view
  * one and the ribbon one, all in the same release, and `1.4.0` added the **All properties** and **Web viewer**
  * History item menus, the PDF view's thumbnail menu, the sidebar toggle buttons' menu, a community plugin's
- * settings row menu, a callout's menu, the core and community plugin settings tab menus, and a Live Preview
- * table's cell and drag handle menus.
+ * settings row menu, a callout's menu, the core and community plugin settings tab menus, a Live Preview
+ * table's cell and drag handle menus, a property value's menu and a Bases table column header's menu.
  */
 export const PLUGIN_API_VERSION = '1.4.0';
