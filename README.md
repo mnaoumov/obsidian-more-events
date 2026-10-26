@@ -106,6 +106,10 @@ The context menus that fire nothing take one more patch, on `Menu.prototype.show
 - **It does not fire for the plugins that were already enabled when it loaded.** Nothing changed, so nothing is announced; read the starting state from the API instead.
 - **It does not replace the `@mnaoumov/obsidian-lib` broadcast, and it overlaps with it.** That library broadcasts `obsidian-lib:plugin-loaded` / `-unloaded`, but only for plugins built on it. The community-plugin events here cover **every** plugin in the vault, including the ones that have never heard of that library — which is the gap they exist to fill. A plugin built on it raises both, so subscribe to one and not to both.
 
+## Similar plugins
+
+No similar plugin was found when this was last searched for, on 2026-10-26.
+
 ## For plugin developers
 
 The events and the API are this plugin's whole point, and both are declared in [`api.d.ts`](./api.d.ts) — hand-written, and importing nothing but `obsidian`, so you can depend on it without depending on anything of mine.
