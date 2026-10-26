@@ -180,6 +180,10 @@ Four frames — `images/screenshots/screenshot-desktop-{1,2}.png` at 1200x800 an
 
 **`labelScreenshot` REFUSES a caption too wide for its frame as of `obsidian-integration-testing` 15.0.0; before that it silently CLIPPED one, at both ends.** The first captured pair shipped exactly that — a sentence fragment with no hint anything was lost, in a frame of exactly the right size, so every dimension assertion downstream still passed and the only feedback was looking at the PNG. Now the caption is measured against the band's room and an overlong one throws with both numbers in the message. `measureLabelCaption({ imageHeightInPixels, imageWidthInPixels, text })` asks the same question without capturing anything, which is how to check a reworded caption. Measured that way on 2026-09-19, the four shipped captions against their own frames: desktop 1005 px and 1034 px of 1104 px available, mobile 760 px and 782 px of 828 px — 91-94 % of the room, all four fitting. Those numbers replace the earlier character-count estimate of roughly 58 and 55 characters, derived from the band's `width * 0.034` font size; em dashes and capitals are wider than any such average implies, so measure rather than count.
 
+## The README is a landing page
+
+**A new event adds exactly ONE row to the README's table for its set** (`### Plugin lifecycle` or `### Context menus` under `## What it does`, rows sorted by event name): the name, what it fires for, and its payload or the arguments after `menu`, marked *relay* when it relays an Obsidian event. Its explanation, measurements and edge cases go in the demo vault note for its set, never in the README. A new set gets its own table, with one demo-vault link in its intro line rather than one per row. The README was 24 KB with one prose paragraph per event before this (2026-10-26). The mechanism (why it patches, how menus are told apart) lives in `demo-vault/05 Why it patches.md`.
+
 ## Release traps
 
 - **The plugin id `more-events` is permanent.** The community directory has listed it since 2026-09-30, and a listed id can never be renamed.

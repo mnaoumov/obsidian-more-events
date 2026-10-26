@@ -2,13 +2,9 @@
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/mnaoumov) [![GitHub release](https://img.shields.io/github/v/release/mnaoumov/obsidian-more-events)](https://github.com/mnaoumov/obsidian-more-events/releases) [![GitHub downloads](https://img.shields.io/github/downloads/mnaoumov/obsidian-more-events/total)](https://github.com/mnaoumov/obsidian-more-events/releases) [![Coverage: 100%](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/mnaoumov/obsidian-more-events)
 
-**A home for the events [Obsidian](https://obsidian.md/) does not publish.** Its public API exposes a fixed set of workspace events, and anything outside that set leaves a plugin reading undocumented internals or patching a shared prototype. `More Events` publishes the missing ones instead — named, typed and per subject, on `app.workspace`, subscribable with no dependency beyond `obsidian` itself. **The first set is plugin lifecycle**, which is what most of this page is about. **The second is context menus**, starting with the **Bookmarks** view, the **Canvas** background and the ribbon: Obsidian builds many context menus without raising an event a plugin could add an item from. Further sets arrive the same way, under the same names-and-types contract, and that is what the plugin is for rather than an afterthought to it.
+**A home for the events [Obsidian](https://obsidian.md/) does not publish.** `More Events` publishes them on `app.workspace`, named, typed and per subject, so any plugin can subscribe with no dependency beyond `obsidian` itself.
 
-A plugin that reacts to another plugin — one of Obsidian's core plugins like Backlinks, Canvas or Graph, or a community plugin it integrates with — has to know when that plugin goes away and when it comes back. Obsidian does emit something: `app.internalPlugins` fires an untyped `change` when a core plugin's state moves, and `app.plugins` fires an untyped `changed` when a community plugin's does. Neither says **which** plugin moved, or in which direction — the community one carries no payload whatsoever — and both hang off internal objects with no published types. So the usual answer is to monkey-patch `InternalPlugin.prototype.enable` — and when two plugins in the same vault do that, there are two patches on one prototype.
-
-This plugin does that patching once, for everybody. It watches the signals Obsidian already sends, works out what actually changed, recovers the one thing those signals drop — whether Obsidian was told the user did it — and re-publishes the lot on `app.workspace` as four named, typed, per-plugin events any plugin can listen for with no dependency beyond `obsidian` itself. One patch on the shared prototype instead of one per interested plugin is the whole point: **you** do not patch.
-
-**It has no user interface.** Nothing to configure, nothing to click: install it, and the events are there for the plugins that need them. So the screenshots below are of *another* plugin reacting — a listener raising a notice as a plugin is toggled in Settings, which is the only thing here there is to see.
+Without it, a plugin that needs such an event reads undocumented internals or patches a shared prototype, and two plugins doing that in one vault means two patches on one prototype. This plugin patches once, for everybody. The first set of events is plugin lifecycle, the second is context menus, and more sets follow under the same contract. It has no user interface: the screenshots show another plugin reacting to its events.
 
 <!-- markdownlint-disable MD033 -->
 
@@ -41,71 +37,58 @@ A copy of the vault ships with every release. You can access it via any of the f
 
 ## What it does
 
-**Today that is the plugin-lifecycle set** — four events, and a small API answering the question events cannot answer — **and the first context menus**, below.
+Every event fires on `app.workspace`. The full declarations are in [`api.d.ts`](./api.d.ts), and [05 Why it patches](<./demo-vault/05 Why it patches.md>) explains how they are recovered.
 
-- **`more-events:core-plugin-enabled`** fires on `app.workspace` after a core plugin has been enabled, carrying that plugin's id and display name. [01 Core plugin events](<./demo-vault/01 Core plugin events.md>)
-- **`more-events:core-plugin-disabled`** fires the same way after one has been disabled. [01 Core plugin events](<./demo-vault/01 Core plugin events.md>)
-- **`more-events:community-plugin-enabled`** and **`more-events:community-plugin-disabled`** are the same pair for community plugins. [02 Community plugin events](<./demo-vault/02 Community plugin events.md>)
-- **A small API** answers the question the events cannot: which plugins are enabled *right now*, which is what a listener needs when it first loads. [03 For plugin developers](<./demo-vault/03 For plugin developers.md>)
-- **Every payload says whether the user did it**, as `isUserInitiated`. Obsidian takes that answer as an argument, uses it to decide whether the plugin's own `onUserEnable` hook runs, and then drops it before it raises the signal these events are built on. `More Events` keeps it.
+### Plugin lifecycle
 
-Every event is **per plugin** — one event per plugin that actually changed, so a listener never has to diff anything — and **past tense**: by the time yours runs, the plugin has already been enabled or disabled.
+Each event fires once per plugin that changed, after it changed, and says whether the user did it (`isUserInitiated`). For community plugins, enabled means loaded. Nothing fires for the plugins already enabled when `More Events` loads: read that from the [API](<./demo-vault/03 For plugin developers.md>). Details: [01 Core plugin events](<./demo-vault/01 Core plugin events.md>), [02 Community plugin events](<./demo-vault/02 Community plugin events.md>).
 
-For community plugins, **enabled means loaded**: the plugin's code is running. That is deliberately not the same as it being ticked in **Settings -> Community plugins**, which Obsidian tracks separately and which stays untouched when the master **Community plugins** switch unloads every one of them.
-
-`isUserInitiated` is **Obsidian's own notion of the user doing it, not a broader one**: it means that plugin's own toggle was flipped. Turning the master **Community plugins** switch off is a person's doing and reports `false`, because Obsidian passes no flag down that path — and so does starting a vault in restricted mode. It is also a claim rather than a proof: a plugin that calls `enable(true)` itself reports `true`, because that is what Obsidian itself believes.
+| Event | Fires after | Payload |
+| --- | --- | --- |
+| `more-events:core-plugin-enabled` | a core plugin is enabled | `{ corePluginId, corePluginName, isUserInitiated }` |
+| `more-events:core-plugin-disabled` | a core plugin is disabled | `{ corePluginId, corePluginName, isUserInitiated }` |
+| `more-events:community-plugin-enabled` | a community plugin is loaded | `{ communityPluginId, communityPluginName, isUserInitiated }` |
+| `more-events:community-plugin-disabled` | a community plugin is unloaded | `{ communityPluginId, communityPluginName, isUserInitiated }` |
 
 ### Context menus
 
-Obsidian raises `file-menu`, `editor-menu` and a few others so a plugin can add items to those menus, and builds many more with no event at all. These events fill that gap, shaped like Obsidian's own: the listener gets the `Menu` first, then what it is for, and whatever it adds appears in the menu Obsidian shows.
+Each event fires just before the menu opens, after Obsidian has added its own items, so an item a listener adds appears in it. The listener gets the `Menu` first, then the arguments below. Obsidian raises an undocumented event of its own for the rows marked *relay*, and `More Events` relays it under a stable name. The others fire nothing in Obsidian. Details: [04 Context menu events](<./demo-vault/04 Context menu events.md>).
 
-- **`more-events:bookmarks-menu`** fires when the context menu of one or more bookmarks in the **Bookmarks** view is about to open, with the bookmarks it is for. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:bookmarks-view-menu`** fires for the **Bookmarks** view's empty area, below the last bookmark, where Obsidian offers **New group**. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:canvas-view-menu`** fires for a **Canvas** view's empty background, where Obsidian offers **Add card**, with the canvas's leaf and the point that was right-clicked in canvas coordinates. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:canvas-node-menu`** fires for a single node on a canvas, a card, a note, a link or a group, where Obsidian offers **Zoom to selection** and **Remove**, with the canvas's leaf and the node as the canvas file stores it. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:canvas-edge-menu`** fires for a single connection on a canvas, where Obsidian offers **Edit label** and **Follow connection**, with the canvas's leaf and the connection as the canvas file stores it. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:canvas-selection-menu`** fires for a selection of several nodes or connections on a canvas, where Obsidian offers **Create group** and **Zoom to selection**, with the canvas's leaf and the selected nodes and connections as the canvas file stores them. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:canvas-node-connection-drop-menu`** fires for the menu shown when a connection dragged out of a canvas node is dropped onto empty canvas, where Obsidian offers **Add card** and **Add note from vault**, with the canvas's leaf, the node the connection came out of as the canvas file stores it, and where it was dropped. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:ribbon-menu`** fires for the ribbon's empty area, below its icons, where Obsidian offers **Hide ribbon**, with which ribbon it is. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:all-properties-menu`** fires for a property in the **All properties** view, where Obsidian offers its types, **Rename** and **Delete**, with the names of the properties the menu acts on: the whole selection when the property is part of one. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:web-viewer-history-menu`** fires for a visited page in the **Web viewer**'s History view, where Obsidian offers **Copy URL** and **Remove from history**, with that page's title and address. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:pdf-thumbnail-menu`** fires for a page thumbnail in the sidebar of a PDF open in its own tab, where Obsidian offers **Copy link to page**, with the PDF's leaf and the page number. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:pdf-outline-menu`** fires for an entry in the outline of a PDF open in its own tab, where Obsidian offers **Copy link to** that section, with the PDF's leaf, and the entry's title and page number. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:pdf-page-menu`** fires for a page of a PDF open in its own tab, on the desktop app, where Obsidian offers **Copy** and the quote and link items for a text selection, with the PDF's leaf and the page number. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:sidebar-toggle-menu`** fires for the button at the top of the left or right sidebar that opens and closes it, where Obsidian offers a checkbox for that sidebar, with which sidebar it is. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:community-plugin-menu`** fires for an installed plugin's row in **Settings -> Community plugins**, where Obsidian offers **Hotkeys**, **View details** and **Uninstall**, with the plugin's id, for a right-click on the row and for a click on its **More options** button alike. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:callout-menu`** fires for a callout in a note's Live Preview editor, where Obsidian offers **Edit** and a **Callout type** submenu, with the note's leaf and the callout's type and header line. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:core-plugin-setting-tab-menu`** and **`more-events:community-plugin-setting-tab-menu`** fire for a core or a community plugin's tab in the **Settings** sidebar, where Obsidian offers **Reveal in plugin list**, with the plugin's id. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:table-cell-menu`** fires for a cell of a table in a note's Live Preview editor that is not the cell being edited, where Obsidian offers **Row** and **Column** submenus, with the note's leaf, the cell's row and column, the table's line and the cell selection. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:table-handle-menu`** fires for a table's row or column drag handle in a note's Live Preview editor, with the note's leaf, whether the handle moves a row or a column, which one, and the table's line. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:property-value-menu`** fires for one value of a list or tags property in a note's properties, where Obsidian offers **Edit**, **Copy** and **Remove from list**, with the leaf showing the properties, the property's key, the value and its place in the list. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:bases-column-menu`** fires for a column header of a table in a base opened in its own tab, where Obsidian offers **Hide column** and the sort items, with the base's leaf, the column's property id and the name of the base's view. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:property-menu`** fires for a property's own menu in a note's properties, the one its icon opens on a click or a right-click, where Obsidian offers **Property type**, the clipboard items and **Remove**, with the leaf showing the properties and the property's key. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:css-snippet-menu`** fires for a snippet's row on the **CSS snippets** page of **Settings -> Appearance**, on the desktop app, where Obsidian offers **Show in system explorer**, with the snippet's name. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:external-image-menu`** fires for an image embedded from a URL in a note's Live Preview editor, where Obsidian offers **Copy image**, **Remove image** and **Reset size**, with the note's leaf, and the image's line and URL. An image embedded from the vault already fires Obsidian's own `file-menu`. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:bases-kanban-column-menu`** fires for a column's empty area in the board view of a base opened in its own tab, where Obsidian offers **Add item**, **Hide column** and **Edit columns**, with the base's leaf, the value the column groups by and the name of the base's view. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:vault-menu`** fires for the vault name at the bottom of the left sidebar, on the desktop app, where Obsidian offers **Show in system explorer** and **Copy path**. The menu is for the open vault, so it carries nothing but the menu. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:history-menu`** fires for a view's back or forward button, at the left of its header, where Obsidian lists the pages that way, with the leaf and `'back'` or `'forward'`. Only the right-click is announced, not the same menu opened by holding the mouse button down on the button. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:leaf-menu`** fires for a leaf's menu, from a right-click on its tab header or a click on its view's **More options** button, with the leaf. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:tab-group-menu`** fires for a tab group's tab list menu, the one the chevron at the right end of its tab headers opens, where Obsidian offers **Close all** and one item per tab, with the tab group. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:search-results-menu`** fires for the **Search** view's results menu, the one the result count above the results opens, where Obsidian offers **Copy search results**, with the **Search** view. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:markdown-viewport-menu`** fires for a right-click in a note's margin, outside its text, or on the editor's gutter, where Obsidian offers **Readable line length**, **Line numbers** and **Inline title**, with the note's view and whether it is the editor or Reading view. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-- **`more-events:markdown-properties-menu`** fires for a note's **Properties** heading, and for the empty area of the **File properties** view, where Obsidian offers **Add file property** and **Sort**, with the file. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
-
-Obsidian does trigger events of its own for ten of these, `bookmarks:bookmarks-menu`, `leaf-menu`, `tab-group-menu`, `search:results-menu`, `markdown-viewport-menu`, `markdown-properties-menu`, `canvas:node-menu`, `canvas:edge-menu`, `canvas:selection-menu` and `canvas:node-connection-drop-menu`, but documents and types them nowhere; `More Events` relays them under names it keeps stable. The others fire nothing at all in Obsidian.
-
-## Why it patches, when the point was to stop you patching
-
-It patches exactly one thing, and that is not a contradiction of the paragraph above — it is what makes it true. The hazard is never *a* patch; it is **N** plugins patching one shared prototype, at different versions, each unaware of the others. A plugin is where such a patch belongs, precisely because a vault holds one copy of it. So the prototype carries one patch, installed once, removed cleanly when the plugin unloads, and every consumer gets the context without adding a second.
-
-The patch supplements the diff rather than replacing it. What it intercepts is the transition; what makes the events per-plugin — and correct when Obsidian collapses several transitions into one debounced signal — is still the diff.
-
-The context menus that fire nothing take one more patch, on `Menu.prototype.showAtMouseEvent` and the `showAtPosition` it shows through, and every such menu goes through that same one. It tells the menus apart by the element whose right-click listener is showing the menu, and it raises the event before the menu is built, while it still accepts items. A menu Obsidian shows a moment after the right-click, when that element is no longer known, is told apart by the path the right-click took, which `More Events` records while it happens. A menu a button shows with no right-click at all, such as a plugin row's **More options**, is told apart by the button Obsidian anchors it to.
-
-## What it deliberately does not do
-
-- **It does not fire for the plugins that were already enabled when it loaded.** Nothing changed, so nothing is announced; read the starting state from the API instead.
-- **It does not replace the `@mnaoumov/obsidian-lib` broadcast, and it overlaps with it.** That library broadcasts `obsidian-lib:plugin-loaded` / `-unloaded`, but only for plugins built on it. The community-plugin events here cover **every** plugin in the vault, including the ones that have never heard of that library — which is the gap they exist to fill. A plugin built on it raises both, so subscribe to one and not to both.
+| Event | Fires for the menu of | Arguments after `menu` |
+| --- | --- | --- |
+| `more-events:all-properties-menu` | a property in the **All properties** view | `leaf`, `propertyNames` |
+| `more-events:bases-column-menu` | a Bases table column header | `leaf`, `column` |
+| `more-events:bases-kanban-column-menu` | a Bases board column's empty area | `leaf`, `column` |
+| `more-events:bookmarks-menu` | one or more bookmarks (*relay*) | `bookmarks` |
+| `more-events:bookmarks-view-menu` | the **Bookmarks** view's empty area | `leaf` |
+| `more-events:callout-menu` | a Live Preview callout | `leaf`, `callout` |
+| `more-events:canvas-edge-menu` | a canvas connection (*relay*) | `leaf`, `edge` |
+| `more-events:canvas-node-connection-drop-menu` | a connection dropped onto empty canvas (*relay*) | `leaf`, `fromNode`, `drop` |
+| `more-events:canvas-node-menu` | a canvas node (*relay*) | `leaf`, `node` |
+| `more-events:canvas-selection-menu` | a canvas selection (*relay*) | `leaf`, `selection` |
+| `more-events:canvas-view-menu` | a canvas's empty background | `leaf`, `position` |
+| `more-events:community-plugin-menu` | a plugin's row in **Settings -> Community plugins**, or its **More options** button | `communityPluginId` |
+| `more-events:community-plugin-setting-tab-menu` | a community plugin's tab in the Settings sidebar | `communityPluginId` |
+| `more-events:core-plugin-setting-tab-menu` | a core plugin's tab in the Settings sidebar | `corePluginId` |
+| `more-events:css-snippet-menu` | a CSS snippet's row in **Settings -> Appearance** (desktop) | `snippet` |
+| `more-events:external-image-menu` | a Live Preview image embedded from a URL | `leaf`, `image` |
+| `more-events:history-menu` | a view's back or forward button | `leaf`, `direction` |
+| `more-events:leaf-menu` | a tab header, or a view's **More options** (*relay*) | `leaf` |
+| `more-events:markdown-properties-menu` | a note's **Properties** heading (*relay*) | `file` |
+| `more-events:markdown-viewport-menu` | a note's margin or the editor's gutter (*relay*) | `view`, `mode` |
+| `more-events:pdf-outline-menu` | an entry in a PDF's outline | `leaf`, `outlineItem` |
+| `more-events:pdf-page-menu` | a page of a PDF (desktop) | `leaf`, `pageNumber` |
+| `more-events:pdf-thumbnail-menu` | a page thumbnail in a PDF's sidebar | `leaf`, `pageNumber` |
+| `more-events:property-menu` | a property's icon | `leaf`, `property` |
+| `more-events:property-value-menu` | a value of a list or tags property | `leaf`, `value` |
+| `more-events:ribbon-menu` | the ribbon's empty area | `side` |
+| `more-events:search-results-menu` | the **Search** view's result count (*relay*) | `searchView` |
+| `more-events:sidebar-toggle-menu` | a sidebar's toggle button | `side` |
+| `more-events:tab-group-menu` | a tab group's tab list chevron (*relay*) | `tabGroup` |
+| `more-events:table-cell-menu` | a Live Preview table cell | `leaf`, `cell` |
+| `more-events:table-handle-menu` | a Live Preview table's row or column drag handle | `leaf`, `handle` |
+| `more-events:vault-menu` | the vault name in the left sidebar (desktop) | nothing |
+| `more-events:web-viewer-history-menu` | a page in the **Web viewer**'s History view | `leaf`, `historyItem` |
 
 ## Similar plugins
 
@@ -113,9 +96,7 @@ No similar plugin was found when this was last searched for, on 2026-10-26.
 
 ## For plugin developers
 
-The events and the API are this plugin's whole point, and both are declared in [`api.d.ts`](./api.d.ts) — hand-written, and importing nothing but `obsidian`, so you can depend on it without depending on anything of mine.
-
-The events need no API handle at all. Copy the declarations from `api.d.ts` into your own project, or hardcode the names, and subscribe:
+The events and the API are declared in [`api.d.ts`](./api.d.ts), which imports nothing but `obsidian`. The events need no API handle: copy the declarations into your project, or hardcode the names, and subscribe:
 
 ```ts
 this.registerEvent(
@@ -123,12 +104,6 @@ this.registerEvent(
     if (isUserInitiated) {
       console.log(`${corePluginName} (${corePluginId}) is back, because someone turned it back on`);
     }
-  })
-);
-
-this.registerEvent(
-  this.app.workspace.on('more-events:community-plugin-disabled', ({ communityPluginId, communityPluginName }) => {
-    console.log(`${communityPluginName} (${communityPluginId}) has gone`);
   })
 );
 
@@ -145,7 +120,7 @@ this.registerEvent(
 
 For the current state, and to know whether `More Events` is installed at all, take the API through the registry. The contract is **`1.4.0`** and moves independently of the plugin's own version, so ask for a range.
 
-Beside `api.d.ts`, [`api-contract.ts`](./api-contract.ts) holds the API's contract, `MORE_EVENTS_API_CONTRACT`: for every method, a schema over its arguments and a schema over what it returns. It is the constant this plugin publishes with the API, so copy it next to `api.d.ts` and pass it as the `contract`, and both sides check the same definition. Besides `./api.d.ts` it imports from one package, [`@mnaoumov/typescript-lib`](https://www.npmjs.com/package/@mnaoumov/typescript-lib), whose `api-contract` entry point carries the contract type, the [Standard Schema](https://standardschema.dev) builders and the common guards, so add that package (`1.3.0` or later) to your project when you copy the file. (It is not named `api.ts`: TypeScript would read `api.d.ts` as that file's own declarations.)
+Beside `api.d.ts`, [`api-contract.ts`](./api-contract.ts) holds the API's contract, `MORE_EVENTS_API_CONTRACT`: for every method, a schema over its arguments and a schema over what it returns. Copy it next to `api.d.ts` and pass it as the `contract`, so both sides check the same definition. It imports from one package besides `./api.d.ts`, [`@mnaoumov/typescript-lib`](https://www.npmjs.com/package/@mnaoumov/typescript-lib) (`1.3.0` or later). More in [03 For plugin developers](<./demo-vault/03 For plugin developers.md>).
 
 ```ts
 import { watchPluginApi } from '@mnaoumov/obsidian-lib/plugin/plugin-api';
