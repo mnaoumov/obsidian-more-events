@@ -18,6 +18,7 @@ import type {
   BookmarksViewMenuEventName,
   CalloutMenuEventName,
   CanvasEdgeMenuEventName,
+  CanvasNodeConnectionDropMenuEventName,
   CanvasNodeMenuEventName,
   CanvasSelectionMenuEventName,
   CanvasViewMenuEventName,
@@ -65,6 +66,8 @@ export type {
   CanvasEdgeMenuEventName,
   CanvasMenuPosition,
   CanvasMenuSelection,
+  CanvasNodeConnectionDrop,
+  CanvasNodeConnectionDropMenuEventName,
   CanvasNodeMenuEventName,
   CanvasSelectionMenuEventName,
   CanvasViewMenuEventName,
@@ -148,6 +151,12 @@ export const CALLOUT_MENU_EVENT_NAME: CalloutMenuEventName = 'more-events:callou
  * Triggered on `app.workspace` when the context menu of a connection on a canvas is about to open.
  */
 export const CANVAS_EDGE_MENU_EVENT_NAME: CanvasEdgeMenuEventName = 'more-events:canvas-edge-menu';
+
+/**
+ * Triggered on `app.workspace` when the menu shown after a connection is dragged out of a canvas node onto empty
+ * canvas is about to open.
+ */
+export const CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME: CanvasNodeConnectionDropMenuEventName = 'more-events:canvas-node-connection-drop-menu';
 
 /**
  * Triggered on `app.workspace` when the context menu of a single node on a canvas is about to open.

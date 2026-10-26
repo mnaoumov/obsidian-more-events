@@ -10,16 +10,22 @@ import type {
 } from 'obsidian';
 import type {
   AllCanvasNodeData,
-  CanvasEdgeData
+  CanvasEdgeData,
+  NodeSide
 } from 'obsidian/canvas.d.ts';
 
 import { castTo } from '@mnaoumov/typescript-lib/object-utils';
 import { Component } from 'obsidian';
 
-import type { CanvasMenuSelection } from '../api.d.ts';
+import type {
+  CanvasMenuPosition,
+  CanvasMenuSelection,
+  CanvasNodeConnectionDrop
+} from '../api.d.ts';
 
 import {
   CANVAS_EDGE_MENU_EVENT_NAME,
+  CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME,
   CANVAS_NODE_MENU_EVENT_NAME,
   CANVAS_SELECTION_MENU_EVENT_NAME
 } from './more-events-api.ts';
@@ -43,6 +49,12 @@ const OBSIDIAN_CANVAS_EDGE_MENU_EVENT_NAME = 'canvas:edge-menu';
 const OBSIDIAN_CANVAS_SELECTION_MENU_EVENT_NAME = 'canvas:selection-menu';
 
 /**
+ * The event Obsidian itself triggers on `app.workspace` for the menu shown after a connection is dragged out of a
+ * canvas node onto empty canvas, undocumented (`app.js:156620` in 1.15.0).
+ */
+const OBSIDIAN_CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME = 'canvas:node-connection-drop-menu';
+
+/**
  * Parameters for the {@link CanvasObjectMenuEventsComponent} constructor.
  */
 export interface CanvasObjectMenuEventsComponentConstructorParams {
@@ -53,11 +65,12 @@ export interface CanvasObjectMenuEventsComponentConstructorParams {
 }
 
 /**
- * Publishes the context-menu events of a canvas node, a canvas connection and a canvas selection, as relays.
+ * Publishes the context-menu events of a canvas node, a canvas connection and a canvas selection, and the menu of a
+ * connection dropped onto empty canvas, as relays.
  *
- * **They are relays, and need no patch.** Obsidian already triggers its own `canvas:node-menu`, `canvas:edge-menu` and
- * `canvas:selection-menu` with the menu and the node, the connection or the canvas, but documents and types none of
- * them.
+ * **They are relays, and need no patch.** Obsidian already triggers its own `canvas:node-menu`, `canvas:edge-menu`,
+ * `canvas:selection-menu` and `canvas:node-connection-drop-menu` with the menu and the node, the connection or the
+ * canvas, but documents and types none of them.
  *
  * **What is handed over is plain data, not Obsidian's objects.** The node, the connection and the canvas are not
  * public `obsidian` types, while what the canvas file stores of them is (`obsidian/canvas`), so each relay hands over
@@ -85,7 +98,7 @@ export class CanvasObjectMenuEventsComponent extends Component {
      * An upcast rather than `app.workspace.on`, because no typings declare the events: `Workspace` redeclares `on` as
      * a closed set of overloads, and the generic `Events.on` is what accepts any name.
      */
-    // TODO: Call `app.workspace.on` directly once `obsidian-typings` declares the three `canvas:*-menu` events.
+    // TODO: Call `app.workspace.on` directly once `obsidian-typings` declares the four `canvas:*-menu` events.
     const workspaceEvents: Events = this.app.workspace;
     this.registerEvent(workspaceEvents.on(OBSIDIAN_CANVAS_NODE_MENU_EVENT_NAME, (menu: unknown, node: unknown) => {
       const canvasNode = castTo<CanvasViewCanvasNode>(node);
@@ -99,7 +112,35 @@ export class CanvasObjectMenuEventsComponent extends Component {
       const viewCanvas = castTo<CanvasViewCanvas>(canvas);
       this.app.workspace.trigger(CANVAS_SELECTION_MENU_EVENT_NAME, castTo<Menu>(menu), viewCanvas.view.leaf, getSelection(viewCanvas));
     }));
+    this.registerEvent(workspaceEvents.on(OBSIDIAN_CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME, (menu: unknown, fromNode: unknown, edge: unknown) => {
+      const canvasNode = castTo<CanvasViewCanvasNode>(fromNode);
+      this.app.workspace.trigger(
+        CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME,
+        castTo<Menu>(menu),
+        canvasNode.canvas.view.leaf,
+        getNodeData(canvasNode),
+        getConnectionDrop(castTo<CanvasViewCanvasEdge>(edge))
+      );
+    }));
   }
+}
+
+/**
+ * Copies where a dragged connection was dropped.
+ *
+ * Until an item of the menu picks a node for it, the connection ends at a temporary node of no size that the drag
+ * moved to the drop point, which is in no map of the canvas, so its position is the drop point.
+ *
+ * @param edge - The dragged connection.
+ * @returns The drop, as plain data.
+ */
+function getConnectionDrop(edge: CanvasViewCanvasEdge): CanvasNodeConnectionDrop {
+  const dropNode = castTo<CanvasMenuPosition>(edge.to.node);
+  return {
+    fromSide: castTo<NodeSide>(edge.from.side),
+    position: { x: dropNode.x, y: dropNode.y },
+    toSide: castTo<NodeSide>(edge.to.side)
+  };
 }
 
 function getEdgeData(edge: CanvasViewCanvasEdge): CanvasEdgeData {

@@ -68,6 +68,7 @@ const BOOKMARKS_MENU_EVENT_NAME = 'more-events:bookmarks-menu';
 const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
 const CALLOUT_MENU_EVENT_NAME = 'more-events:callout-menu';
 const CANVAS_EDGE_MENU_EVENT_NAME = 'more-events:canvas-edge-menu';
+const CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME = 'more-events:canvas-node-connection-drop-menu';
 const CANVAS_NODE_MENU_EVENT_NAME = 'more-events:canvas-node-menu';
 const CANVAS_SELECTION_MENU_EVENT_NAME = 'more-events:canvas-selection-menu';
 const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
@@ -347,6 +348,18 @@ export function startListeningToCanvasAndRibbonMenus(app: App): void {
           .setIcon('lucide-info')
           .onClick(() => {
             new Notice(`In ${leaf.getDisplayText()}: ${String(selection.nodes.length)} node(s) and ${String(selection.edges.length)} connection(s).`);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME, (menu, leaf, fromNode, drop) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Where was this dropped? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`In ${leaf.getDisplayText()}: dragged out of the ${drop.fromSide} side of node ${fromNode.id}, dropped at ${String(Math.round(drop.position.x))}, ${String(Math.round(drop.position.y))}.`);
           });
       });
     })

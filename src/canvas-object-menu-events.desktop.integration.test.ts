@@ -14,6 +14,7 @@ import {
 
 import {
   CANVAS_EDGE_MENU_EVENT_NAME,
+  CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME,
   CANVAS_NODE_MENU_EVENT_NAME,
   CANVAS_SELECTION_MENU_EVENT_NAME
 } from './more-events-api.ts';
@@ -41,17 +42,21 @@ interface MenuRecord {
 
 /*
  * The test that can fail for the right reason: the claim is about the REAL app. Each relay rests on Obsidian still
- * triggering its own undocumented `canvas:node-menu`, `canvas:edge-menu` and `canvas:selection-menu` under those
- * names, with those subjects, before the menu is shown, which only a real trusted right-click proves.
+ * triggering its own undocumented `canvas:node-menu`, `canvas:edge-menu`, `canvas:selection-menu` and
+ * `canvas:node-connection-drop-menu` under those names, with those subjects, before the menu is shown, which only real
+ * trusted input proves.
  *
  * Each test adds an item from its listener and then reads the menu Obsidian actually put on screen, because the point
- * of a menu event is that the item shows up. It also asserts that the other two events stayed silent, so a menu
- * claimed by the wrong relay fails.
+ * of a menu event is that the item shows up. Each right-click test also asserts that the other two events stayed
+ * silent, so a menu claimed by the wrong relay fails.
  *
- * Each test also listens to Obsidian's own three events, and closes the menu it is handed there, so a broken relay
- * leaves no menu open to swallow the next test's click.
+ * Each test also listens to Obsidian's own events, and closes the menu it is handed there, so a broken relay leaves
+ * no menu open to swallow the next test's click.
  *
- * Desktop only: the trusted right-click goes through Electron's `sendInputEvent`.
+ * The connection-drop menu is opened by a trusted DRAG instead: a connection dragged out of a card's handle onto empty
+ * canvas, which is the only way Obsidian shows it.
+ *
+ * Desktop only: the trusted right-click and drag go through Electron's `sendInputEvent`.
  */
 describe('Canvas object menu events', () => {
   it('should let a listener add an item to a canvas node\'s menu', { timeout: TEST_TIMEOUT_IN_MS }, async () => {
@@ -81,7 +86,175 @@ describe('Canvas object menu events', () => {
     expect(record.shownItemTitles).toContain('Added by a listener');
     expect(record.shownItemTitles).toContain('Create group');
   });
+
+  it('should let a listener add an item to the menu of a connection dropped onto empty canvas', { timeout: TEST_TIMEOUT_IN_MS }, async () => {
+    const record = await dropConnection();
+
+    expect(record.calls).toEqual(['drop:n1:bottom>top']);
+    expect(record.leafViewTypes).toEqual(['canvas']);
+    // The card spans x 0 to 240 and y 0 to 120, and the connection was dragged straight down out of it.
+    expect(record.isDropBelowCard).toBe(true);
+    expect(record.shownItemTitles).toContain('Added by a listener');
+    expect(record.shownItemTitles).toContain('Add card');
+  });
 });
+
+interface DropRecord extends MenuRecord {
+  /**
+   * Whether the drop point the listener was given lies below the card and within its width, in canvas coordinates.
+   */
+  isDropBelowCard: boolean;
+}
+
+/**
+ * Opens a canvas holding one card, drags a connection out of the card's bottom handle onto empty canvas with a
+ * trusted drag, and records what the listener saw and what the menu on screen showed.
+ *
+ * @returns What happened.
+ */
+async function dropConnection(): Promise<DropRecord> {
+  return await evalInObsidian({
+    async callback({
+      app,
+      CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME: canvasNodeConnectionDropMenuEventName,
+      lib
+    }): Promise<DropRecord> {
+      const {
+        dragMouse,
+        moveMouse,
+        waitUntil
+      } = lib;
+      // Three waits at 8 s declare 24 s in one transport call, under the 30 s a desktop closure gets.
+      const WAIT_TIMEOUT_IN_MS = 8000;
+      const ADDED_ITEM_TITLE = 'Added by a listener';
+      const CANVAS_PATH = 'Canvas connection drop test.canvas';
+      const CARD_HEIGHT = 120;
+      const CARD_WIDTH = 240;
+      const DROP_DISTANCE_IN_PIXELS = 120;
+      // Canvas pans when a drag nears its edge (30px), so the drop stays well clear of it.
+      const EDGE_CLEARANCE_IN_PIXELS = 60;
+      const CANVAS_CONTENT = JSON.stringify({
+        edges: [],
+        nodes: [{ height: CARD_HEIGHT, id: 'n1', text: 'First card', type: 'text', width: CARD_WIDTH, x: 0, y: 0 }]
+      });
+
+      // See `rightClickCanvas` for why Canvas is turned on first.
+      const canvasCorePlugin = app.internalPlugins.getPluginById('canvas');
+      if (!canvasCorePlugin) {
+        throw new Error('The Canvas core plugin was not found.');
+      }
+      const wasCanvasEnabled = canvasCorePlugin.enabled;
+      if (!wasCanvasEnabled) {
+        await canvasCorePlugin.enable(false);
+      }
+
+      const existingFile = app.vault.getFileByPath(CANVAS_PATH);
+      if (existingFile) {
+        await app.vault.modify(existingFile, CANVAS_CONTENT);
+      }
+      const file = existingFile ?? await app.vault.create(CANVAS_PATH, CANVAS_CONTENT);
+      const leaf = app.workspace.getLeaf('tab');
+      await leaf.openFile(file);
+      await app.workspace.revealLeaf(leaf);
+      if (leaf.view.getViewType() !== 'canvas') {
+        throw new Error(`Expected a canvas view, got ${leaf.view.getViewType()}`);
+      }
+      // A cast, because `getViewType()` does not narrow `leaf.view`.
+      const { canvas } = leaf.view as CanvasView;
+
+      const calls: string[] = [];
+      const leafViewTypes: string[] = [];
+      let isDropBelowCard = false;
+      let shownMenu: Menu | null = null;
+      let obsidianMenu: Menu | null = null;
+
+      const eventRef = app.workspace.on(canvasNodeConnectionDropMenuEventName, (menu, canvasLeaf, fromNode, drop) => {
+        shownMenu = menu;
+        calls.push(`drop:${fromNode.id}:${drop.fromSide}>${drop.toSide}`);
+        leafViewTypes.push(canvasLeaf.view.getViewType());
+        isDropBelowCard = drop.position.y > CARD_HEIGHT && drop.position.x >= 0 && drop.position.x <= CARD_WIDTH;
+        menu.addItem((item) => item.setTitle(ADDED_ITEM_TITLE));
+      });
+      // An upcast, because no typings declare Obsidian's own event: the generic `Events.on` accepts any name.
+      const workspaceEvents: Events = app.workspace;
+      const obsidianEventRef = workspaceEvents.on('canvas:node-connection-drop-menu', (menu: unknown) => {
+        obsidianMenu = menu as Menu;
+      });
+
+      try {
+        await waitUntil({
+          message: 'the canvas to render the card',
+          predicate: () => {
+            const node = canvas.nodes.get('n1');
+            return !!node && node.nodeEl.isShown() && node.nodeEl.getBoundingClientRect().width > 0;
+          },
+          timeoutInMilliseconds: WAIT_TIMEOUT_IN_MS
+        });
+        const node = canvas.nodes.get('n1');
+        if (!node) {
+          throw new Error('The canvas did not load its card.');
+        }
+        canvas.deselectAll();
+
+        // The connection handles belong to the node under the pointer, so the pointer goes there first.
+        const nodeRect = node.nodeEl.getBoundingClientRect();
+        await moveMouse({ x: Math.round(nodeRect.left + nodeRect.width / 2), y: Math.round(nodeRect.top + nodeRect.height / 2) });
+
+        const handleSelector = '.canvas-node-connection-point[data-side="bottom"]';
+        function findHandle(): HTMLElement | null {
+          const handleEl = leaf.view.containerEl.querySelector<HTMLElement>(handleSelector);
+          return handleEl && handleEl.getBoundingClientRect().width > 0 ? handleEl : null;
+        }
+        await waitUntil({
+          message: 'the bottom connection handle to be laid out',
+          predicate: () => findHandle() !== null,
+          timeoutInMilliseconds: WAIT_TIMEOUT_IN_MS
+        });
+        const handleEl = findHandle();
+        if (!handleEl) {
+          throw new Error('The canvas rendered no bottom connection handle.');
+        }
+
+        const handleRect = handleEl.getBoundingClientRect();
+        const wrapperRect = canvas.wrapperEl.getBoundingClientRect();
+        const from = { x: Math.round(handleRect.left + handleRect.width / 2), y: Math.round(handleRect.top + handleRect.height / 2) };
+        const room = wrapperRect.bottom - from.y - EDGE_CLEARANCE_IN_PIXELS;
+        if (room < DROP_DISTANCE_IN_PIXELS) {
+          throw new Error(`The canvas has only ${String(room)}px of empty space below the card to drop on.`);
+        }
+        await dragMouse({ from, to: { x: from.x, y: from.y + DROP_DISTANCE_IN_PIXELS } });
+
+        await waitUntil({
+          message: 'the connection-drop menu to open',
+          predicate: () => !!activeDocument.body.querySelector('.menu'),
+          timeoutInMilliseconds: WAIT_TIMEOUT_IN_MS
+        });
+
+        const menuEl = activeDocument.body.querySelector('.menu');
+        return {
+          calls,
+          isDropBelowCard,
+          leafViewTypes,
+          shownItemTitles: Array.from(menuEl?.querySelectorAll('.menu-item-title') ?? [], (titleEl) => titleEl.textContent)
+        };
+      } finally {
+        app.workspace.offref(eventRef);
+        app.workspace.offref(obsidianEventRef);
+        // The `null` initializers narrow the closure-assigned variables to `never` for the checker.
+        (shownMenu as Menu | null)?.hide();
+        (obsidianMenu as Menu | null)?.hide();
+        leaf.detach();
+        if (!wasCanvasEnabled) {
+          canvasCorePlugin.disable(false);
+        }
+      }
+    },
+    input: {
+      CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME
+    },
+    vaultPath: getTemporaryVault().path
+  });
+}
 
 /**
  * Opens a canvas holding two cards joined by one connection, right-clicks the target with a trusted click, and

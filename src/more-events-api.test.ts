@@ -12,6 +12,7 @@ import {
   BOOKMARKS_VIEW_MENU_EVENT_NAME,
   CALLOUT_MENU_EVENT_NAME,
   CANVAS_EDGE_MENU_EVENT_NAME,
+  CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME,
   CANVAS_NODE_MENU_EVENT_NAME,
   CANVAS_SELECTION_MENU_EVENT_NAME,
   CANVAS_VIEW_MENU_EVENT_NAME,
@@ -89,6 +90,7 @@ describe('the published contract', () => {
     expect(CANVAS_NODE_MENU_EVENT_NAME).toBe('more-events:canvas-node-menu');
     expect(CANVAS_EDGE_MENU_EVENT_NAME).toBe('more-events:canvas-edge-menu');
     expect(CANVAS_SELECTION_MENU_EVENT_NAME).toBe('more-events:canvas-selection-menu');
+    expect(CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME).toBe('more-events:canvas-node-connection-drop-menu');
   });
 
   it('should declare every member of the api in the contract', () => {
