@@ -16,6 +16,7 @@ import {
 } from 'vitest';
 
 import { AllPropertiesMenuEventsComponent } from './all-properties-menu-events-component.ts';
+import { BasesColumnMenuEventsComponent } from './bases-column-menu-events-component.ts';
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
 import { CalloutMenuEventsComponent } from './callout-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
@@ -31,6 +32,7 @@ import { MenuPatchComponent } from './patches/menu-patch-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './pdf-thumbnail-menu-events-component.ts';
 import { PluginSettingTabMenuEventsComponent } from './plugin-setting-tab-menu-events-component.ts';
 import { Plugin } from './plugin.ts';
+import { PropertyValueMenuEventsComponent } from './property-value-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
 import { TableMenuEventsComponent } from './table-menu-events-component.ts';
@@ -151,6 +153,26 @@ vi.mock('./table-menu-events-component.ts', async () => {
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     TableMenuEventsComponent: vi.fn(function tableMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./property-value-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    PropertyValueMenuEventsComponent: vi.fn(function propertyValueMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./bases-column-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    BasesColumnMenuEventsComponent: vi.fn(function basesColumnMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -326,8 +348,26 @@ describe('Plugin', () => {
       vi.mocked(CommunityPluginMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(CalloutMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(PluginSettingTabMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(TableMenuEventsComponent).mock.results[0]?.value
+      vi.mocked(TableMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(PropertyValueMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(BasesColumnMenuEventsComponent).mock.results[0]?.value
     ]);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
+  it('should add the property value and Bases column menu events components with the app', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+
+    const propertyValueCalls = vi.mocked(PropertyValueMenuEventsComponent).mock.calls;
+    expect(propertyValueCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(propertyValueCalls[0]?.[0]).app).toBe(plugin.app);
+
+    const basesColumnCalls = vi.mocked(BasesColumnMenuEventsComponent).mock.calls;
+    expect(basesColumnCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(basesColumnCalls[0]?.[0]).app).toBe(plugin.app);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();

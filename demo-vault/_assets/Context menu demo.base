@@ -1,0 +1,7 @@
+views:
+  - type: table
+    name: Demo notes
+    order:
+      - file.name
+      - note.demo-status
+      - file.mtime

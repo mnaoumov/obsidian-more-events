@@ -4,6 +4,7 @@ import { OpenDemoVaultCommandHandler } from '@mnaoumov/obsidian-lib/command-hand
 import { PluginBase } from '@mnaoumov/obsidian-lib/plugin/plugin';
 
 import { AllPropertiesMenuEventsComponent } from './all-properties-menu-events-component.ts';
+import { BasesColumnMenuEventsComponent } from './bases-column-menu-events-component.ts';
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
 import { CalloutMenuEventsComponent } from './callout-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
@@ -18,6 +19,7 @@ import {
 import { MenuPatchComponent } from './patches/menu-patch-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './pdf-thumbnail-menu-events-component.ts';
 import { PluginSettingTabMenuEventsComponent } from './plugin-setting-tab-menu-events-component.ts';
+import { PropertyValueMenuEventsComponent } from './property-value-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
 import { TableMenuEventsComponent } from './table-menu-events-component.ts';
@@ -126,6 +128,18 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const propertyValueMenuEventsComponent = this.addChild(
+      new PropertyValueMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    const basesColumnMenuEventsComponent = this.addChild(
+      new BasesColumnMenuEventsComponent({
+        app: this.app
+      })
+    );
+
     this.addChild(
       new MenuPatchComponent({
         app: this.app,
@@ -134,7 +148,9 @@ export class Plugin extends PluginBase {
           communityPluginMenuEventsComponent,
           calloutMenuEventsComponent,
           pluginSettingTabMenuEventsComponent,
-          tableMenuEventsComponent
+          tableMenuEventsComponent,
+          propertyValueMenuEventsComponent,
+          basesColumnMenuEventsComponent
         ],
         menuAnnouncers: [
           bookmarksMenuEventsComponent,

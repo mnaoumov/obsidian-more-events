@@ -1,5 +1,9 @@
 ---
 demo-status: right-click me in All properties
+demo-topics:
+  - menus
+  - events
+  - properties
 ---
 
 # Context menu events
@@ -213,6 +217,35 @@ caption: Stop listening to the table menus
 require('/demoSetup.ts').stopListeningToTableMenus();
 ```
 
+## Try the property value and Bases column ones
+
+These two menus are also shown a moment after the right-click. Start listening:
+
+```code-button
+---
+caption: Start listening to the property value and Bases column menus
+---
+require('/demoSetup.ts').startListeningToPropertyValueAndBasesColumnMenus(app);
+```
+
+Now right-click one of the values of `demo-topics` in this note's properties, at the top: below Obsidian's **Edit**, **Copy** and **Remove from list** is **Which value is this? (added by a listener)**, and clicking it names the property, the value and its place in the list. Then open the demo base and right-click a column header of its table: below Obsidian's **Hide column** and the sort items is **Which column is this? (added by a listener)**.
+
+```code-button
+---
+caption: Open the demo base
+---
+await require('/demoSetup.ts').openDemoBase(app);
+```
+
+Then stop:
+
+```code-button
+---
+caption: Stop listening to the property value and Bases column menus
+---
+require('/demoSetup.ts').stopListeningToPropertyValueAndBasesColumnMenus();
+```
+
 ## What the events promise
 
 - **They fire before the menu opens**, after Obsidian has added its own items, so an item you add appears in the menu.
@@ -223,4 +256,4 @@ require('/demoSetup.ts').stopListeningToTableMenus();
 
 Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, but documents and types it nowhere. `More Events` relays it under a name it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
-The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail menu, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus and the table cell and drag handle menus raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
+The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail menu, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu and the Bases column header menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.

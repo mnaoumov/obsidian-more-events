@@ -87,6 +87,30 @@ export interface BookmarkMenuItem {
 }
 
 /**
+ * The name of the event triggered when the context menu of a column header in a Bases table is about to open —
+ * the right-click on the header, which offers **Hide column**, **Edit property** and the sort items.
+ */
+export type BasesColumnMenuEventName = 'more-events:bases-column-menu';
+
+/**
+ * One column of a Bases table view — the column a column header menu is for.
+ *
+ * Plain data, read from the table when the menu opens, and additive only, like the other payloads in this file.
+ */
+export interface BasesColumnMenuItem {
+  /**
+   * The id of the property the column shows, as the base's `order` writes it: `note.status`, `file.name` or
+   * `formula.total`.
+   */
+  readonly propertyId: string;
+
+  /**
+   * The name of the base's view the table renders, as the base's `views` list writes it.
+   */
+  readonly viewName: string;
+}
+
+/**
  * The name of the event triggered when the context menu of one or more bookmarks is about to open.
  */
 export type BookmarksMenuEventName = 'more-events:bookmarks-menu';
@@ -326,6 +350,36 @@ export interface MoreEventsApi {
 export type PdfThumbnailMenuEventName = 'more-events:pdf-thumbnail-menu';
 
 /**
+ * The name of the event triggered when the context menu of one value of a list or tags property is about to
+ * open — the right-click on the value's pill in the properties editor, which offers **Edit**, **Copy** and
+ * **Remove from list**.
+ */
+export type PropertyValueMenuEventName = 'more-events:property-value-menu';
+
+/**
+ * One value of a list or tags property — the value a property value menu is for.
+ *
+ * Plain data, read from the properties editor when the menu opens, and additive only, like the other payloads
+ * in this file.
+ */
+export interface PropertyValueMenuItem {
+  /**
+   * The value's place in the property's list, counted from 0.
+   */
+  readonly index: number;
+
+  /**
+   * The property's key, as written in the note: the case is the note's, not lowered.
+   */
+  readonly key: string;
+
+  /**
+   * The value as text, as Obsidian's own **Copy** item copies it.
+   */
+  readonly value: string;
+}
+
+/**
  * The name of the event triggered when the context menu of the ribbon's empty area is about to open — the
  * right-click below its icons, which offers a checkbox per ribbon action and **Hide ribbon**.
  */
@@ -473,6 +527,22 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: AllPropertiesMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, propertyNames: readonly string[]) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of a column header in a Bases table view.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a
+     * right-click on the header of a table in a base opened in its own tab. A base embedded in a note is not
+     * announced, and neither is the header's tap on mobile, which opens the same menu.
+     *
+     * @param name - Should be `'more-events:bases-column-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the **Bases** view (its `view.file`
+     * is the base), and the column.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: BasesColumnMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, column: BasesColumnMenuItem) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of one or more bookmarks in the **Bookmarks** view.
@@ -643,6 +713,22 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: PdfThumbnailMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, pageNumber: number) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of one value of a list or tags property in the properties editor.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a
+     * right-click on a value's pill in a Markdown view's properties or in the **Properties** view. A properties
+     * editor shown outside a tab, such as a hover popover's, is not announced.
+     *
+     * @param name - Should be `'more-events:property-value-menu'`.
+     * @param callback - The callback receiving the menu, the leaf whose view shows the properties (its
+     * `view.file` is the note), and the value.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: PropertyValueMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, value: PropertyValueMenuItem) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of the ribbon's empty area, below its icons.

@@ -6,6 +6,7 @@ import {
 
 import {
   ALL_PROPERTIES_MENU_EVENT_NAME,
+  BASES_COLUMN_MENU_EVENT_NAME,
   BOOKMARKS_MENU_EVENT_NAME,
   BOOKMARKS_VIEW_MENU_EVENT_NAME,
   CALLOUT_MENU_EVENT_NAME,
@@ -20,6 +21,7 @@ import {
   PDF_THUMBNAIL_MENU_EVENT_NAME,
   PLUGIN_API_CONTRACT,
   PLUGIN_API_VERSION,
+  PROPERTY_VALUE_MENU_EVENT_NAME,
   RIBBON_MENU_EVENT_NAME,
   SIDEBAR_TOGGLE_MENU_EVENT_NAME,
   TABLE_CELL_MENU_EVENT_NAME,
@@ -53,6 +55,8 @@ describe('the published contract', () => {
     expect(COMMUNITY_PLUGIN_SETTING_TAB_MENU_EVENT_NAME).toBe('more-events:community-plugin-setting-tab-menu');
     expect(TABLE_CELL_MENU_EVENT_NAME).toBe('more-events:table-cell-menu');
     expect(TABLE_HANDLE_MENU_EVENT_NAME).toBe('more-events:table-handle-menu');
+    expect(PROPERTY_VALUE_MENU_EVENT_NAME).toBe('more-events:property-value-menu');
+    expect(BASES_COLUMN_MENU_EVENT_NAME).toBe('more-events:bases-column-menu');
   });
 
   it('should declare every member of the api in the contract', () => {
