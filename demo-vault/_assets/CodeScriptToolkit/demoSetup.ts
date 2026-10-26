@@ -62,7 +62,9 @@ const BOOKMARKS_MENU_EVENT_NAME = 'more-events:bookmarks-menu';
 const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
 const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
 const PDF_THUMBNAIL_MENU_EVENT_NAME = 'more-events:pdf-thumbnail-menu';
+const COMMUNITY_PLUGIN_MENU_EVENT_NAME = 'more-events:community-plugin-menu';
 const RIBBON_MENU_EVENT_NAME = 'more-events:ribbon-menu';
+const SIDEBAR_TOGGLE_MENU_EVENT_NAME = 'more-events:sidebar-toggle-menu';
 const WEB_VIEWER_HISTORY_MENU_EVENT_NAME = 'more-events:web-viewer-history-menu';
 const DEMO_HISTORY_TITLE = 'Obsidian';
 const DEMO_HISTORY_URL = 'https://obsidian.md/';
@@ -82,6 +84,7 @@ let canvasAndRibbonMenuListeningComponent: Component | null = null;
 let communityPluginListeningComponent: Component | null = null;
 let corePluginListeningComponent: Component | null = null;
 let pdfThumbnailMenuListeningComponent: Component | null = null;
+let sidebarToggleAndCommunityPluginMenuListeningComponent: Component | null = null;
 
 /**
  * Lists the community plugins that are loaded right now, straight from the plugin's API.
@@ -507,6 +510,70 @@ export function stopListeningToPdfThumbnailMenu(): void {
 
   pdfThumbnailMenuListeningComponent.unload();
   pdfThumbnailMenuListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
+/**
+ * Subscribes to the sidebar toggle and community plugin row menu events and adds one item to each menu, until
+ * the stop button below.
+ *
+ * Manual equivalent: the same two `app.workspace.on(...)` calls from your own plugin's `onload`.
+ */
+export function startListeningToSidebarToggleAndCommunityPluginMenus(app: App): void {
+  if (sidebarToggleAndCommunityPluginMenuListeningComponent) {
+    new Notice('Already listening. Right-click a sidebar toggle button, or a plugin in Settings -> Community plugins.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(SIDEBAR_TOGGLE_MENU_EVENT_NAME, (menu, side) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which sidebar is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`The ${side} sidebar`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(COMMUNITY_PLUGIN_MENU_EVENT_NAME, (menu, communityPluginId) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which plugin is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            const manifest = app.plugins.manifests[communityPluginId];
+            new Notice(
+              createPluginNameFragment('', manifest?.name ?? communityPluginId, ` (${communityPluginId}), version ${manifest?.version ?? 'unknown'}`),
+              NOTICE_DURATION_IN_MILLISECONDS
+            );
+          });
+      });
+    })
+  );
+  component.load();
+  sidebarToggleAndCommunityPluginMenuListeningComponent = component;
+
+  new Notice('Listening. Now right-click a sidebar toggle button, or a plugin in Settings -> Community plugins.');
+}
+
+/**
+ * Drops the sidebar toggle and community plugin row menu subscriptions.
+ *
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToSidebarToggleAndCommunityPluginMenus(): void {
+  if (!sidebarToggleAndCommunityPluginMenuListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  sidebarToggleAndCommunityPluginMenuListeningComponent.unload();
+  sidebarToggleAndCommunityPluginMenuListeningComponent = null;
   new Notice('Stopped listening.');
 }
 

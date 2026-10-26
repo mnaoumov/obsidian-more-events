@@ -11,12 +11,14 @@ import {
   CANVAS_VIEW_MENU_EVENT_NAME,
   COMMUNITY_PLUGIN_DISABLED_EVENT_NAME,
   COMMUNITY_PLUGIN_ENABLED_EVENT_NAME,
+  COMMUNITY_PLUGIN_MENU_EVENT_NAME,
   CORE_PLUGIN_DISABLED_EVENT_NAME,
   CORE_PLUGIN_ENABLED_EVENT_NAME,
   PDF_THUMBNAIL_MENU_EVENT_NAME,
   PLUGIN_API_CONTRACT,
   PLUGIN_API_VERSION,
   RIBBON_MENU_EVENT_NAME,
+  SIDEBAR_TOGGLE_MENU_EVENT_NAME,
   WEB_VIEWER_HISTORY_MENU_EVENT_NAME
 } from './more-events-api.ts';
 
@@ -39,6 +41,8 @@ describe('the published contract', () => {
     expect(ALL_PROPERTIES_MENU_EVENT_NAME).toBe('more-events:all-properties-menu');
     expect(WEB_VIEWER_HISTORY_MENU_EVENT_NAME).toBe('more-events:web-viewer-history-menu');
     expect(PDF_THUMBNAIL_MENU_EVENT_NAME).toBe('more-events:pdf-thumbnail-menu');
+    expect(SIDEBAR_TOGGLE_MENU_EVENT_NAME).toBe('more-events:sidebar-toggle-menu');
+    expect(COMMUNITY_PLUGIN_MENU_EVENT_NAME).toBe('more-events:community-plugin-menu');
   });
 
   it('should declare every member of the api in the contract', () => {
