@@ -5,6 +5,7 @@ import { PluginBase } from '@mnaoumov/obsidian-lib/plugin/plugin';
 
 import { AllPropertiesMenuEventsComponent } from './all-properties-menu-events-component.ts';
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
+import { CalloutMenuEventsComponent } from './callout-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
 import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-events-component.ts';
@@ -16,6 +17,7 @@ import {
 } from './more-events-api.ts';
 import { MenuPatchComponent } from './patches/menu-patch-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './pdf-thumbnail-menu-events-component.ts';
+import { PluginSettingTabMenuEventsComponent } from './plugin-setting-tab-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './web-viewer-history-menu-events-component.ts';
@@ -105,12 +107,26 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const calloutMenuEventsComponent = this.addChild(
+      new CalloutMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    const pluginSettingTabMenuEventsComponent = this.addChild(
+      new PluginSettingTabMenuEventsComponent({
+        app: this.app
+      })
+    );
+
     this.addChild(
       new MenuPatchComponent({
         app: this.app,
         deferredMenuAnnouncers: [
           sidebarToggleMenuEventsComponent,
-          communityPluginMenuEventsComponent
+          communityPluginMenuEventsComponent,
+          calloutMenuEventsComponent,
+          pluginSettingTabMenuEventsComponent
         ],
         menuAnnouncers: [
           bookmarksMenuEventsComponent,

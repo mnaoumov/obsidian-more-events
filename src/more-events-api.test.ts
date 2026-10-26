@@ -8,12 +8,15 @@ import {
   ALL_PROPERTIES_MENU_EVENT_NAME,
   BOOKMARKS_MENU_EVENT_NAME,
   BOOKMARKS_VIEW_MENU_EVENT_NAME,
+  CALLOUT_MENU_EVENT_NAME,
   CANVAS_VIEW_MENU_EVENT_NAME,
   COMMUNITY_PLUGIN_DISABLED_EVENT_NAME,
   COMMUNITY_PLUGIN_ENABLED_EVENT_NAME,
   COMMUNITY_PLUGIN_MENU_EVENT_NAME,
+  COMMUNITY_PLUGIN_SETTING_TAB_MENU_EVENT_NAME,
   CORE_PLUGIN_DISABLED_EVENT_NAME,
   CORE_PLUGIN_ENABLED_EVENT_NAME,
+  CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME,
   PDF_THUMBNAIL_MENU_EVENT_NAME,
   PLUGIN_API_CONTRACT,
   PLUGIN_API_VERSION,
@@ -43,6 +46,9 @@ describe('the published contract', () => {
     expect(PDF_THUMBNAIL_MENU_EVENT_NAME).toBe('more-events:pdf-thumbnail-menu');
     expect(SIDEBAR_TOGGLE_MENU_EVENT_NAME).toBe('more-events:sidebar-toggle-menu');
     expect(COMMUNITY_PLUGIN_MENU_EVENT_NAME).toBe('more-events:community-plugin-menu');
+    expect(CALLOUT_MENU_EVENT_NAME).toBe('more-events:callout-menu');
+    expect(CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME).toBe('more-events:core-plugin-setting-tab-menu');
+    expect(COMMUNITY_PLUGIN_SETTING_TAB_MENU_EVENT_NAME).toBe('more-events:community-plugin-setting-tab-menu');
   });
 
   it('should declare every member of the api in the contract', () => {

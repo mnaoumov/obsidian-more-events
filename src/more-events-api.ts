@@ -14,12 +14,15 @@ import type {
   AllPropertiesMenuEventName,
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
+  CalloutMenuEventName,
   CanvasViewMenuEventName,
   CommunityPluginDisabledEventName,
   CommunityPluginEnabledEventName,
   CommunityPluginMenuEventName,
+  CommunityPluginSettingTabMenuEventName,
   CorePluginDisabledEventName,
   CorePluginEnabledEventName,
+  CorePluginSettingTabMenuEventName,
   PdfThumbnailMenuEventName,
   RibbonMenuEventName,
   SidebarToggleMenuEventName,
@@ -33,6 +36,8 @@ export type {
   BookmarkMenuItem,
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
+  CalloutMenuEventName,
+  CalloutMenuItem,
   CanvasMenuPosition,
   CanvasViewMenuEventName,
   CommunityPluginDisabledEventName,
@@ -40,10 +45,12 @@ export type {
   CommunityPluginEventName,
   CommunityPluginEventPayload,
   CommunityPluginMenuEventName,
+  CommunityPluginSettingTabMenuEventName,
   CorePluginDisabledEventName,
   CorePluginEnabledEventName,
   CorePluginEventName,
   CorePluginEventPayload,
+  CorePluginSettingTabMenuEventName,
   MoreEventsApi,
   PdfThumbnailMenuEventName,
   RibbonMenuEventName,
@@ -70,6 +77,11 @@ export const BOOKMARKS_MENU_EVENT_NAME: BookmarksMenuEventName = 'more-events:bo
 export const BOOKMARKS_VIEW_MENU_EVENT_NAME: BookmarksViewMenuEventName = 'more-events:bookmarks-view-menu';
 
 /**
+ * Triggered on `app.workspace` when the context menu of a callout in a Live Preview editor is about to open.
+ */
+export const CALLOUT_MENU_EVENT_NAME: CalloutMenuEventName = 'more-events:callout-menu';
+
+/**
  * Triggered on `app.workspace` when the context menu of the **Canvas** view's empty background is about to open.
  */
 export const CANVAS_VIEW_MENU_EVENT_NAME: CanvasViewMenuEventName = 'more-events:canvas-view-menu';
@@ -90,6 +102,11 @@ export const COMMUNITY_PLUGIN_ENABLED_EVENT_NAME: CommunityPluginEnabledEventNam
 export const COMMUNITY_PLUGIN_MENU_EVENT_NAME: CommunityPluginMenuEventName = 'more-events:community-plugin-menu';
 
 /**
+ * Triggered on `app.workspace` when the context menu of a community plugin's tab in the Settings sidebar is about to open.
+ */
+export const COMMUNITY_PLUGIN_SETTING_TAB_MENU_EVENT_NAME: CommunityPluginSettingTabMenuEventName = 'more-events:community-plugin-setting-tab-menu';
+
+/**
  * Triggered on `app.workspace` after a core plugin has been disabled.
  */
 export const CORE_PLUGIN_DISABLED_EVENT_NAME: CorePluginDisabledEventName = 'more-events:core-plugin-disabled';
@@ -98,6 +115,11 @@ export const CORE_PLUGIN_DISABLED_EVENT_NAME: CorePluginDisabledEventName = 'mor
  * Triggered on `app.workspace` after a core plugin has been enabled.
  */
 export const CORE_PLUGIN_ENABLED_EVENT_NAME: CorePluginEnabledEventName = 'more-events:core-plugin-enabled';
+
+/**
+ * Triggered on `app.workspace` when the context menu of a core plugin's tab in the Settings sidebar is about to open.
+ */
+export const CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME: CorePluginSettingTabMenuEventName = 'more-events:core-plugin-setting-tab-menu';
 
 /**
  * Triggered on `app.workspace` when the context menu of a page thumbnail in the PDF view is about to open.
@@ -138,7 +160,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * The history: `1.0.0` was the core-plugin pair, `1.1.0` added the community-plugin pair, `1.2.0` added
  * `isUserInitiated` to both, `1.3.0` added the context-menu events: the bookmarks pair, the canvas view
  * one and the ribbon one, all in the same release, and `1.4.0` added the **All properties** and **Web viewer**
- * History item menus, the PDF view's thumbnail menu, the sidebar toggle buttons' menu and a community plugin's
- * settings row menu.
+ * History item menus, the PDF view's thumbnail menu, the sidebar toggle buttons' menu, a community plugin's
+ * settings row menu, a callout's menu and the core and community plugin settings tab menus.
  */
 export const PLUGIN_API_VERSION = '1.4.0';
