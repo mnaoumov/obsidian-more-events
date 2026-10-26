@@ -57,15 +57,22 @@ const DEMO_COMMUNITY_PLUGIN_MANIFEST_JSON = JSON.stringify(
   2
 );
 
+const ALL_PROPERTIES_MENU_EVENT_NAME = 'more-events:all-properties-menu';
 const BOOKMARKS_MENU_EVENT_NAME = 'more-events:bookmarks-menu';
 const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
 const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
 const RIBBON_MENU_EVENT_NAME = 'more-events:ribbon-menu';
+const WEB_VIEWER_HISTORY_MENU_EVENT_NAME = 'more-events:web-viewer-history-menu';
+const DEMO_HISTORY_TITLE = 'Obsidian';
+const DEMO_HISTORY_URL = 'https://obsidian.md/';
+const HISTORY_STORE_WAIT_IN_MILLISECONDS = 5000;
+const HISTORY_STORE_POLL_IN_MILLISECONDS = 100;
 const CONTEXT_MENU_NOTE_PATH = '04 Context menu events.md';
 const DEMO_CANVAS_PATH = '_assets/Context menu demo.canvas';
 
 // The subscriptions the listen buttons create, kept here so the stop buttons can find them again. A real
 // plugin has its own `Component` for this and never needs a module-level handle.
+let allPropertiesAndHistoryMenuListeningComponent: Component | null = null;
 let bookmarksMenuListeningComponent: Component | null = null;
 let canvasAndRibbonMenuListeningComponent: Component | null = null;
 let communityPluginListeningComponent: Component | null = null;
@@ -297,6 +304,114 @@ export function stopListeningToCanvasAndRibbonMenus(): void {
 
   canvasAndRibbonMenuListeningComponent.unload();
   canvasAndRibbonMenuListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
+/**
+ * The **Web viewer**'s history store, as far as this demo needs it. No typings describe it.
+ */
+interface WebViewerHistoryDb {
+  // The IndexedDB connection, `null` until the plugin has opened it, which it starts on enable without waiting.
+  readonly db: unknown;
+  addHistoryItem(url: string, title: string): Promise<void>;
+  getHistoryItems(): Promise<unknown[]>;
+}
+
+/**
+ * Opens the **All properties** view and the **Web viewer**'s History view in the left sidebar, so there is a
+ * property and a visited page to right-click.
+ *
+ * The **Web viewer** core plugin is off by default, so this turns it on, and an empty history gets one entry
+ * for `https://obsidian.md/`, so the History view has something to show without visiting a page first.
+ *
+ * Manual equivalent: **All properties** from the command palette; then turn on **Web viewer** in
+ * **Settings -> Core plugins**, open a page in it, and run **Web viewer: Show history**.
+ */
+export async function showAllPropertiesAndHistoryViews(app: App): Promise<void> {
+  const propertiesCorePlugin = app.internalPlugins.getPluginById('properties');
+  const webViewerCorePlugin = app.internalPlugins.getPluginById('webviewer');
+  if (!propertiesCorePlugin || !webViewerCorePlugin) {
+    new Notice('The Properties view or Web viewer core plugin was not found. The Web viewer exists only on the desktop.');
+    return;
+  }
+
+  if (!propertiesCorePlugin.enabled) {
+    await propertiesCorePlugin.enable(true);
+  }
+  if (!webViewerCorePlugin.enabled) {
+    await webViewerCorePlugin.enable(true);
+    new Notice(createPluginNameFragment('', 'Web viewer', ' was off, so it was turned on to show its history.'));
+  }
+
+  const { db } = webViewerCorePlugin.instance as unknown as { readonly db: WebViewerHistoryDb };
+  for (let waited = 0; db.db === null && waited < HISTORY_STORE_WAIT_IN_MILLISECONDS; waited += HISTORY_STORE_POLL_IN_MILLISECONDS) {
+    await sleep(HISTORY_STORE_POLL_IN_MILLISECONDS);
+  }
+  if ((await db.getHistoryItems()).length === 0) {
+    await db.addHistoryItem(DEMO_HISTORY_URL, DEMO_HISTORY_TITLE);
+  }
+
+  await app.workspace.ensureSideLeaf('all-properties', 'left', { reveal: true });
+  await app.workspace.ensureSideLeaf('webviewer-history', 'left', { reveal: true });
+}
+
+/**
+ * Subscribes to the **All properties** and History menu events and adds one item to each menu, until the
+ * stop button below.
+ *
+ * Manual equivalent: the same two `app.workspace.on(...)` calls from your own plugin's `onload`.
+ */
+export function startListeningToAllPropertiesAndHistoryMenus(app: App): void {
+  if (allPropertiesAndHistoryMenuListeningComponent) {
+    new Notice('Already listening. Right-click a property in All properties, or a page in the History view.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(ALL_PROPERTIES_MENU_EVENT_NAME, (menu, _leaf, propertyNames) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Name these properties (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`${String(propertyNames.length)} ${propertyNames.length === 1 ? 'property' : 'properties'}:\n${propertyNames.join('\n')}`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(WEB_VIEWER_HISTORY_MENU_EVENT_NAME, (menu, _leaf, historyItem) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which page is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`${historyItem.title || '(no title)'}\n${historyItem.url}`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.load();
+  allPropertiesAndHistoryMenuListeningComponent = component;
+
+  new Notice('Listening. Now right-click a property in All properties, or a page in the History view.');
+}
+
+/**
+ * Drops both **All properties** and History menu subscriptions.
+ *
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToAllPropertiesAndHistoryMenus(): void {
+  if (!allPropertiesAndHistoryMenuListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  allPropertiesAndHistoryMenuListeningComponent.unload();
+  allPropertiesAndHistoryMenuListeningComponent = null;
   new Notice('Stopped listening.');
 }
 

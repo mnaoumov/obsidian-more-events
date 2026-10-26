@@ -1,3 +1,7 @@
+---
+demo-status: right-click me in All properties
+---
+
 # Context menu events
 
 Obsidian lets a plugin add items to some of its context menus: it raises `file-menu` when you right-click a file, `editor-menu` in a note, and a few others. Many more menus are built with no event at all, so the only way to add an item to one is to patch the code that builds it. This set publishes events for those menus, starting with the **Bookmarks** view.
@@ -8,6 +12,8 @@ They are shaped like Obsidian's own: the listener receives the `Menu` first, the
 - **`more-events:bookmarks-view-menu`** is the menu of the view's empty area, below the last bookmark, where Obsidian offers **New group**. The listener gets the view's leaf.
 - **`more-events:canvas-view-menu`** is the menu of a canvas's empty background, where Obsidian offers **Add card**. The listener gets the canvas's leaf and the point you right-clicked, in the canvas's own coordinates.
 - **`more-events:ribbon-menu`** is the menu of the ribbon's empty area, below its icons, where Obsidian offers **Hide ribbon**. The listener gets which ribbon it is.
+- **`more-events:all-properties-menu`** is the menu of a property in the **All properties** view, where Obsidian offers its types, **Rename** and **Delete**. The listener gets the names of the properties the menu acts on: the one you right-clicked, or the whole selection when that property is part of one.
+- **`more-events:web-viewer-history-menu`** is the menu of a visited page in the **Web viewer**'s History view, where Obsidian offers **Copy URL** and **Remove from history**. The listener gets that page's title and address.
 
 ## Try the bookmarks ones
 
@@ -71,13 +77,45 @@ caption: Stop listening to the canvas and ribbon menus
 require('/demoSetup.ts').stopListeningToCanvasAndRibbonMenus();
 ```
 
+## Try the All properties and History ones
+
+First, a property and a visited page to right-click. This note carries a `demo-status` property for the first. This opens the **All properties** view and the **Web viewer**'s History view in the left sidebar, turning the **Web viewer** core plugin on and giving an empty history one entry, `https://obsidian.md/`:
+
+```code-button
+---
+caption: Show the All properties and History views
+---
+await require('/demoSetup.ts').showAllPropertiesAndHistoryViews(app);
+```
+
+Manual equivalent: **All properties** from the command palette; then turn on **Web viewer** in **Settings -> Core plugins**, open a page in it, and run **Web viewer: Show history**.
+
+Then start listening:
+
+```code-button
+---
+caption: Start listening to the All properties and History menus
+---
+require('/demoSetup.ts').startListeningToAllPropertiesAndHistoryMenus(app);
+```
+
+Now right-click `demo-status` in **All properties**: below Obsidian's **Rename** and **Delete** is **Name these properties (added by a listener)**. Select several properties with Ctrl or Shift and right-click one of them, and it names them all. Then right-click the page in the History view: below **Copy URL** is **Which page is this? (added by a listener)**. Then stop:
+
+```code-button
+---
+caption: Stop listening to the All properties and History menus
+---
+require('/demoSetup.ts').stopListeningToAllPropertiesAndHistoryMenus();
+```
+
 ## What the events promise
 
 - **They fire before the menu opens**, after Obsidian has added its own items, so an item you add appears in the menu.
 - **The bookmarks are Obsidian's own objects**, not copies, so the **Bookmarks** core plugin recognizes them if you hand them back to it. Read them; do not write to them.
+- **The history entry is a copy**, a plain title and address, so writing to it changes nothing in Obsidian.
 
 ## Where they come from
 
 Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, but documents and types it nowhere. `More Events` relays it under a name it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
-The bookmarks empty-area menu, the canvas background menu and the ribbon menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
+The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu and the History menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
