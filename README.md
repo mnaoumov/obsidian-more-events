@@ -80,8 +80,11 @@ Obsidian raises `file-menu`, `editor-menu` and a few others so a plugin can add 
 - **`more-events:css-snippet-menu`** fires for a snippet's row on the **CSS snippets** page of **Settings -> Appearance**, on the desktop app, where Obsidian offers **Show in system explorer**, with the snippet's name. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 - **`more-events:external-image-menu`** fires for an image embedded from a URL in a note's Live Preview editor, where Obsidian offers **Copy image**, **Remove image** and **Reset size**, with the note's leaf, and the image's line and URL. An image embedded from the vault already fires Obsidian's own `file-menu`. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 - **`more-events:bases-kanban-column-menu`** fires for a column's empty area in the board view of a base opened in its own tab, where Obsidian offers **Add item**, **Hide column** and **Edit columns**, with the base's leaf, the value the column groups by and the name of the base's view. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
+- **`more-events:vault-menu`** fires for the vault name at the bottom of the left sidebar, on the desktop app, where Obsidian offers **Show in system explorer** and **Copy path**. The menu is for the open vault, so it carries nothing but the menu. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
+- **`more-events:leaf-menu`** fires for a leaf's menu, from a right-click on its tab header or a click on its view's **More options** button, with the leaf. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
+- **`more-events:tab-group-menu`** fires for a tab group's tab list menu, the one the chevron at the right end of its tab headers opens, where Obsidian offers **Close all** and one item per tab, with the tab group. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 
-Obsidian does trigger an event of its own for the first one, `bookmarks:bookmarks-menu`, but documents and types it nowhere; `More Events` relays it under a name it keeps stable. The others fire nothing at all in Obsidian.
+Obsidian does trigger events of its own for three of these, `bookmarks:bookmarks-menu`, `leaf-menu` and `tab-group-menu`, but documents and types them nowhere; `More Events` relays them under names it keeps stable. The others fire nothing at all in Obsidian.
 
 ## Why it patches, when the point was to stop you patching
 

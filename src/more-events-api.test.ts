@@ -21,6 +21,7 @@ import {
   CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME,
   CSS_SNIPPET_MENU_EVENT_NAME,
   EXTERNAL_IMAGE_MENU_EVENT_NAME,
+  LEAF_MENU_EVENT_NAME,
   PDF_OUTLINE_MENU_EVENT_NAME,
   PDF_PAGE_MENU_EVENT_NAME,
   PDF_THUMBNAIL_MENU_EVENT_NAME,
@@ -30,8 +31,10 @@ import {
   PROPERTY_VALUE_MENU_EVENT_NAME,
   RIBBON_MENU_EVENT_NAME,
   SIDEBAR_TOGGLE_MENU_EVENT_NAME,
+  TAB_GROUP_MENU_EVENT_NAME,
   TABLE_CELL_MENU_EVENT_NAME,
   TABLE_HANDLE_MENU_EVENT_NAME,
+  VAULT_MENU_EVENT_NAME,
   WEB_VIEWER_HISTORY_MENU_EVENT_NAME
 } from './more-events-api.ts';
 
@@ -69,6 +72,9 @@ describe('the published contract', () => {
     expect(PDF_PAGE_MENU_EVENT_NAME).toBe('more-events:pdf-page-menu');
     expect(EXTERNAL_IMAGE_MENU_EVENT_NAME).toBe('more-events:external-image-menu');
     expect(BASES_KANBAN_COLUMN_MENU_EVENT_NAME).toBe('more-events:bases-kanban-column-menu');
+    expect(VAULT_MENU_EVENT_NAME).toBe('more-events:vault-menu');
+    expect(LEAF_MENU_EVENT_NAME).toBe('more-events:leaf-menu');
+    expect(TAB_GROUP_MENU_EVENT_NAME).toBe('more-events:tab-group-menu');
   });
 
   it('should declare every member of the api in the contract', () => {

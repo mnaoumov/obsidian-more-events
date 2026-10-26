@@ -29,7 +29,9 @@ import { PropertyValueMenuEventsComponent } from './property-value-menu-events-c
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
 import { TableMenuEventsComponent } from './table-menu-events-component.ts';
+import { VaultMenuEventsComponent } from './vault-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './web-viewer-history-menu-events-component.ts';
+import { WorkspaceMenuEventsComponent } from './workspace-menu-events-component.ts';
 
 export class Plugin extends PluginBase {
   private moreEventsApi: MoreEventsApiImpl | null = null;
@@ -182,6 +184,18 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const vaultMenuEventsComponent = this.addChild(
+      new VaultMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    this.addChild(
+      new WorkspaceMenuEventsComponent({
+        app: this.app
+      })
+    );
+
     this.addChild(
       new MenuPatchComponent({
         app: this.app,
@@ -199,7 +213,8 @@ export class Plugin extends PluginBase {
           cssSnippetMenuEventsComponent,
           pdfOutlineMenuEventsComponent,
           pdfPageMenuEventsComponent,
-          basesKanbanColumnMenuEventsComponent
+          basesKanbanColumnMenuEventsComponent,
+          vaultMenuEventsComponent
         ],
         menuAnnouncers: [
           bookmarksMenuEventsComponent,

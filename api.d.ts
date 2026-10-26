@@ -24,7 +24,8 @@
 import type {
   EventRef,
   Menu,
-  WorkspaceLeaf
+  WorkspaceLeaf,
+  WorkspaceTabs
 } from 'obsidian';
 
 /**
@@ -370,6 +371,12 @@ export interface ExternalImageMenuItem {
 }
 
 /**
+ * The name of the event triggered when a leaf's menu is about to open — the right-click on its tab header, or the
+ * click on its view's **More options** button, which offer **Close**, the split items and the view's own items.
+ */
+export type LeafMenuEventName = 'more-events:leaf-menu';
+
+/**
  * `More Events`' API, published through the `@mnaoumov/obsidian-lib` plugin registry.
  *
  * The events say when something changed; this says what the state is. A consumer needs both — it has to
@@ -525,6 +532,13 @@ export type SidebarSide = 'left' | 'right';
 export type SidebarToggleMenuEventName = 'more-events:sidebar-toggle-menu';
 
 /**
+ * The name of the event triggered when a tab group's tab list menu is about to open — the click or the right-click
+ * on the chevron at the right end of its tab headers, which offers **Stack tabs**, **Close all** and one item per
+ * tab.
+ */
+export type TabGroupMenuEventName = 'more-events:tab-group-menu';
+
+/**
  * The name of the event triggered when the context menu of a table cell in a Live Preview editor is about to
  * open — the right-click on a cell that is not the one being edited, which offers **Row** and **Column**
  * submenus and the sort items, or on a cell of a cell selection, which offers the selection's items.
@@ -601,6 +615,13 @@ export interface TableHandleMenuItem {
    */
   readonly line: number;
 }
+
+/**
+ * The name of the event triggered when the context menu of the vault name at the bottom of the left sidebar is about
+ * to open — the right-click on the vault name, which offers **Show in system explorer** (**Reveal in Finder** on
+ * macOS) and **Copy path**. Desktop only: Obsidian shows the vault name there on the desktop app alone.
+ */
+export type VaultMenuEventName = 'more-events:vault-menu';
 
 /**
  * The name of the event triggered when the context menu of an entry in the **Web viewer** core plugin's
@@ -868,6 +889,23 @@ declare module 'obsidian' {
     on(name: CssSnippetMenuEventName, callback: (menu: Menu, snippet: CssSnippetMenuItem) => unknown, context?: unknown): EventRef;
 
     /**
+     * Subscribes to a leaf's menu: the one its tab header's right-click opens, and the one its view's **More
+     * options** button opens.
+     *
+     * A relay of Obsidian's own `leaf-menu`, which it documents and types nowhere: add items to `menu` and they
+     * appear in it. Triggered before the menu is shown, after Obsidian and the view have added their own items.
+     * Obsidian triggers nothing for a tab header's menu while the leaf is not visible, such as a background tab of a
+     * stacked group.
+     *
+     * @param name - Should be `'more-events:leaf-menu'`.
+     * @param callback - The callback receiving the menu, and the leaf it is for.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: LeafMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf) => unknown, context?: unknown): EventRef;
+
+    /**
      * Subscribes to the context menu of an item in the PDF view's outline.
      *
      * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown,
@@ -974,6 +1012,21 @@ declare module 'obsidian' {
     on(name: SidebarToggleMenuEventName, callback: (menu: Menu, side: SidebarSide) => unknown, context?: unknown): EventRef;
 
     /**
+     * Subscribes to a tab group's tab list menu, the one the chevron at the right end of its tab headers opens.
+     *
+     * A relay of Obsidian's own `tab-group-menu`, which it documents and types nowhere: add items to `menu` and
+     * they appear in it. Triggered before the menu is shown, after Obsidian's **Stack tabs** and **Close all** and
+     * before its one item per tab.
+     *
+     * @param name - Should be `'more-events:tab-group-menu'`.
+     * @param callback - The callback receiving the menu, and the tab group it is for.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: TabGroupMenuEventName, callback: (menu: Menu, tabGroup: WorkspaceTabs) => unknown, context?: unknown): EventRef;
+
+    /**
      * Subscribes to the context menu of a table cell in a Live Preview editor.
      *
      * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a
@@ -1004,6 +1057,21 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: TableHandleMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, handle: TableHandleMenuItem) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of the vault name at the bottom of the left sidebar.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, on the
+     * desktop app only, for a right-click on the vault name. Its click opens the vault switcher, which is not
+     * announced. The menu is for the open vault, which a listener reaches as `app.vault`.
+     *
+     * @param name - Should be `'more-events:vault-menu'`.
+     * @param callback - The callback receiving the menu.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: VaultMenuEventName, callback: (menu: Menu) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of an entry in the **Web viewer** core plugin's History view.
