@@ -6,7 +6,10 @@ import type {
 import { castTo } from '@mnaoumov/typescript-lib/object-utils';
 import { Component } from 'obsidian';
 
-import type { DeferredMenuAnnouncer } from './patches/menu-patch-component.ts';
+import type {
+  DeferredMenuAnnouncer,
+  PositionedMenuAnnouncer
+} from './patches/menu-patch-component.ts';
 
 import { COMMUNITY_PLUGIN_MENU_EVENT_NAME } from './more-events-api.ts';
 
@@ -73,10 +76,12 @@ interface SettingTabEntry {
  * `containerEl` and one of its plugin rows being on the event's recorded path, and the plugin by the row's
  * `data-plugin-id`, which is what Obsidian reads too.
  *
- * The row's **More options** button builds the same menu but shows it with `showAtPosition` and no event
- * (`:224504`), so it is not announced.
+ * **The row's More options button opens the same menu, and is announced through {@link PositionedMenuAnnouncer}.**
+ * Its `click` listener builds a `new Menu()` through the same `buildPluginActionsMenu` and shows it with
+ * `setParentElement(extraSettingsEl).showAtPosition(...)` and no event (`app.js:174684` in 1.15.0), so it is
+ * recognized by that button sitting in one of the tab's plugin rows.
  */
-export class CommunityPluginMenuEventsComponent extends Component implements DeferredMenuAnnouncer {
+export class CommunityPluginMenuEventsComponent extends Component implements DeferredMenuAnnouncer, PositionedMenuAnnouncer {
   private readonly app: App;
 
   /**
@@ -98,13 +103,28 @@ export class CommunityPluginMenuEventsComponent extends Component implements Def
    * @returns `true` when the right-click landed on an installed community plugin's row in its settings tab.
    */
   public announceDeferredMenu(menu: Menu, _mouseEvent: MouseEvent, eventPath: readonly EventTarget[]): boolean {
+    return this.announceRowMenu(menu, (tabEl, rowEls) => eventPath.includes(tabEl) ? rowEls.find((el) => eventPath.includes(el)) : undefined);
+  }
+
+  /**
+   * Announces the menu of a community plugin's **More options** button.
+   *
+   * @param menu - The menu about to be shown.
+   * @param parentEl - The element the menu was anchored to.
+   * @returns `true` when the menu was anchored to a button in an installed community plugin's row in its settings tab.
+   */
+  public announcePositionedMenu(menu: Menu, parentEl: HTMLElement): boolean {
+    return this.announceRowMenu(menu, (_tabEl, rowEls) => rowEls.find((el) => el.contains(parentEl)));
+  }
+
+  private announceRowMenu(menu: Menu, findRowEl: (tabEl: HTMLElement, rowEls: HTMLElement[]) => HTMLElement | undefined): boolean {
     const app = castTo<AppWithSetting>(this.app);
     const tab = app.setting?.settingTabs.find((settingTab) => settingTab.id === COMMUNITY_PLUGINS_SETTING_TAB_ID);
-    if (!tab || !eventPath.includes(tab.containerEl)) {
+    if (!tab) {
       return false;
     }
 
-    const rowEl = [...tab.containerEl.querySelectorAll<HTMLElement>(COMMUNITY_PLUGIN_ROW_SELECTOR)].find((el) => eventPath.includes(el));
+    const rowEl = findRowEl(tab.containerEl, [...tab.containerEl.querySelectorAll<HTMLElement>(COMMUNITY_PLUGIN_ROW_SELECTOR)]);
     const communityPluginId = rowEl?.dataset['pluginId'];
     if (!communityPluginId || !Object.hasOwn(app.plugins.manifests, communityPluginId)) {
       return false;

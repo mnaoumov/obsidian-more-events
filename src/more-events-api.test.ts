@@ -24,6 +24,7 @@ import {
   CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME,
   CSS_SNIPPET_MENU_EVENT_NAME,
   EXTERNAL_IMAGE_MENU_EVENT_NAME,
+  HISTORY_MENU_EVENT_NAME,
   LEAF_MENU_EVENT_NAME,
   MARKDOWN_PROPERTIES_MENU_EVENT_NAME,
   MARKDOWN_VIEWPORT_MENU_EVENT_NAME,
@@ -77,6 +78,7 @@ describe('the published contract', () => {
     expect(PDF_OUTLINE_MENU_EVENT_NAME).toBe('more-events:pdf-outline-menu');
     expect(PDF_PAGE_MENU_EVENT_NAME).toBe('more-events:pdf-page-menu');
     expect(EXTERNAL_IMAGE_MENU_EVENT_NAME).toBe('more-events:external-image-menu');
+    expect(HISTORY_MENU_EVENT_NAME).toBe('more-events:history-menu');
     expect(BASES_KANBAN_COLUMN_MENU_EVENT_NAME).toBe('more-events:bases-kanban-column-menu');
     expect(VAULT_MENU_EVENT_NAME).toBe('more-events:vault-menu');
     expect(LEAF_MENU_EVENT_NAME).toBe('more-events:leaf-menu');

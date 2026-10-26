@@ -73,6 +73,7 @@ const CANVAS_SELECTION_MENU_EVENT_NAME = 'more-events:canvas-selection-menu';
 const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
 const CSS_SNIPPET_MENU_EVENT_NAME = 'more-events:css-snippet-menu';
 const EXTERNAL_IMAGE_MENU_EVENT_NAME = 'more-events:external-image-menu';
+const HISTORY_MENU_EVENT_NAME = 'more-events:history-menu';
 const LEAF_MENU_EVENT_NAME = 'more-events:leaf-menu';
 const MARKDOWN_PROPERTIES_MENU_EVENT_NAME = 'more-events:markdown-properties-menu';
 const MARKDOWN_VIEWPORT_MENU_EVENT_NAME = 'more-events:markdown-viewport-menu';
@@ -993,14 +994,14 @@ export function stopListeningToExternalImageAndBasesKanbanColumnMenus(): void {
 }
 
 /**
- * Subscribes to the vault name, leaf and tab group menu events and adds one item to each menu, until the stop button
- * below.
+ * Subscribes to the vault name, leaf, tab group and history menu events and adds one item to each menu, until the
+ * stop button below.
  *
- * Manual equivalent: the same three `app.workspace.on(...)` calls from your own plugin's `onload`.
+ * Manual equivalent: the same four `app.workspace.on(...)` calls from your own plugin's `onload`.
  */
 export function startListeningToVaultAndTabMenus(app: App): void {
   if (vaultAndTabMenuListeningComponent) {
-    new Notice('Already listening. Right-click the vault name or a tab, or click the chevron right of the tabs.');
+    new Notice('Already listening. Right-click the vault name, a tab or the back arrow, or click the chevron right of the tabs.');
     return;
   }
 
@@ -1043,6 +1044,19 @@ export function startListeningToVaultAndTabMenus(app: App): void {
               }
             });
             new Notice(`The tab group holding ${tabTitles.join(', ')}`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(HISTORY_MENU_EVENT_NAME, (menu, leaf, direction) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which history is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            const pages = direction === 'back' ? leaf.history.backHistory : leaf.history.forwardHistory;
+            new Notice(`${String(pages.length)} page(s) ${direction} in the tab "${leaf.getDisplayText()}"`, NOTICE_DURATION_IN_MILLISECONDS);
           });
       });
     })

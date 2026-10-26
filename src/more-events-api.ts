@@ -30,6 +30,7 @@ import type {
   CorePluginSettingTabMenuEventName,
   CssSnippetMenuEventName,
   ExternalImageMenuEventName,
+  HistoryMenuEventName,
   LeafMenuEventName,
   MarkdownPropertiesMenuEventName,
   MarkdownViewportMenuEventName,
@@ -82,6 +83,8 @@ export type {
   CssSnippetMenuItem,
   ExternalImageMenuEventName,
   ExternalImageMenuItem,
+  HistoryMenuDirection,
+  HistoryMenuEventName,
   LeafMenuEventName,
   MarkdownPropertiesMenuEventName,
   MarkdownViewportMenuEventName,
@@ -207,6 +210,11 @@ export const CSS_SNIPPET_MENU_EVENT_NAME: CssSnippetMenuEventName = 'more-events
 export const EXTERNAL_IMAGE_MENU_EVENT_NAME: ExternalImageMenuEventName = 'more-events:external-image-menu';
 
 /**
+ * Triggered on `app.workspace` when the history menu of a view's back or forward button is about to open.
+ */
+export const HISTORY_MENU_EVENT_NAME: HistoryMenuEventName = 'more-events:history-menu';
+
+/**
  * Triggered on `app.workspace` when a leaf's menu, from its tab header or its view's **More options** button, is about to open.
  */
 export const LEAF_MENU_EVENT_NAME: LeafMenuEventName = 'more-events:leaf-menu';
@@ -308,7 +316,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * History item menus, the PDF view's thumbnail, outline item and page menus, the sidebar toggle buttons' menu, a community plugin's
  * settings row menu, a callout's menu, the core and community plugin settings tab menus, a Live Preview
  * table's cell and drag handle menus, a property value's menu, a Bases table column header's menu, a property's own
- * menu, a CSS snippet row's menu, an external image's menu, a Bases board column's menu and the vault name's menu, and
+ * menu, a CSS snippet row's menu, an external image's menu, a Bases board column's menu, the vault name's menu and a view's back and forward button history menus, and
  * the relays of Obsidian's own `leaf-menu`, `tab-group-menu`, `search:results-menu`, `markdown-viewport-menu`,
  * `markdown-properties-menu`, `canvas:node-menu`, `canvas:edge-menu` and `canvas:selection-menu`.
  */

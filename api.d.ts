@@ -420,6 +420,17 @@ export interface ExternalImageMenuItem {
 }
 
 /**
+ * Which way through a leaf's history a history menu goes.
+ */
+export type HistoryMenuDirection = 'back' | 'forward';
+
+/**
+ * The name of the event triggered when the history menu of a view's back or forward button is about to open — the
+ * right-click on the arrow at the left of the view's header, which offers one item per page in that direction.
+ */
+export type HistoryMenuEventName = 'more-events:history-menu';
+
+/**
  * The name of the event triggered when a leaf's menu is about to open — the right-click on its tab header, or the
  * click on its view's **More options** button, which offer **Close**, the split items and the view's own items.
  */
@@ -931,8 +942,7 @@ declare module 'obsidian' {
      * Subscribes to the context menu of an installed community plugin's row in **Settings -> Community plugins**.
      *
      * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a
-     * right-click on the row. The row's **More options** button opens the same menu without a right-click, and
-     * is not announced.
+     * right-click on the row, and for a click on the row's **More options** button, which opens the same menu.
      *
      * @param name - Should be `'more-events:community-plugin-menu'`.
      * @param callback - The callback receiving the menu, and the community plugin's id, as
@@ -1006,6 +1016,22 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: CssSnippetMenuEventName, callback: (menu: Menu, snippet: CssSnippetMenuItem) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the history menu of a view's back or forward button, in the view's header.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a
+     * right-click on the button. The pages it lists are `leaf.history.backHistory` or `forwardHistory`, nearest
+     * first. Holding the mouse button down on the button, or dragging down from it, opens the same menu, and is not
+     * announced.
+     *
+     * @param name - Should be `'more-events:history-menu'`.
+     * @param callback - The callback receiving the menu, the leaf whose history it lists, and which way it goes.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: HistoryMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, direction: HistoryMenuDirection) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to a leaf's menu: the one its tab header's right-click opens, and the one its view's **More

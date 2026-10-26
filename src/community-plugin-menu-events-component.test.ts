@@ -51,6 +51,32 @@ describe('CommunityPluginMenuEventsComponent', () => {
     const app = castTo<AppOriginal>({ plugins: { manifests: {} }, workspace: { trigger: vi.fn() } });
 
     expect(isAnnounced(app, Menu.create2__().asOriginalType2__(), [window])).toBe(false);
+    expect(new CommunityPluginMenuEventsComponent({ app }).announcePositionedMenu(Menu.create2__().asOriginalType2__(), createDiv())).toBe(false);
+  });
+
+  it('should announce the menu of an installed community plugin\'s More options button', () => {
+    const { app, rowEl } = createApp();
+    const menu = Menu.create2__().asOriginalType2__();
+    const buttonEl = rowEl.createDiv().createDiv();
+
+    expect(new CommunityPluginMenuEventsComponent({ app }).announcePositionedMenu(menu, buttonEl)).toBe(true);
+    expect(app.workspace.trigger).toHaveBeenCalledExactlyOnceWith(COMMUNITY_PLUGIN_MENU_EVENT_NAME, menu, PLUGIN_ID);
+  });
+
+  it('should leave a menu anchored outside the tab\'s plugin rows alone', () => {
+    const { app, otherTabEl, tabEl } = createApp();
+    const component = new CommunityPluginMenuEventsComponent({ app });
+
+    expect(component.announcePositionedMenu(Menu.create2__().asOriginalType2__(), otherTabEl.createDiv())).toBe(false);
+    expect(component.announcePositionedMenu(Menu.create2__().asOriginalType2__(), tabEl.createDiv())).toBe(false);
+    expect(app.workspace.trigger).not.toHaveBeenCalled();
+  });
+
+  it('should leave the More options button of a plugin with no known manifest alone', () => {
+    const { app, rowEl } = createApp();
+    rowEl.dataset['pluginId'] = 'not-installed';
+
+    expect(new CommunityPluginMenuEventsComponent({ app }).announcePositionedMenu(Menu.create2__().asOriginalType2__(), rowEl.createDiv())).toBe(false);
   });
 });
 

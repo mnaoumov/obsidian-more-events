@@ -18,14 +18,20 @@ import {
 
 import type {
   DeferredMenuAnnouncer,
-  MenuAnnouncer
+  MenuAnnouncer,
+  PositionedMenuAnnouncer
 } from './menu-patch-component.ts';
 
 import { MenuPatchComponent } from './menu-patch-component.ts';
 
+interface AnchoredMenu {
+  parentEl: HTMLElement | null;
+}
+
 interface Announcers {
   readonly deferredMenuAnnouncers: DeferredMenuAnnouncer[];
   readonly menuAnnouncers: MenuAnnouncer[];
+  readonly positionedMenuAnnouncers?: PositionedMenuAnnouncer[];
 }
 
 interface TestApp {
@@ -149,11 +155,107 @@ describe('MenuPatchComponent', () => {
     expect(deferred.announceDeferredMenu).not.toHaveBeenCalled();
   });
 
+  it('should ask the positioned announcers, in order, about a menu shown at a position and anchored to an element', () => {
+    const calls: string[] = [];
+    const showSpy = vi.spyOn(Menu.prototype, 'showAtPosition').mockImplementation(function showAtPositionStub(this: Menu) {
+      calls.push('show');
+      return this;
+    });
+    const announcer = createAnnouncer(calls, 'sync', true);
+    const first = createPositionedAnnouncer(calls, 'first', false);
+    const second = createPositionedAnnouncer(calls, 'second', true);
+    const third = createPositionedAnnouncer(calls, 'third', true);
+    loadComponent({ deferredMenuAnnouncers: [], menuAnnouncers: [announcer], positionedMenuAnnouncers: [first, second, third] });
+    const parentEl = createDiv();
+    const menu = createMenuAnchoredTo(parentEl);
+    const position = { x: 1, y: 2 };
+
+    const returned = menu.showAtPosition(position);
+
+    expect(calls).toEqual(['first', 'second', 'show']);
+    expect(first.announcePositionedMenu).toHaveBeenCalledWith(menu, parentEl);
+    expect(third.announcePositionedMenu).not.toHaveBeenCalled();
+    expect(announcer.announceMenu).not.toHaveBeenCalled();
+    expect(showSpy).toHaveBeenCalledWith(position);
+    expect(returned).toBe(menu);
+  });
+
+  it('should ask no announcer about a menu shown at a position and anchored to nothing', () => {
+    vi.spyOn(Menu.prototype, 'showAtPosition').mockReturnThis();
+    const announcer = createAnnouncer([], 'sync', true);
+    const positioned = createPositionedAnnouncer([], 'positioned', true);
+    loadComponent({ deferredMenuAnnouncers: [], menuAnnouncers: [announcer], positionedMenuAnnouncers: [positioned] });
+
+    createMenuAnchoredTo(null).showAtPosition({ x: 0, y: 0 });
+
+    expect(announcer.announceMenu).not.toHaveBeenCalled();
+    expect(positioned.announcePositionedMenu).not.toHaveBeenCalled();
+  });
+
+  it('should ask the immediate announcers, with the event, about a menu shown at a position during a contextmenu dispatch', () => {
+    vi.spyOn(Menu.prototype, 'showAtPosition').mockReturnThis();
+    const currentTargets: (EventTarget | null)[] = [];
+    const announcer: MenuAnnouncer = {
+      announceMenu: vi.fn((_menu: MenuOriginal, event_: MouseEvent) => {
+        currentTargets.push(event_.currentTarget);
+        return true;
+      })
+    };
+    const positioned = createPositionedAnnouncer([], 'positioned', true);
+    loadComponent({ deferredMenuAnnouncers: [], menuAnnouncers: [announcer], positionedMenuAnnouncers: [positioned] });
+    const buttonEl = activeDocument.body.createDiv();
+    const parentEl = createDiv();
+    const menu = createMenuAnchoredTo(parentEl);
+    buttonEl.addEventListener('contextmenu', () => {
+      menu.showAtPosition({ x: 0, y: 0 });
+    });
+    const event_ = new MouseEvent('contextmenu', { bubbles: true });
+
+    buttonEl.dispatchEvent(event_);
+    // Once the dispatch is over, the same event no longer makes a positioned menu an immediate one.
+    menu.showAtPosition({ x: 0, y: 0 });
+
+    expect(announcer.announceMenu).toHaveBeenCalledExactlyOnceWith(menu, event_);
+    expect(currentTargets).toEqual([buttonEl]);
+    expect(positioned.announcePositionedMenu).toHaveBeenCalledExactlyOnceWith(menu, parentEl);
+  });
+
+  it('should not announce a second time the position a menu shown at a mouse event is shown at', () => {
+    const showAtPositionSpy = vi.spyOn(Menu.prototype, 'showAtPosition').mockReturnThis();
+    vi.spyOn(Menu.prototype, 'showAtMouseEvent').mockImplementation(function showAtMouseEventStub(this: Menu, event_: MouseEvent) {
+      return this.showAtPosition({ x: event_.clientX, y: event_.clientY });
+    });
+    const announcer = createAnnouncer([], 'sync', false);
+    const positioned = createPositionedAnnouncer([], 'positioned', true);
+    loadComponent({ deferredMenuAnnouncers: [], menuAnnouncers: [announcer], positionedMenuAnnouncers: [positioned] });
+    const menu = createMenuAnchoredTo(createDiv());
+
+    menu.showAtMouseEvent(mouseEventWithCurrentTarget(createDiv()));
+
+    expect(announcer.announceMenu).toHaveBeenCalledOnce();
+    expect(positioned.announcePositionedMenu).not.toHaveBeenCalled();
+    expect(showAtPositionSpy).toHaveBeenCalledOnce();
+
+    // And the flag is down again afterwards.
+    menu.showAtPosition({ x: 0, y: 0 });
+    expect(positioned.announcePositionedMenu).toHaveBeenCalledOnce();
+  });
+
+  it('should leave a menu shown at a position alone once unloaded', () => {
+    vi.spyOn(Menu.prototype, 'showAtPosition').mockReturnThis();
+    const positioned = createPositionedAnnouncer([], 'positioned', true);
+    loadComponent({ deferredMenuAnnouncers: [], menuAnnouncers: [], positionedMenuAnnouncers: [positioned] }).unload();
+
+    createMenuAnchoredTo(createDiv()).showAtPosition({ x: 0, y: 0 });
+
+    expect(positioned.announcePositionedMenu).not.toHaveBeenCalled();
+  });
+
   function loadComponent(
     announcers: Announcers,
     testApp: TestApp = createApp([])
   ): MenuPatchComponent {
-    const component = new MenuPatchComponent({ app: testApp.app, ...announcers });
+    const component = new MenuPatchComponent({ app: testApp.app, positionedMenuAnnouncers: [], ...announcers });
     component.load();
     loadedComponents.push(component);
     return component;
@@ -210,6 +312,27 @@ function createDeferredAnnouncer(calls: string[], name: string, isClaiming: bool
  */
 function createFakeWindow(): Window {
   return castTo<Window>(new EventTarget());
+}
+
+/**
+ * A menu anchored to an element, as `setParentElement` leaves it.
+ *
+ * @param parentEl - The element, or `null` for a menu anchored to nothing.
+ * @returns The menu.
+ */
+function createMenuAnchoredTo(parentEl: HTMLElement | null): MenuOriginal {
+  const menu = Menu.create2__().asOriginalType2__();
+  castTo<AnchoredMenu>(menu).parentEl = parentEl;
+  return menu;
+}
+
+function createPositionedAnnouncer(calls: string[], name: string, isClaiming: boolean): PositionedMenuAnnouncer {
+  return {
+    announcePositionedMenu: vi.fn((_menu: MenuOriginal, _parentEl: HTMLElement) => {
+      calls.push(name);
+      return isClaiming;
+    })
+  };
 }
 
 /**
