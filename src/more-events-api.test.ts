@@ -22,6 +22,8 @@ import {
   CSS_SNIPPET_MENU_EVENT_NAME,
   EXTERNAL_IMAGE_MENU_EVENT_NAME,
   LEAF_MENU_EVENT_NAME,
+  MARKDOWN_PROPERTIES_MENU_EVENT_NAME,
+  MARKDOWN_VIEWPORT_MENU_EVENT_NAME,
   PDF_OUTLINE_MENU_EVENT_NAME,
   PDF_PAGE_MENU_EVENT_NAME,
   PDF_THUMBNAIL_MENU_EVENT_NAME,
@@ -30,6 +32,7 @@ import {
   PROPERTY_MENU_EVENT_NAME,
   PROPERTY_VALUE_MENU_EVENT_NAME,
   RIBBON_MENU_EVENT_NAME,
+  SEARCH_RESULTS_MENU_EVENT_NAME,
   SIDEBAR_TOGGLE_MENU_EVENT_NAME,
   TAB_GROUP_MENU_EVENT_NAME,
   TABLE_CELL_MENU_EVENT_NAME,
@@ -75,6 +78,9 @@ describe('the published contract', () => {
     expect(VAULT_MENU_EVENT_NAME).toBe('more-events:vault-menu');
     expect(LEAF_MENU_EVENT_NAME).toBe('more-events:leaf-menu');
     expect(TAB_GROUP_MENU_EVENT_NAME).toBe('more-events:tab-group-menu');
+    expect(SEARCH_RESULTS_MENU_EVENT_NAME).toBe('more-events:search-results-menu');
+    expect(MARKDOWN_VIEWPORT_MENU_EVENT_NAME).toBe('more-events:markdown-viewport-menu');
+    expect(MARKDOWN_PROPERTIES_MENU_EVENT_NAME).toBe('more-events:markdown-properties-menu');
   });
 
   it('should declare every member of the api in the contract', () => {

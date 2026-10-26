@@ -14,6 +14,7 @@ import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-even
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 import { CssSnippetMenuEventsComponent } from './css-snippet-menu-events-component.ts';
 import { ExternalImageMenuEventsComponent } from './external-image-menu-events-component.ts';
+import { MarkdownMenuEventsComponent } from './markdown-menu-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
 import {
   PLUGIN_API_CONTRACT,
@@ -27,6 +28,7 @@ import { PluginSettingTabMenuEventsComponent } from './plugin-setting-tab-menu-e
 import { PropertyMenuEventsComponent } from './property-menu-events-component.ts';
 import { PropertyValueMenuEventsComponent } from './property-value-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
+import { SearchMenuEventsComponent } from './search-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
 import { TableMenuEventsComponent } from './table-menu-events-component.ts';
 import { VaultMenuEventsComponent } from './vault-menu-events-component.ts';
@@ -192,6 +194,18 @@ export class Plugin extends PluginBase {
 
     this.addChild(
       new WorkspaceMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    this.addChild(
+      new SearchMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    this.addChild(
+      new MarkdownMenuEventsComponent({
         app: this.app
       })
     );

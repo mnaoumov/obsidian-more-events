@@ -26,6 +26,7 @@ import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-even
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 import { CssSnippetMenuEventsComponent } from './css-snippet-menu-events-component.ts';
 import { ExternalImageMenuEventsComponent } from './external-image-menu-events-component.ts';
+import { MarkdownMenuEventsComponent } from './markdown-menu-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
 import {
   PLUGIN_API_CONTRACT,
@@ -40,6 +41,7 @@ import { Plugin } from './plugin.ts';
 import { PropertyMenuEventsComponent } from './property-menu-events-component.ts';
 import { PropertyValueMenuEventsComponent } from './property-value-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
+import { SearchMenuEventsComponent } from './search-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
 import { TableMenuEventsComponent } from './table-menu-events-component.ts';
 import { VaultMenuEventsComponent } from './vault-menu-events-component.ts';
@@ -171,6 +173,26 @@ vi.mock('./workspace-menu-events-component.ts', async () => {
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     WorkspaceMenuEventsComponent: vi.fn(function workspaceMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./search-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    SearchMenuEventsComponent: vi.fn(function searchMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./markdown-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    MarkdownMenuEventsComponent: vi.fn(function markdownMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -528,6 +550,22 @@ describe('Plugin', () => {
     const workspaceCalls = vi.mocked(WorkspaceMenuEventsComponent).mock.calls;
     expect(workspaceCalls).toHaveLength(1);
     expect(castTo<PluginEventsComponentConstructorParams>(workspaceCalls[0]?.[0]).app).toBe(plugin.app);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
+  it('should add the search menu and markdown menu events components with the app', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+
+    const searchCalls = vi.mocked(SearchMenuEventsComponent).mock.calls;
+    expect(searchCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(searchCalls[0]?.[0]).app).toBe(plugin.app);
+
+    const markdownCalls = vi.mocked(MarkdownMenuEventsComponent).mock.calls;
+    expect(markdownCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(markdownCalls[0]?.[0]).app).toBe(plugin.app);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();
