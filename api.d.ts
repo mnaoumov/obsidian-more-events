@@ -3,7 +3,8 @@
  *
  * `More Events`' public surface, as a consumer sees it.
  *
- * Hand-written and self-contained on purpose: it imports from `obsidian` and nothing else, so a plugin that
+ * Hand-written and self-contained on purpose: it imports from the `obsidian` package (`obsidian` and its
+ * `obsidian/canvas` declarations) and nothing else, so a plugin that
  * has never heard of `@mnaoumov/obsidian-lib` can copy this file, or reference it, and depend on `More Events`
  * with no build-time dependency on this repo at all.
  *
@@ -31,6 +32,10 @@ import type {
   WorkspaceLeaf,
   WorkspaceTabs
 } from 'obsidian';
+import type {
+  AllCanvasNodeData,
+  CanvasEdgeData
+} from 'obsidian/canvas.d.ts';
 
 /**
  * The name of the event triggered when the context menu of a property in the **All properties** view is
@@ -175,6 +180,46 @@ export interface CalloutMenuItem {
    */
   readonly type: string;
 }
+
+/**
+ * The name of the event triggered when the context menu of a connection on a canvas is about to open — the
+ * right-click on an edge, which offers **Edit label**, **Follow connection** and **Remove**.
+ */
+export type CanvasEdgeMenuEventName = 'more-events:canvas-edge-menu';
+
+/**
+ * What a canvas selection menu is for: every selected node and every selected connection, each as the canvas
+ * file stores it.
+ *
+ * Plain data, and additive only, like the other payloads in this file: copies, so writing to them changes
+ * nothing on the canvas.
+ */
+export interface CanvasMenuSelection {
+  /**
+   * The selected connections, as the canvas file stores them. A connection is in the selection only when it
+   * was selected itself, not because both of its ends were.
+   */
+  readonly edges: readonly CanvasEdgeData[];
+
+  /**
+   * The selected nodes, as the canvas file stores them.
+   */
+  readonly nodes: readonly AllCanvasNodeData[];
+}
+
+/**
+ * The name of the event triggered when the context menu of a single node on a canvas is about to open — the
+ * right-click on a card, a note, a link or a group, which offers **Zoom to selection**, **Remove** and the
+ * node's own items.
+ */
+export type CanvasNodeMenuEventName = 'more-events:canvas-node-menu';
+
+/**
+ * The name of the event triggered when the context menu of a selection on a canvas is about to open — the
+ * right-click on one of several selected nodes or connections, or on the selection box, which offers
+ * **Create group**, **Zoom to selection** and **Remove**.
+ */
+export type CanvasSelectionMenuEventName = 'more-events:canvas-selection-menu';
 
 /**
  * A point on a canvas, in the canvas's own coordinates: the ones a node's `x` and `y` are stored in, which
@@ -805,6 +850,56 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: CanvasViewMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, position: CanvasMenuPosition) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of a connection on a canvas.
+     *
+     * A relay of Obsidian's own `canvas:edge-menu`, which it documents and types nowhere: add items to `menu` and
+     * they appear in it, after Obsidian's own. Triggered before the menu is shown, for a right-click on a
+     * connection that is not part of a larger selection, whose menu is `more-events:canvas-selection-menu`.
+     *
+     * @param name - Should be `'more-events:canvas-edge-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the **Canvas** view, and the
+     * connection as the canvas file stores it: a copy.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CanvasEdgeMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, edge: CanvasEdgeData) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of a single node on a canvas.
+     *
+     * A relay of Obsidian's own `canvas:node-menu`, which it documents and types nowhere: add items to `menu` and
+     * they appear in it, after Obsidian's own. Triggered before the menu is shown, for a right-click on a node
+     * that is not part of a larger selection, whose menu is `more-events:canvas-selection-menu`. A file node's
+     * menu also fires Obsidian's own `file-menu`, unless the node shows only a heading or a block of the file.
+     *
+     * @param name - Should be `'more-events:canvas-node-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the **Canvas** view, and the node as
+     * the canvas file stores it: a copy.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CanvasNodeMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, node: AllCanvasNodeData) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of a selection on a canvas.
+     *
+     * A relay of Obsidian's own `canvas:selection-menu`, which it documents and types nowhere: add items to `menu`
+     * and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a right-click on one of
+     * several selected nodes or connections, or on the selection box around them. When the selection holds more
+     * than one file node, the same menu also fires Obsidian's own `files-menu`.
+     *
+     * @param name - Should be `'more-events:canvas-selection-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the **Canvas** view, and what is
+     * selected, as the canvas file stores it: copies.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CanvasSelectionMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, selection: CanvasMenuSelection) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to a community plugin being enabled or disabled.

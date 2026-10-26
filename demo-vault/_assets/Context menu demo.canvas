@@ -1,1 +1,1 @@
-{"nodes":[],"edges":[]}
+{"nodes":[{"id":"demo-card-1","type":"text","text":"Right-click me","x":-400,"y":-60,"width":240,"height":120},{"id":"demo-card-2","type":"text","text":"Select both cards, then right-click one","x":-40,"y":-60,"width":240,"height":120}],"edges":[{"id":"demo-connection","fromNode":"demo-card-1","fromSide":"right","toNode":"demo-card-2","toSide":"left"}]}

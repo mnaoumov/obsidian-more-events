@@ -17,6 +17,9 @@ import type {
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
   CalloutMenuEventName,
+  CanvasEdgeMenuEventName,
+  CanvasNodeMenuEventName,
+  CanvasSelectionMenuEventName,
   CanvasViewMenuEventName,
   CommunityPluginDisabledEventName,
   CommunityPluginEnabledEventName,
@@ -58,7 +61,11 @@ export type {
   BookmarksViewMenuEventName,
   CalloutMenuEventName,
   CalloutMenuItem,
+  CanvasEdgeMenuEventName,
   CanvasMenuPosition,
+  CanvasMenuSelection,
+  CanvasNodeMenuEventName,
+  CanvasSelectionMenuEventName,
   CanvasViewMenuEventName,
   CommunityPluginDisabledEventName,
   CommunityPluginEnabledEventName,
@@ -133,6 +140,21 @@ export const BOOKMARKS_VIEW_MENU_EVENT_NAME: BookmarksViewMenuEventName = 'more-
  * Triggered on `app.workspace` when the context menu of a callout in a Live Preview editor is about to open.
  */
 export const CALLOUT_MENU_EVENT_NAME: CalloutMenuEventName = 'more-events:callout-menu';
+
+/**
+ * Triggered on `app.workspace` when the context menu of a connection on a canvas is about to open.
+ */
+export const CANVAS_EDGE_MENU_EVENT_NAME: CanvasEdgeMenuEventName = 'more-events:canvas-edge-menu';
+
+/**
+ * Triggered on `app.workspace` when the context menu of a single node on a canvas is about to open.
+ */
+export const CANVAS_NODE_MENU_EVENT_NAME: CanvasNodeMenuEventName = 'more-events:canvas-node-menu';
+
+/**
+ * Triggered on `app.workspace` when the context menu of a selection on a canvas is about to open.
+ */
+export const CANVAS_SELECTION_MENU_EVENT_NAME: CanvasSelectionMenuEventName = 'more-events:canvas-selection-menu';
 
 /**
  * Triggered on `app.workspace` when the context menu of the **Canvas** view's empty background is about to open.
@@ -287,7 +309,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * settings row menu, a callout's menu, the core and community plugin settings tab menus, a Live Preview
  * table's cell and drag handle menus, a property value's menu, a Bases table column header's menu, a property's own
  * menu, a CSS snippet row's menu, an external image's menu, a Bases board column's menu and the vault name's menu, and
- * the relays of Obsidian's own `leaf-menu`, `tab-group-menu`, `search:results-menu`, `markdown-viewport-menu` and
- * `markdown-properties-menu`.
+ * the relays of Obsidian's own `leaf-menu`, `tab-group-menu`, `search:results-menu`, `markdown-viewport-menu`,
+ * `markdown-properties-menu`, `canvas:node-menu`, `canvas:edge-menu` and `canvas:selection-menu`.
  */
 export const PLUGIN_API_VERSION = '1.4.0';

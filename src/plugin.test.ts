@@ -21,6 +21,7 @@ import { BasesKanbanColumnMenuEventsComponent } from './bases-kanban-column-menu
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
 import { CalloutMenuEventsComponent } from './callout-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
+import { CanvasObjectMenuEventsComponent } from './canvas-object-menu-events-component.ts';
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
 import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-events-component.ts';
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
@@ -188,6 +189,15 @@ vi.mock('./search-menu-events-component.ts', async () => {
   };
 });
 
+vi.mock('./canvas-object-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    CanvasObjectMenuEventsComponent: vi.fn(function canvasObjectMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
 vi.mock('./markdown-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
@@ -555,7 +565,7 @@ describe('Plugin', () => {
     plugin.unload();
   });
 
-  it('should add the search menu and markdown menu events components with the app', async () => {
+  it('should add the search menu, markdown menu and canvas object menu events components with the app', async () => {
     const plugin = new Plugin(app, manifest);
     await plugin.onload();
 
@@ -566,6 +576,10 @@ describe('Plugin', () => {
     const markdownCalls = vi.mocked(MarkdownMenuEventsComponent).mock.calls;
     expect(markdownCalls).toHaveLength(1);
     expect(castTo<PluginEventsComponentConstructorParams>(markdownCalls[0]?.[0]).app).toBe(plugin.app);
+
+    const canvasObjectCalls = vi.mocked(CanvasObjectMenuEventsComponent).mock.calls;
+    expect(canvasObjectCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(canvasObjectCalls[0]?.[0]).app).toBe(plugin.app);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();

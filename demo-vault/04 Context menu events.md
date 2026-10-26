@@ -15,6 +15,7 @@ They are shaped like Obsidian's own: the listener receives the `Menu` first, the
 - **`more-events:bookmarks-menu`** is the menu of one or more bookmarks. The listener gets the bookmarks: the one you right-clicked, or every selected one.
 - **`more-events:bookmarks-view-menu`** is the menu of the view's empty area, below the last bookmark, where Obsidian offers **New group**. The listener gets the view's leaf.
 - **`more-events:canvas-view-menu`** is the menu of a canvas's empty background, where Obsidian offers **Add card**. The listener gets the canvas's leaf and the point you right-clicked, in the canvas's own coordinates.
+- **`more-events:canvas-node-menu`**, **`more-events:canvas-edge-menu`** and **`more-events:canvas-selection-menu`** are the menus of a single node on a canvas, a single connection, and a selection of several. The listener gets the canvas's leaf and what the menu is for, as the canvas file stores it.
 - **`more-events:ribbon-menu`** is the menu of the ribbon's empty area, below its icons, where Obsidian offers **Hide ribbon**. The listener gets which ribbon it is.
 - **`more-events:all-properties-menu`** is the menu of a property in the **All properties** view, where Obsidian offers its types, **Rename** and **Delete**. The listener gets the names of the properties the menu acts on: the one you right-clicked, or the whole selection when that property is part of one.
 - **`more-events:web-viewer-history-menu`** is the menu of a visited page in the **Web viewer**'s History view, where Obsidian offers **Copy URL** and **Remove from history**. The listener gets that page's title and address.
@@ -57,7 +58,7 @@ require('/demoSetup.ts').stopListeningToBookmarksMenus();
 
 ## Try the canvas and ribbon ones
 
-First, an empty canvas to right-click. This opens the demo canvas in a new tab, turning the **Canvas** core plugin back on first if the toggle on [01 Core plugin events](<./01 Core plugin events.md>) left it off:
+First, a canvas to right-click, with two cards and a connection between them. This opens the demo canvas in a new tab, turning the **Canvas** core plugin back on first if the toggle on [01 Core plugin events](<./01 Core plugin events.md>) left it off:
 
 ```code-button
 ---
@@ -77,7 +78,7 @@ caption: Start listening to the canvas and ribbon menus
 require('/demoSetup.ts').startListeningToCanvasAndRibbonMenus(app);
 ```
 
-Now right-click the empty canvas: below Obsidian's own items is **Where did I click? (added by a listener)**, and clicking it shows the point in canvas coordinates. Then right-click the ribbon on the far left, in the gap below its icons: Obsidian's **Hide ribbon** is joined by **Added by a listener to the ribbon**. Then stop:
+Now right-click the empty canvas, away from the cards: below Obsidian's own items is **Where did I click? (added by a listener)**, and clicking it shows the point in canvas coordinates. Right-click a card: below Obsidian's **Zoom to selection** is **Which node is this? (added by a listener)**. Right-click the connection between the cards: below **Follow connection** is **What does this connect? (added by a listener)**. Select both cards with Shift and right-click one: below **Create group** is **What is selected? (added by a listener)**. Then right-click the ribbon on the far left, in the gap below its icons: Obsidian's **Hide ribbon** is joined by **Added by a listener to the ribbon**. Then stop:
 
 ```code-button
 ---
@@ -354,9 +355,10 @@ require('/demoSetup.ts').stopListeningToNoteAndSearchMenus();
 - **They fire before the menu opens**, after Obsidian has added its own items, so an item you add appears in the menu.
 - **The bookmarks are Obsidian's own objects**, not copies, so the **Bookmarks** core plugin recognizes them if you hand them back to it. Read them; do not write to them.
 - **The history entry is a copy**, a plain title and address, so writing to it changes nothing in Obsidian.
+- **The canvas nodes and connections are copies too**, in the shape the canvas file stores them, so writing to them changes nothing on the canvas.
 
 ## Where they come from
 
-Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, for the tab and tab group menus, `leaf-menu` and `tab-group-menu`, and for the note margin, Properties and Search results menus, `markdown-viewport-menu`, `markdown-properties-menu` and `search:results-menu`, but documents and types them nowhere. `More Events` relays them under names it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
+Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, for the tab and tab group menus, `leaf-menu` and `tab-group-menu`, for the note margin, Properties and Search results menus, `markdown-viewport-menu`, `markdown-properties-menu` and `search:results-menu`, and for the canvas node, connection and selection menus, `canvas:node-menu`, `canvas:edge-menu` and `canvas:selection-menu`, but documents and types them nowhere. `More Events` relays them under names it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
 The vault name menu, the bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu, the CSS snippet menu, the external image menu and the board column menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.

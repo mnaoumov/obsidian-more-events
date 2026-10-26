@@ -11,6 +11,9 @@ import {
   BOOKMARKS_MENU_EVENT_NAME,
   BOOKMARKS_VIEW_MENU_EVENT_NAME,
   CALLOUT_MENU_EVENT_NAME,
+  CANVAS_EDGE_MENU_EVENT_NAME,
+  CANVAS_NODE_MENU_EVENT_NAME,
+  CANVAS_SELECTION_MENU_EVENT_NAME,
   CANVAS_VIEW_MENU_EVENT_NAME,
   COMMUNITY_PLUGIN_DISABLED_EVENT_NAME,
   COMMUNITY_PLUGIN_ENABLED_EVENT_NAME,
@@ -81,6 +84,9 @@ describe('the published contract', () => {
     expect(SEARCH_RESULTS_MENU_EVENT_NAME).toBe('more-events:search-results-menu');
     expect(MARKDOWN_VIEWPORT_MENU_EVENT_NAME).toBe('more-events:markdown-viewport-menu');
     expect(MARKDOWN_PROPERTIES_MENU_EVENT_NAME).toBe('more-events:markdown-properties-menu');
+    expect(CANVAS_NODE_MENU_EVENT_NAME).toBe('more-events:canvas-node-menu');
+    expect(CANVAS_EDGE_MENU_EVENT_NAME).toBe('more-events:canvas-edge-menu');
+    expect(CANVAS_SELECTION_MENU_EVENT_NAME).toBe('more-events:canvas-selection-menu');
   });
 
   it('should declare every member of the api in the contract', () => {
