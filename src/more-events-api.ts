@@ -11,6 +11,8 @@
 import type { ApiContract } from '@mnaoumov/typescript-lib/api-contract';
 
 import type {
+  BookmarksMenuEventName,
+  BookmarksViewMenuEventName,
   CommunityPluginDisabledEventName,
   CommunityPluginEnabledEventName,
   CorePluginDisabledEventName,
@@ -20,6 +22,9 @@ import type {
 import { MORE_EVENTS_API_CONTRACT } from '../api-contract.ts';
 
 export type {
+  BookmarkMenuItem,
+  BookmarksMenuEventName,
+  BookmarksViewMenuEventName,
   CommunityPluginDisabledEventName,
   CommunityPluginEnabledEventName,
   CommunityPluginEventName,
@@ -30,6 +35,16 @@ export type {
   CorePluginEventPayload,
   MoreEventsApi
 } from '../api.d.ts';
+
+/**
+ * Triggered on `app.workspace` when the context menu of one or more bookmarks is about to open.
+ */
+export const BOOKMARKS_MENU_EVENT_NAME: BookmarksMenuEventName = 'more-events:bookmarks-menu';
+
+/**
+ * Triggered on `app.workspace` when the context menu of the **Bookmarks** view's empty area is about to open.
+ */
+export const BOOKMARKS_VIEW_MENU_EVENT_NAME: BookmarksViewMenuEventName = 'more-events:bookmarks-view-menu';
 
 /**
  * Triggered on `app.workspace` after a community plugin has been disabled.
@@ -62,12 +77,12 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * The version of the contract above — independent of the plugin's own version, so a consumer asks for
  * `'^1'` and keeps working across releases that change nothing it depends on.
  *
- * `1.2.0` rather than `2.0.0`, for the same reason `1.1.0` was: `isUserInitiated` was ADDED to both
- * payloads and nothing already published changed its meaning, so a consumer written against `1.0.0` or
- * `1.1.0` compiles and runs unaltered. The payloads are declared additive-only in `api.d.ts` precisely so
+ * `1.3.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the two bookmarks menu
+ * events were ADDED and nothing already published changed its meaning, so a consumer written against any
+ * `1.x` compiles and runs unaltered. The payloads are declared additive-only in `api.d.ts` precisely so
  * this stays a minor.
  *
  * The history: `1.0.0` was the core-plugin pair, `1.1.0` added the community-plugin pair, `1.2.0` added
- * `isUserInitiated` to both.
+ * `isUserInitiated` to both, `1.3.0` added the bookmarks menu events.
  */
-export const PLUGIN_API_VERSION = '1.2.0';
+export const PLUGIN_API_VERSION = '1.3.0';

@@ -57,8 +57,13 @@ const DEMO_COMMUNITY_PLUGIN_MANIFEST_JSON = JSON.stringify(
   2
 );
 
+const BOOKMARKS_MENU_EVENT_NAME = 'more-events:bookmarks-menu';
+const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
+const CONTEXT_MENU_NOTE_PATH = '04 Context menu events.md';
+
 // The subscriptions the listen buttons create, kept here so the stop buttons can find them again. A real
 // plugin has its own `Component` for this and never needs a module-level handle.
+let bookmarksMenuListeningComponent: Component | null = null;
 let communityPluginListeningComponent: Component | null = null;
 let corePluginListeningComponent: Component | null = null;
 
@@ -119,6 +124,86 @@ export async function showWhetherCanvasIsEnabled(app: App): Promise<void> {
   const moreEventsApi = await getApi(app);
   const isEnabled = moreEventsApi.isCorePluginEnabled(DEMO_CORE_PLUGIN_ID);
   new Notice(createPluginNameFragment('', 'Canvas', ` is ${isEnabled ? 'enabled' : 'disabled'}.`));
+}
+
+/**
+ * Bookmarks the context-menu note, if it is not bookmarked yet, and reveals the **Bookmarks** view, so there
+ * is a bookmark to right-click.
+ *
+ * Manual equivalent: **Bookmark...** from the note's own menu, then the bookmark icon in the left sidebar.
+ */
+export async function showBookmarksView(app: App): Promise<void> {
+  const bookmarks = app.internalPlugins.getEnabledPluginById('bookmarks');
+  if (!bookmarks) {
+    new Notice('Turn on the Bookmarks core plugin in Settings -> Core plugins first.');
+    return;
+  }
+
+  if (!bookmarks.items.some((item) => item.path === CONTEXT_MENU_NOTE_PATH)) {
+    bookmarks.addItem({ ctime: Date.now(), path: CONTEXT_MENU_NOTE_PATH, title: '', type: 'file' });
+  }
+
+  await app.workspace.ensureSideLeaf('bookmarks', 'left', { reveal: true });
+}
+
+/**
+ * Subscribes to both bookmarks menu events and adds one item to each menu, until the stop button below.
+ *
+ * Manual equivalent: the same two `app.workspace.on(...)` calls from your own plugin's `onload`.
+ */
+export function startListeningToBookmarksMenus(app: App): void {
+  if (bookmarksMenuListeningComponent) {
+    new Notice('Already listening. Right-click a bookmark, or the empty area below the last one.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(BOOKMARKS_MENU_EVENT_NAME, (menu, bookmarkItems) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Describe these bookmarks (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            const descriptions = bookmarkItems.map((bookmarkItem) => `${bookmarkItem.type}: ${bookmarkItem.path ?? bookmarkItem.title ?? ''}`);
+            new Notice(`${String(bookmarkItems.length)} bookmark(s):\n${descriptions.join('\n')}`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(BOOKMARKS_VIEW_MENU_EVENT_NAME, (menu, leaf) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Added by a listener to the empty area')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`This item came from a listener. The menu is for the ${leaf.view.getDisplayText()} view.`);
+          });
+      });
+    })
+  );
+  component.load();
+  bookmarksMenuListeningComponent = component;
+
+  new Notice('Listening. Now right-click a bookmark, or the empty area below the last one.');
+}
+
+/**
+ * Drops both bookmarks menu subscriptions.
+ *
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToBookmarksMenus(): void {
+  if (!bookmarksMenuListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  bookmarksMenuListeningComponent.unload();
+  bookmarksMenuListeningComponent = null;
+  new Notice('Stopped listening.');
 }
 
 /**

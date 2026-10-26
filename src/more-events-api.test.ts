@@ -5,6 +5,8 @@ import {
 } from 'vitest';
 
 import {
+  BOOKMARKS_MENU_EVENT_NAME,
+  BOOKMARKS_VIEW_MENU_EVENT_NAME,
   COMMUNITY_PLUGIN_DISABLED_EVENT_NAME,
   COMMUNITY_PLUGIN_ENABLED_EVENT_NAME,
   CORE_PLUGIN_DISABLED_EVENT_NAME,
@@ -25,6 +27,8 @@ describe('the published contract', () => {
     expect(CORE_PLUGIN_DISABLED_EVENT_NAME).toBe('more-events:core-plugin-disabled');
     expect(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME).toBe('more-events:community-plugin-enabled');
     expect(COMMUNITY_PLUGIN_DISABLED_EVENT_NAME).toBe('more-events:community-plugin-disabled');
+    expect(BOOKMARKS_MENU_EVENT_NAME).toBe('more-events:bookmarks-menu');
+    expect(BOOKMARKS_VIEW_MENU_EVENT_NAME).toBe('more-events:bookmarks-view-menu');
   });
 
   it('should declare every member of the api in the contract', () => {
@@ -37,6 +41,6 @@ describe('the published contract', () => {
   });
 
   it('should publish a contract version independent of the plugin version', () => {
-    expect(PLUGIN_API_VERSION).toBe('1.2.0');
+    expect(PLUGIN_API_VERSION).toBe('1.3.0');
   });
 });

@@ -2,7 +2,7 @@
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/mnaoumov) [![GitHub release](https://img.shields.io/github/v/release/mnaoumov/obsidian-more-events)](https://github.com/mnaoumov/obsidian-more-events/releases) [![GitHub downloads](https://img.shields.io/github/downloads/mnaoumov/obsidian-more-events/total)](https://github.com/mnaoumov/obsidian-more-events/releases) [![Coverage: 100%](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/mnaoumov/obsidian-more-events)
 
-**A home for the events [Obsidian](https://obsidian.md/) does not publish.** Its public API exposes a fixed set of workspace events, and anything outside that set leaves a plugin reading undocumented internals or patching a shared prototype. `More Events` publishes the missing ones instead — named, typed and per subject, on `app.workspace`, subscribable with no dependency beyond `obsidian` itself. **The first set is plugin lifecycle**, which is what the rest of this page is about; further sets arrive the same way, under the same names-and-types contract, and that is what the plugin is for rather than an afterthought to it.
+**A home for the events [Obsidian](https://obsidian.md/) does not publish.** Its public API exposes a fixed set of workspace events, and anything outside that set leaves a plugin reading undocumented internals or patching a shared prototype. `More Events` publishes the missing ones instead — named, typed and per subject, on `app.workspace`, subscribable with no dependency beyond `obsidian` itself. **The first set is plugin lifecycle**, which is what most of this page is about. **The second is context menus**, starting with the **Bookmarks** view: Obsidian builds many context menus without raising an event a plugin could add an item from. Further sets arrive the same way, under the same names-and-types contract, and that is what the plugin is for rather than an afterthought to it.
 
 A plugin that reacts to another plugin — one of Obsidian's core plugins like Backlinks, Canvas or Graph, or a community plugin it integrates with — has to know when that plugin goes away and when it comes back. Obsidian does emit something: `app.internalPlugins` fires an untyped `change` when a core plugin's state moves, and `app.plugins` fires an untyped `changed` when a community plugin's does. Neither says **which** plugin moved, or in which direction — the community one carries no payload whatsoever — and both hang off internal objects with no published types. So the usual answer is to monkey-patch `InternalPlugin.prototype.enable` — and when two plugins in the same vault do that, there are two patches on one prototype.
 
@@ -41,7 +41,7 @@ A copy of the vault ships with every release. You can access it via any of the f
 
 ## What it does
 
-**Today that is the plugin-lifecycle set** — four events, and a small API answering the question events cannot answer. It is the first set rather than the whole of it.
+**Today that is the plugin-lifecycle set** — four events, and a small API answering the question events cannot answer — **and the first context menus**, below.
 
 - **`more-events:core-plugin-enabled`** fires on `app.workspace` after a core plugin has been enabled, carrying that plugin's id and display name. [01 Core plugin events](<./demo-vault/01 Core plugin events.md>)
 - **`more-events:core-plugin-disabled`** fires the same way after one has been disabled. [01 Core plugin events](<./demo-vault/01 Core plugin events.md>)
@@ -55,11 +55,22 @@ For community plugins, **enabled means loaded**: the plugin's code is running. T
 
 `isUserInitiated` is **Obsidian's own notion of the user doing it, not a broader one**: it means that plugin's own toggle was flipped. Turning the master **Community plugins** switch off is a person's doing and reports `false`, because Obsidian passes no flag down that path — and so does starting a vault in restricted mode. It is also a claim rather than a proof: a plugin that calls `enable(true)` itself reports `true`, because that is what Obsidian itself believes.
 
+### Context menus
+
+Obsidian raises `file-menu`, `editor-menu` and a few others so a plugin can add items to those menus, and builds many more with no event at all. These events fill that gap, shaped like Obsidian's own: the listener gets the `Menu` first, then what it is for, and whatever it adds appears in the menu Obsidian shows.
+
+- **`more-events:bookmarks-menu`** fires when the context menu of one or more bookmarks in the **Bookmarks** view is about to open, with the bookmarks it is for. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
+- **`more-events:bookmarks-view-menu`** fires for the **Bookmarks** view's empty area, below the last bookmark, where Obsidian offers **New group**. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
+
+Obsidian does trigger an event of its own for the first one, `bookmarks:bookmarks-menu`, but documents and types it nowhere; `More Events` relays it under a name it keeps stable. The second fires nothing at all in Obsidian.
+
 ## Why it patches, when the point was to stop you patching
 
 It patches exactly one thing, and that is not a contradiction of the paragraph above — it is what makes it true. The hazard is never *a* patch; it is **N** plugins patching one shared prototype, at different versions, each unaware of the others. A plugin is where such a patch belongs, precisely because a vault holds one copy of it. So the prototype carries one patch, installed once, removed cleanly when the plugin unloads, and every consumer gets the context without adding a second.
 
 The patch supplements the diff rather than replacing it. What it intercepts is the transition; what makes the events per-plugin — and correct when Obsidian collapses several transitions into one debounced signal — is still the diff.
+
+The context menus that fire nothing take one more patch, on `Menu.prototype.showAtMouseEvent`, and every such menu goes through that same one. It tells the menus apart by the element whose right-click listener is showing the menu, and it raises the event before the menu is built, while it still accepts items.
 
 ## What it deliberately does not do
 
@@ -86,9 +97,19 @@ this.registerEvent(
     console.log(`${communityPluginName} (${communityPluginId}) has gone`);
   })
 );
+
+this.registerEvent(
+  this.app.workspace.on('more-events:bookmarks-menu', (menu, bookmarks) => {
+    menu.addItem((item) => {
+      item.setTitle(`Log ${bookmarks.length} bookmark(s)`).onClick(() => {
+        console.log(bookmarks.map((bookmark) => bookmark.path ?? bookmark.title));
+      });
+    });
+  })
+);
 ```
 
-For the current state, and to know whether `More Events` is installed at all, take the API through the registry. The contract is **`1.2.0`** and moves independently of the plugin's own version, so ask for a range.
+For the current state, and to know whether `More Events` is installed at all, take the API through the registry. The contract is **`1.3.0`** and moves independently of the plugin's own version, so ask for a range.
 
 Beside `api.d.ts`, [`api-contract.ts`](./api-contract.ts) holds the API's contract, `MORE_EVENTS_API_CONTRACT`: for every method, a schema over its arguments and a schema over what it returns. It is the constant this plugin publishes with the API, so copy it next to `api.d.ts` and pass it as the `contract`, and both sides check the same definition. Besides `./api.d.ts` it imports from one package, [`@mnaoumov/typescript-lib`](https://www.npmjs.com/package/@mnaoumov/typescript-lib), whose `api-contract` entry point carries the contract type, the [Standard Schema](https://standardschema.dev) builders and the common guards, so add that package (`1.3.0` or later) to your project when you copy the file. (It is not named `api.ts`: TypeScript would read `api.d.ts` as that file's own declarations.)
 
