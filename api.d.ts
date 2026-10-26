@@ -34,7 +34,8 @@ import type {
 } from 'obsidian';
 import type {
   AllCanvasNodeData,
-  CanvasEdgeData
+  CanvasEdgeData,
+  NodeSide
 } from 'obsidian/canvas.d.ts';
 
 /**
@@ -206,6 +207,37 @@ export interface CanvasMenuSelection {
    */
   readonly nodes: readonly AllCanvasNodeData[];
 }
+
+/**
+ * Where a connection dragged out of a canvas node was dropped onto empty canvas: the node it would be connected
+ * to by an item of the connection-drop menu goes there.
+ *
+ * Plain data, and additive only, like the other payloads in this file.
+ */
+export interface CanvasNodeConnectionDrop {
+  /**
+   * The side of the node the connection was dragged out of.
+   */
+  readonly fromSide: NodeSide;
+
+  /**
+   * The point the connection was dropped at, in canvas coordinates. Obsidian puts the node an item of the menu
+   * creates there.
+   */
+  readonly position: CanvasMenuPosition;
+
+  /**
+   * The side of that new node the connection would end on: the one facing `fromSide`.
+   */
+  readonly toSide: NodeSide;
+}
+
+/**
+ * The name of the event triggered when the menu shown after a connection is dragged out of a canvas node onto
+ * empty canvas is about to open, which offers **Add card**, **Add note from vault** and, for a file node, the
+ * files its note links to.
+ */
+export type CanvasNodeConnectionDropMenuEventName = 'more-events:canvas-node-connection-drop-menu';
 
 /**
  * The name of the event triggered when the context menu of a single node on a canvas is about to open — the
@@ -877,6 +909,28 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: CanvasEdgeMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, edge: CanvasEdgeData) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the menu shown after a connection is dragged out of a canvas node onto empty canvas.
+     *
+     * A relay of Obsidian's own `canvas:node-connection-drop-menu`, which it documents and types nowhere: add items
+     * to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, at the end of a
+     * drag from one of a node's connection handles that ends on no other node. The dragged connection stays on the
+     * canvas while the menu is open and is removed when it closes, unless one of Obsidian's own items was chosen,
+     * so an item added here that wants a connection creates its own.
+     *
+     * @param name - Should be `'more-events:canvas-node-connection-drop-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the **Canvas** view, the node the
+     * connection was dragged out of, as the canvas file stores it (a copy), and where it was dropped.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(
+      name: CanvasNodeConnectionDropMenuEventName,
+      callback: (menu: Menu, leaf: WorkspaceLeaf, fromNode: AllCanvasNodeData, drop: CanvasNodeConnectionDrop) => unknown,
+      context?: unknown
+    ): EventRef;
 
     /**
      * Subscribes to the context menu of a single node on a canvas.

@@ -16,6 +16,7 @@ import {
 import { CanvasObjectMenuEventsComponent } from './canvas-object-menu-events-component.ts';
 import {
   CANVAS_EDGE_MENU_EVENT_NAME,
+  CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME,
   CANVAS_NODE_MENU_EVENT_NAME,
   CANVAS_SELECTION_MENU_EVENT_NAME
 } from './more-events-api.ts';
@@ -117,16 +118,39 @@ describe('CanvasObjectMenuEventsComponent', () => {
     });
   });
 
+  it('should relay Obsidian\'s own connection drop menu event with the leaf, a copy of the node and the drop', () => {
+    const handler = vi.fn();
+    app.workspace.on(CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME, handler);
+    const menu = Menu.create2__().asOriginalType2__();
+    const nodeData = { id: 'n1', text: 'Card', type: 'text' };
+    const fromNode = createItem('n1', nodeData);
+    // The connection ends at a temporary node of no size that the drag moved to the drop point.
+    const edge = {
+      from: { node: fromNode, side: 'right' },
+      to: { node: { height: 0, width: 0, x: 150, y: -20 }, side: 'left' }
+    };
+
+    app.workspace.trigger('canvas:node-connection-drop-menu', menu, fromNode, edge);
+
+    expect(handler).toHaveBeenCalledExactlyOnceWith(menu, leaf, nodeData, {
+      fromSide: 'right',
+      position: { x: 150, y: -20 },
+      toSide: 'left'
+    });
+  });
+
   it('should stop relaying once unloaded', () => {
     const handler = vi.fn();
     app.workspace.on(CANVAS_NODE_MENU_EVENT_NAME, handler);
     app.workspace.on(CANVAS_EDGE_MENU_EVENT_NAME, handler);
     app.workspace.on(CANVAS_SELECTION_MENU_EVENT_NAME, handler);
+    app.workspace.on(CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME, handler);
     component.unload();
 
     app.workspace.trigger('canvas:node-menu', Menu.create2__().asOriginalType2__(), createItem('n1', {}));
     app.workspace.trigger('canvas:edge-menu', Menu.create2__().asOriginalType2__(), createItem('e1', {}));
     app.workspace.trigger('canvas:selection-menu', Menu.create2__().asOriginalType2__(), canvas);
+    app.workspace.trigger('canvas:node-connection-drop-menu', Menu.create2__().asOriginalType2__(), createItem('n1', {}), {});
 
     expect(handler).not.toHaveBeenCalled();
   });
