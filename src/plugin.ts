@@ -7,6 +7,7 @@ import { AllPropertiesMenuEventsComponent } from './all-properties-menu-events-c
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
+import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-events-component.ts';
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
 import {
@@ -16,6 +17,7 @@ import {
 import { MenuPatchComponent } from './patches/menu-patch-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './pdf-thumbnail-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
+import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './web-viewer-history-menu-events-component.ts';
 
 export class Plugin extends PluginBase {
@@ -91,8 +93,25 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const sidebarToggleMenuEventsComponent = this.addChild(
+      new SidebarToggleMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    const communityPluginMenuEventsComponent = this.addChild(
+      new CommunityPluginMenuEventsComponent({
+        app: this.app
+      })
+    );
+
     this.addChild(
       new MenuPatchComponent({
+        app: this.app,
+        deferredMenuAnnouncers: [
+          sidebarToggleMenuEventsComponent,
+          communityPluginMenuEventsComponent
+        ],
         menuAnnouncers: [
           bookmarksMenuEventsComponent,
           canvasMenuEventsComponent,

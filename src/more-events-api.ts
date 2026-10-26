@@ -17,10 +17,12 @@ import type {
   CanvasViewMenuEventName,
   CommunityPluginDisabledEventName,
   CommunityPluginEnabledEventName,
+  CommunityPluginMenuEventName,
   CorePluginDisabledEventName,
   CorePluginEnabledEventName,
   PdfThumbnailMenuEventName,
   RibbonMenuEventName,
+  SidebarToggleMenuEventName,
   WebViewerHistoryMenuEventName
 } from '../api.d.ts';
 
@@ -37,6 +39,7 @@ export type {
   CommunityPluginEnabledEventName,
   CommunityPluginEventName,
   CommunityPluginEventPayload,
+  CommunityPluginMenuEventName,
   CorePluginDisabledEventName,
   CorePluginEnabledEventName,
   CorePluginEventName,
@@ -45,6 +48,8 @@ export type {
   PdfThumbnailMenuEventName,
   RibbonMenuEventName,
   RibbonSide,
+  SidebarSide,
+  SidebarToggleMenuEventName,
   WebViewerHistoryMenuEventName,
   WebViewerHistoryMenuItem
 } from '../api.d.ts';
@@ -80,6 +85,11 @@ export const COMMUNITY_PLUGIN_DISABLED_EVENT_NAME: CommunityPluginDisabledEventN
 export const COMMUNITY_PLUGIN_ENABLED_EVENT_NAME: CommunityPluginEnabledEventName = 'more-events:community-plugin-enabled';
 
 /**
+ * Triggered on `app.workspace` when the context menu of a community plugin's row in **Settings -> Community plugins** is about to open.
+ */
+export const COMMUNITY_PLUGIN_MENU_EVENT_NAME: CommunityPluginMenuEventName = 'more-events:community-plugin-menu';
+
+/**
  * Triggered on `app.workspace` after a core plugin has been disabled.
  */
 export const CORE_PLUGIN_DISABLED_EVENT_NAME: CorePluginDisabledEventName = 'more-events:core-plugin-disabled';
@@ -98,6 +108,11 @@ export const PDF_THUMBNAIL_MENU_EVENT_NAME: PdfThumbnailMenuEventName = 'more-ev
  * Triggered on `app.workspace` when the context menu of the ribbon's empty area is about to open.
  */
 export const RIBBON_MENU_EVENT_NAME: RibbonMenuEventName = 'more-events:ribbon-menu';
+
+/**
+ * Triggered on `app.workspace` when the context menu of a sidebar toggle button is about to open.
+ */
+export const SIDEBAR_TOGGLE_MENU_EVENT_NAME: SidebarToggleMenuEventName = 'more-events:sidebar-toggle-menu';
 
 /**
  * Triggered on `app.workspace` when the context menu of an entry in the **Web viewer** History view is about to open.
@@ -123,6 +138,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * The history: `1.0.0` was the core-plugin pair, `1.1.0` added the community-plugin pair, `1.2.0` added
  * `isUserInitiated` to both, `1.3.0` added the context-menu events: the bookmarks pair, the canvas view
  * one and the ribbon one, all in the same release, and `1.4.0` added the **All properties** and **Web viewer**
- * History item menus and the PDF view's thumbnail menu.
+ * History item menus, the PDF view's thumbnail menu, the sidebar toggle buttons' menu and a community plugin's
+ * settings row menu.
  */
 export const PLUGIN_API_VERSION = '1.4.0';

@@ -66,6 +66,8 @@ Obsidian raises `file-menu`, `editor-menu` and a few others so a plugin can add 
 - **`more-events:all-properties-menu`** fires for a property in the **All properties** view, where Obsidian offers its types, **Rename** and **Delete**, with the names of the properties the menu acts on: the whole selection when the property is part of one. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 - **`more-events:web-viewer-history-menu`** fires for a visited page in the **Web viewer**'s History view, where Obsidian offers **Copy URL** and **Remove from history**, with that page's title and address. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 - **`more-events:pdf-thumbnail-menu`** fires for a page thumbnail in the sidebar of a PDF open in its own tab, where Obsidian offers **Copy link to page**, with the PDF's leaf and the page number. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
+- **`more-events:sidebar-toggle-menu`** fires for the button at the top of the left or right sidebar that opens and closes it, where Obsidian offers a checkbox for that sidebar, with which sidebar it is. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
+- **`more-events:community-plugin-menu`** fires for an installed plugin's row in **Settings -> Community plugins**, where Obsidian offers **Hotkeys**, **View details** and **Uninstall**, with the plugin's id. Only the right-click on the row is announced, not the row's **More options** button. [04 Context menu events](<./demo-vault/04 Context menu events.md>)
 
 Obsidian does trigger an event of its own for the first one, `bookmarks:bookmarks-menu`, but documents and types it nowhere; `More Events` relays it under a name it keeps stable. The others fire nothing at all in Obsidian.
 
@@ -75,7 +77,7 @@ It patches exactly one thing, and that is not a contradiction of the paragraph a
 
 The patch supplements the diff rather than replacing it. What it intercepts is the transition; what makes the events per-plugin — and correct when Obsidian collapses several transitions into one debounced signal — is still the diff.
 
-The context menus that fire nothing take one more patch, on `Menu.prototype.showAtMouseEvent`, and every such menu goes through that same one. It tells the menus apart by the element whose right-click listener is showing the menu, and it raises the event before the menu is built, while it still accepts items.
+The context menus that fire nothing take one more patch, on `Menu.prototype.showAtMouseEvent`, and every such menu goes through that same one. It tells the menus apart by the element whose right-click listener is showing the menu, and it raises the event before the menu is built, while it still accepts items. A menu Obsidian shows a moment after the right-click, when that element is no longer known, is told apart by the path the right-click took, which `More Events` records while it happens.
 
 ## What it deliberately does not do
 

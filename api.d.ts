@@ -178,6 +178,13 @@ export interface CommunityPluginEventPayload {
 }
 
 /**
+ * The name of the event triggered when the context menu of an installed community plugin's row in **Settings
+ * -> Community plugins** is about to open — the right-click on the row, which offers **Hotkeys**, **View
+ * details**, **Uninstall** and the rest.
+ */
+export type CommunityPluginMenuEventName = 'more-events:community-plugin-menu';
+
+/**
  * The name of the event triggered after a core plugin has been disabled.
  */
 export type CorePluginDisabledEventName = 'more-events:core-plugin-disabled';
@@ -292,6 +299,18 @@ export type RibbonMenuEventName = 'more-events:ribbon-menu';
  * only **Hide ribbon**.
  */
 export type RibbonSide = 'left' | 'right';
+
+/**
+ * Which sidebar a sidebar toggle button opens and closes.
+ */
+export type SidebarSide = 'left' | 'right';
+
+/**
+ * The name of the event triggered when the context menu of a sidebar toggle button is about to open — the
+ * right-click on the button at the top of a sidebar, which offers a checkbox for that sidebar, and on the left
+ * one for the ribbon too.
+ */
+export type SidebarToggleMenuEventName = 'more-events:sidebar-toggle-menu';
 
 /**
  * The name of the event triggered when the context menu of an entry in the **Web viewer** core plugin's
@@ -414,6 +433,22 @@ declare module 'obsidian' {
     on(name: CommunityPluginEventName, callback: (payload: CommunityPluginEventPayload) => unknown, context?: unknown): EventRef;
 
     /**
+     * Subscribes to the context menu of an installed community plugin's row in **Settings -> Community plugins**.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a
+     * right-click on the row. The row's **More options** button opens the same menu without a right-click, and
+     * is not announced.
+     *
+     * @param name - Should be `'more-events:community-plugin-menu'`.
+     * @param callback - The callback receiving the menu, and the community plugin's id, as
+     * {@link CommunityPluginEventPayload.communityPluginId} carries it. Its manifest is in `app.plugins.manifests`.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CommunityPluginMenuEventName, callback: (menu: Menu, communityPluginId: string) => unknown, context?: unknown): EventRef;
+
+    /**
      * Subscribes to a core plugin being enabled or disabled.
      *
      * Triggered after the change has happened, so `getEnabledCorePluginIds()` already reflects it. Nothing
@@ -460,6 +495,19 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: RibbonMenuEventName, callback: (menu: Menu, side: RibbonSide) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the context menu of a sidebar toggle button.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown.
+     *
+     * @param name - Should be `'more-events:sidebar-toggle-menu'`.
+     * @param callback - The callback receiving the menu, and which sidebar the button toggles.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: SidebarToggleMenuEventName, callback: (menu: Menu, side: SidebarSide) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of an entry in the **Web viewer** core plugin's History view.

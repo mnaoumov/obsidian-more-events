@@ -19,6 +19,7 @@ import { AllPropertiesMenuEventsComponent } from './all-properties-menu-events-c
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
+import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-events-component.ts';
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
 import {
@@ -29,6 +30,7 @@ import { MenuPatchComponent } from './patches/menu-patch-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './pdf-thumbnail-menu-events-component.ts';
 import { Plugin } from './plugin.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
+import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './web-viewer-history-menu-events-component.ts';
 
 vi.mock('./community-plugin-events-component.ts', async () => {
@@ -96,6 +98,26 @@ vi.mock('./pdf-thumbnail-menu-events-component.ts', async () => {
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     PdfThumbnailMenuEventsComponent: vi.fn(function pdfThumbnailMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./sidebar-toggle-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    SidebarToggleMenuEventsComponent: vi.fn(function sidebarToggleMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./community-plugin-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    CommunityPluginMenuEventsComponent: vi.fn(function communityPluginMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -230,8 +252,21 @@ describe('Plugin', () => {
     expect(pdfThumbnailCalls).toHaveLength(1);
     expect(castTo<PluginEventsComponentConstructorParams>(pdfThumbnailCalls[0]?.[0]).app).toBe(plugin.app);
 
+    const sidebarToggleCalls = vi.mocked(SidebarToggleMenuEventsComponent).mock.calls;
+    expect(sidebarToggleCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(sidebarToggleCalls[0]?.[0]).app).toBe(plugin.app);
+
+    const communityPluginMenuCalls = vi.mocked(CommunityPluginMenuEventsComponent).mock.calls;
+    expect(communityPluginMenuCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(communityPluginMenuCalls[0]?.[0]).app).toBe(plugin.app);
+
     const menuPatchCalls = vi.mocked(MenuPatchComponent).mock.calls;
     expect(menuPatchCalls).toHaveLength(1);
+    expect(menuPatchCalls[0]?.[0].app).toBe(plugin.app);
+    expect(menuPatchCalls[0]?.[0].deferredMenuAnnouncers).toEqual([
+      vi.mocked(SidebarToggleMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(CommunityPluginMenuEventsComponent).mock.results[0]?.value
+    ]);
     expect(menuPatchCalls[0]?.[0].menuAnnouncers).toEqual([
       vi.mocked(BookmarksMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(CanvasMenuEventsComponent).mock.results[0]?.value,

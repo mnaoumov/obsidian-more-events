@@ -140,6 +140,26 @@ caption: Stop listening to the PDF thumbnail menu
 require('/demoSetup.ts').stopListeningToPdfThumbnailMenu();
 ```
 
+## Try the sidebar toggle and community plugin ones
+
+These two menus are shown a moment after the right-click rather than during it, which is the harder case for `More Events` to recognize. Start listening:
+
+```code-button
+---
+caption: Start listening to the sidebar toggle and community plugin menus
+---
+require('/demoSetup.ts').startListeningToSidebarToggleAndCommunityPluginMenus(app);
+```
+
+Now right-click the button at the top of the left sidebar that opens and closes it: below Obsidian's **Left sidebar** and **Ribbon** is **Which sidebar is this? (added by a listener)**. Then open **Settings -> Community plugins** and right-click `More Events` in the list of installed plugins: below Obsidian's **Uninstall** is **Which plugin is this? (added by a listener)**. Then stop:
+
+```code-button
+---
+caption: Stop listening to the sidebar toggle and community plugin menus
+---
+require('/demoSetup.ts').stopListeningToSidebarToggleAndCommunityPluginMenus();
+```
+
 ## What the events promise
 
 - **They fire before the menu opens**, after Obsidian has added its own items, so an item you add appears in the menu.
@@ -150,4 +170,4 @@ require('/demoSetup.ts').stopListeningToPdfThumbnailMenu();
 
 Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, but documents and types it nowhere. `More Events` relays it under a name it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
-The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu and the PDF thumbnail menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
+The bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail menu, the sidebar toggle menu and the community plugin menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
