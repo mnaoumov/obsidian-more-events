@@ -213,6 +213,10 @@ export function stopListeningToBookmarksMenus(): void {
 /**
  * Opens the demo canvas in a new tab, so there is a canvas background to right-click.
  *
+ * With the Canvas core plugin off — the toggle button on **01 Core plugin events** leaves it off after one
+ * press — Obsidian has no view for a `.canvas` file and hands it to the operating system's default app
+ * instead. So this turns Canvas back on first.
+ *
  * Manual equivalent: open `_assets/Context menu demo.canvas` from the file explorer.
  */
 export async function openDemoCanvas(app: App): Promise<void> {
@@ -220,6 +224,17 @@ export async function openDemoCanvas(app: App): Promise<void> {
   if (!file) {
     new Notice(`${DEMO_CANVAS_PATH} is missing from this vault.`);
     return;
+  }
+
+  const canvasCorePlugin = app.internalPlugins.getPluginById(DEMO_CORE_PLUGIN_ID);
+  if (!canvasCorePlugin) {
+    new Notice(createPluginNameFragment('', 'Canvas', ' core plugin not found.'));
+    return;
+  }
+
+  if (!canvasCorePlugin.enabled) {
+    await canvasCorePlugin.enable(true);
+    new Notice(createPluginNameFragment('', 'Canvas', ' was off, so it was turned on to open the demo canvas.'));
   }
 
   await app.workspace.getLeaf('tab').openFile(file);

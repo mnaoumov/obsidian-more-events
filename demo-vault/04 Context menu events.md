@@ -42,7 +42,7 @@ require('/demoSetup.ts').stopListeningToBookmarksMenus();
 
 ## Try the canvas and ribbon ones
 
-First, an empty canvas to right-click. This opens the demo canvas in a new tab:
+First, an empty canvas to right-click. This opens the demo canvas in a new tab, turning the **Canvas** core plugin back on first if the toggle on [01 Core plugin events](<./01 Core plugin events.md>) left it off:
 
 ```code-button
 ---

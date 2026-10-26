@@ -79,6 +79,18 @@ async function rightClickCanvasBackground(): Promise<MenuRecord> {
       const ADDED_ITEM_TITLE = 'Added by a listener';
       const CANVAS_PATH = 'Menu test.canvas';
 
+      // With Canvas off, `openFile` hands a `.canvas` to the operating system's default app, which pops a
+      // dialog on the desktop before any check below could object. The core-plugin suite toggles Canvas in
+      // this same vault, so one that failed midway can leave it off.
+      const canvasCorePlugin = app.internalPlugins.getPluginById('canvas');
+      if (!canvasCorePlugin) {
+        throw new Error('The Canvas core plugin was not found.');
+      }
+      const wasCanvasEnabled = canvasCorePlugin.enabled;
+      if (!wasCanvasEnabled) {
+        await canvasCorePlugin.enable(false);
+      }
+
       const file = app.vault.getFileByPath(CANVAS_PATH) ?? await app.vault.create(CANVAS_PATH, '{"nodes":[],"edges":[]}');
       const leaf = app.workspace.getLeaf('tab');
       await leaf.openFile(file);
@@ -132,6 +144,9 @@ async function rightClickCanvasBackground(): Promise<MenuRecord> {
         // The `null` initializer narrows the closure-assigned variable to `never` for the checker.
         (shownMenu as Menu | null)?.hide();
         leaf.detach();
+        if (!wasCanvasEnabled) {
+          canvasCorePlugin.disable(false);
+        }
       }
     },
     input: {
