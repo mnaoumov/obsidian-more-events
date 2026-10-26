@@ -262,6 +262,26 @@ export type CorePluginEventName = CorePluginDisabledEventName | CorePluginEnable
 export type CorePluginSettingTabMenuEventName = 'more-events:core-plugin-setting-tab-menu';
 
 /**
+ * The name of the event triggered when the context menu of a snippet's row on the **CSS snippets** page of
+ * **Settings -> Appearance** is about to open — the right-click on the row, which offers **Show in system
+ * explorer** (**Reveal in Finder** on macOS). Desktop only: Obsidian gives the row no menu on mobile.
+ */
+export type CssSnippetMenuEventName = 'more-events:css-snippet-menu';
+
+/**
+ * One CSS snippet — the snippet a CSS snippet menu is for.
+ *
+ * Plain data, read when the menu opens, and additive only, like the other payloads in this file.
+ */
+export interface CssSnippetMenuItem {
+  /**
+   * The snippet's name: its file name in `.obsidian/snippets` without `.css`, as `app.customCss.snippets` lists
+   * it and as the row shows it.
+   */
+  readonly name: string;
+}
+
+/**
  * The payload both core-plugin events carry.
  *
  * Plain data, and additive only: a new member may be added, none may change meaning or be removed, because
@@ -348,6 +368,26 @@ export interface MoreEventsApi {
  * about to open — the right-click on a thumbnail, which offers **Copy link to page**.
  */
 export type PdfThumbnailMenuEventName = 'more-events:pdf-thumbnail-menu';
+
+/**
+ * The name of the event triggered when a property's own menu is about to open — the right-click or the click on
+ * the property's icon in the properties editor, which offers **Property type**, the clipboard items and
+ * **Remove**.
+ */
+export type PropertyMenuEventName = 'more-events:property-menu';
+
+/**
+ * One property — the property a property menu is for.
+ *
+ * Plain data, read from the properties editor when the menu opens, and additive only, like the other payloads
+ * in this file.
+ */
+export interface PropertyMenuItem {
+  /**
+   * The property's key, as written in the note: the case is the note's, not lowered.
+   */
+  readonly key: string;
+}
 
 /**
  * The name of the event triggered when the context menu of one value of a list or tags property is about to
@@ -700,6 +740,21 @@ declare module 'obsidian' {
     on(name: CorePluginSettingTabMenuEventName, callback: (menu: Menu, corePluginId: string) => unknown, context?: unknown): EventRef;
 
     /**
+     * Subscribes to the context menu of a snippet's row on the **CSS snippets** page of **Settings -> Appearance**.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, on the
+     * desktop app only, where Obsidian gives the row its menu.
+     *
+     * @param name - Should be `'more-events:css-snippet-menu'`.
+     * @param callback - The callback receiving the menu, and the snippet. Its path is
+     * `app.customCss.getSnippetPath(snippet.name)`.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CssSnippetMenuEventName, callback: (menu: Menu, snippet: CssSnippetMenuItem) => unknown, context?: unknown): EventRef;
+
+    /**
      * Subscribes to the context menu of a page thumbnail in the PDF view's sidebar.
      *
      * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown,
@@ -713,6 +768,22 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: PdfThumbnailMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, pageNumber: number) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to a property's own menu in the properties editor, the one its icon opens.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a
+     * right-click or a click on the property's icon in a Markdown view's properties or in the **Properties** view.
+     * A properties editor shown outside a tab, such as a hover popover's, is not announced.
+     *
+     * @param name - Should be `'more-events:property-menu'`.
+     * @param callback - The callback receiving the menu, the leaf whose view shows the properties (its
+     * `view.file` is the note), and the property.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: PropertyMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, property: PropertyMenuItem) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of one value of a list or tags property in the properties editor.

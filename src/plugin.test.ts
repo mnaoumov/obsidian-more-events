@@ -23,6 +23,7 @@ import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
 import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-events-component.ts';
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
+import { CssSnippetMenuEventsComponent } from './css-snippet-menu-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
 import {
   PLUGIN_API_CONTRACT,
@@ -32,6 +33,7 @@ import { MenuPatchComponent } from './patches/menu-patch-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './pdf-thumbnail-menu-events-component.ts';
 import { PluginSettingTabMenuEventsComponent } from './plugin-setting-tab-menu-events-component.ts';
 import { Plugin } from './plugin.ts';
+import { PropertyMenuEventsComponent } from './property-menu-events-component.ts';
 import { PropertyValueMenuEventsComponent } from './property-value-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
@@ -173,6 +175,26 @@ vi.mock('./bases-column-menu-events-component.ts', async () => {
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     BasesColumnMenuEventsComponent: vi.fn(function basesColumnMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./property-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    PropertyMenuEventsComponent: vi.fn(function propertyMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./css-snippet-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    CssSnippetMenuEventsComponent: vi.fn(function cssSnippetMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -325,7 +347,8 @@ describe('Plugin', () => {
       vi.mocked(AllPropertiesMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(WebViewerHistoryMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(PdfThumbnailMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(TableMenuEventsComponent).mock.results[0]?.value
+      vi.mocked(TableMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(PropertyMenuEventsComponent).mock.results[0]?.value
     ]);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
@@ -350,7 +373,8 @@ describe('Plugin', () => {
       vi.mocked(PluginSettingTabMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(TableMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(PropertyValueMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(BasesColumnMenuEventsComponent).mock.results[0]?.value
+      vi.mocked(BasesColumnMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(CssSnippetMenuEventsComponent).mock.results[0]?.value
     ]);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
@@ -368,6 +392,22 @@ describe('Plugin', () => {
     const basesColumnCalls = vi.mocked(BasesColumnMenuEventsComponent).mock.calls;
     expect(basesColumnCalls).toHaveLength(1);
     expect(castTo<PluginEventsComponentConstructorParams>(basesColumnCalls[0]?.[0]).app).toBe(plugin.app);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
+  it('should add the property and CSS snippet menu events components with the app', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+
+    const propertyCalls = vi.mocked(PropertyMenuEventsComponent).mock.calls;
+    expect(propertyCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(propertyCalls[0]?.[0]).app).toBe(plugin.app);
+
+    const cssSnippetCalls = vi.mocked(CssSnippetMenuEventsComponent).mock.calls;
+    expect(cssSnippetCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(cssSnippetCalls[0]?.[0]).app).toBe(plugin.app);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();

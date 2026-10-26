@@ -11,6 +11,7 @@ import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
 import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
 import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-events-component.ts';
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
+import { CssSnippetMenuEventsComponent } from './css-snippet-menu-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
 import {
   PLUGIN_API_CONTRACT,
@@ -19,6 +20,7 @@ import {
 import { MenuPatchComponent } from './patches/menu-patch-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './pdf-thumbnail-menu-events-component.ts';
 import { PluginSettingTabMenuEventsComponent } from './plugin-setting-tab-menu-events-component.ts';
+import { PropertyMenuEventsComponent } from './property-menu-events-component.ts';
 import { PropertyValueMenuEventsComponent } from './property-value-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
@@ -140,6 +142,18 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const propertyMenuEventsComponent = this.addChild(
+      new PropertyMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    const cssSnippetMenuEventsComponent = this.addChild(
+      new CssSnippetMenuEventsComponent({
+        app: this.app
+      })
+    );
+
     this.addChild(
       new MenuPatchComponent({
         app: this.app,
@@ -150,7 +164,8 @@ export class Plugin extends PluginBase {
           pluginSettingTabMenuEventsComponent,
           tableMenuEventsComponent,
           propertyValueMenuEventsComponent,
-          basesColumnMenuEventsComponent
+          basesColumnMenuEventsComponent,
+          cssSnippetMenuEventsComponent
         ],
         menuAnnouncers: [
           bookmarksMenuEventsComponent,
@@ -159,7 +174,8 @@ export class Plugin extends PluginBase {
           allPropertiesMenuEventsComponent,
           webViewerHistoryMenuEventsComponent,
           pdfThumbnailMenuEventsComponent,
-          tableMenuEventsComponent
+          tableMenuEventsComponent,
+          propertyMenuEventsComponent
         ]
       })
     );

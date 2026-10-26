@@ -1,0 +1,4 @@
+/* A snippet for the context menu demo in `04 Context menu events`. It matches nothing, so turning it on changes nothing. */
+.more-events-demo-snippet {
+  outline: none;
+}
