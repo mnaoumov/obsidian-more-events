@@ -13,6 +13,7 @@ import type { ApiContract } from '@mnaoumov/typescript-lib/api-contract';
 import type {
   AllPropertiesMenuEventName,
   BasesColumnMenuEventName,
+  BasesKanbanColumnMenuEventName,
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
   CalloutMenuEventName,
@@ -25,6 +26,7 @@ import type {
   CorePluginEnabledEventName,
   CorePluginSettingTabMenuEventName,
   CssSnippetMenuEventName,
+  ExternalImageMenuEventName,
   PdfOutlineMenuEventName,
   PdfPageMenuEventName,
   PdfThumbnailMenuEventName,
@@ -43,6 +45,8 @@ export type {
   AllPropertiesMenuEventName,
   BasesColumnMenuEventName,
   BasesColumnMenuItem,
+  BasesKanbanColumnMenuEventName,
+  BasesKanbanColumnMenuItem,
   BookmarkMenuItem,
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
@@ -63,6 +67,8 @@ export type {
   CorePluginSettingTabMenuEventName,
   CssSnippetMenuEventName,
   CssSnippetMenuItem,
+  ExternalImageMenuEventName,
+  ExternalImageMenuItem,
   MoreEventsApi,
   PdfOutlineMenuEventName,
   PdfOutlineMenuItem,
@@ -95,6 +101,11 @@ export const ALL_PROPERTIES_MENU_EVENT_NAME: AllPropertiesMenuEventName = 'more-
  * Triggered on `app.workspace` when the context menu of a column header in a Bases table is about to open.
  */
 export const BASES_COLUMN_MENU_EVENT_NAME: BasesColumnMenuEventName = 'more-events:bases-column-menu';
+
+/**
+ * Triggered on `app.workspace` when the context menu of a column in a Bases board view is about to open.
+ */
+export const BASES_KANBAN_COLUMN_MENU_EVENT_NAME: BasesKanbanColumnMenuEventName = 'more-events:bases-kanban-column-menu';
 
 /**
  * Triggered on `app.workspace` when the context menu of one or more bookmarks is about to open.
@@ -155,6 +166,11 @@ export const CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME: CorePluginSettingTabMenuEv
  * Triggered on `app.workspace` when the context menu of a snippet's row on the **CSS snippets** page of **Settings -> Appearance** is about to open.
  */
 export const CSS_SNIPPET_MENU_EVENT_NAME: CssSnippetMenuEventName = 'more-events:css-snippet-menu';
+
+/**
+ * Triggered on `app.workspace` when the context menu of an external image in a Live Preview editor is about to open.
+ */
+export const EXTERNAL_IMAGE_MENU_EVENT_NAME: ExternalImageMenuEventName = 'more-events:external-image-menu';
 
 /**
  * Triggered on `app.workspace` when the context menu of an item in the PDF view's outline is about to open.
@@ -228,6 +244,6 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * History item menus, the PDF view's thumbnail, outline item and page menus, the sidebar toggle buttons' menu, a community plugin's
  * settings row menu, a callout's menu, the core and community plugin settings tab menus, a Live Preview
  * table's cell and drag handle menus, a property value's menu, a Bases table column header's menu, a property's own
- * menu and a CSS snippet row's menu.
+ * menu, a CSS snippet row's menu, an external image's menu and a Bases board column's menu.
  */
 export const PLUGIN_API_VERSION = '1.4.0';

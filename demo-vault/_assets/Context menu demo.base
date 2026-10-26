@@ -5,3 +5,8 @@ views:
       - file.name
       - note.demo-status
       - file.mtime
+  - type: kanban
+    name: Demo board
+    groupBy:
+      property: note.demo-status
+      direction: ASC

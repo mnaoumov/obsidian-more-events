@@ -17,6 +17,7 @@ import {
 
 import { AllPropertiesMenuEventsComponent } from './all-properties-menu-events-component.ts';
 import { BasesColumnMenuEventsComponent } from './bases-column-menu-events-component.ts';
+import { BasesKanbanColumnMenuEventsComponent } from './bases-kanban-column-menu-events-component.ts';
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
 import { CalloutMenuEventsComponent } from './callout-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
@@ -24,6 +25,7 @@ import { CommunityPluginEventsComponent } from './community-plugin-events-compon
 import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-events-component.ts';
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 import { CssSnippetMenuEventsComponent } from './css-snippet-menu-events-component.ts';
+import { ExternalImageMenuEventsComponent } from './external-image-menu-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
 import {
   PLUGIN_API_CONTRACT,
@@ -127,6 +129,26 @@ vi.mock('./community-plugin-menu-events-component.ts', async () => {
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     CommunityPluginMenuEventsComponent: vi.fn(function communityPluginMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./external-image-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    ExternalImageMenuEventsComponent: vi.fn(function externalImageMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./bases-kanban-column-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    BasesKanbanColumnMenuEventsComponent: vi.fn(function basesKanbanColumnMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -394,12 +416,14 @@ describe('Plugin', () => {
       vi.mocked(CommunityPluginMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(CalloutMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(PluginSettingTabMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(ExternalImageMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(TableMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(PropertyValueMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(BasesColumnMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(CssSnippetMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(PdfOutlineMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(PdfPageMenuEventsComponent).mock.results[0]?.value
+      vi.mocked(PdfPageMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(BasesKanbanColumnMenuEventsComponent).mock.results[0]?.value
     ]);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
@@ -449,6 +473,22 @@ describe('Plugin', () => {
     const pdfPageCalls = vi.mocked(PdfPageMenuEventsComponent).mock.calls;
     expect(pdfPageCalls).toHaveLength(1);
     expect(castTo<PluginEventsComponentConstructorParams>(pdfPageCalls[0]?.[0]).app).toBe(plugin.app);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
+  it('should add the external image and Bases board column menu events components with the app', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+
+    const externalImageCalls = vi.mocked(ExternalImageMenuEventsComponent).mock.calls;
+    expect(externalImageCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(externalImageCalls[0]?.[0]).app).toBe(plugin.app);
+
+    const basesKanbanColumnCalls = vi.mocked(BasesKanbanColumnMenuEventsComponent).mock.calls;
+    expect(basesKanbanColumnCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(basesKanbanColumnCalls[0]?.[0]).app).toBe(plugin.app);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();

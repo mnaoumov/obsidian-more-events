@@ -5,6 +5,7 @@ import { PluginBase } from '@mnaoumov/obsidian-lib/plugin/plugin';
 
 import { AllPropertiesMenuEventsComponent } from './all-properties-menu-events-component.ts';
 import { BasesColumnMenuEventsComponent } from './bases-column-menu-events-component.ts';
+import { BasesKanbanColumnMenuEventsComponent } from './bases-kanban-column-menu-events-component.ts';
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
 import { CalloutMenuEventsComponent } from './callout-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
@@ -12,6 +13,7 @@ import { CommunityPluginEventsComponent } from './community-plugin-events-compon
 import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-events-component.ts';
 import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 import { CssSnippetMenuEventsComponent } from './css-snippet-menu-events-component.ts';
+import { ExternalImageMenuEventsComponent } from './external-image-menu-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
 import {
   PLUGIN_API_CONTRACT,
@@ -168,6 +170,18 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const externalImageMenuEventsComponent = this.addChild(
+      new ExternalImageMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    const basesKanbanColumnMenuEventsComponent = this.addChild(
+      new BasesKanbanColumnMenuEventsComponent({
+        app: this.app
+      })
+    );
+
     this.addChild(
       new MenuPatchComponent({
         app: this.app,
@@ -176,12 +190,16 @@ export class Plugin extends PluginBase {
           communityPluginMenuEventsComponent,
           calloutMenuEventsComponent,
           pluginSettingTabMenuEventsComponent,
+          // Before the table cell one: an image's listener calls `preventDefault`, so a cell's own listener shows
+          // nothing for an image inside it, yet the cell is on the image menu's path.
+          externalImageMenuEventsComponent,
           tableMenuEventsComponent,
           propertyValueMenuEventsComponent,
           basesColumnMenuEventsComponent,
           cssSnippetMenuEventsComponent,
           pdfOutlineMenuEventsComponent,
-          pdfPageMenuEventsComponent
+          pdfPageMenuEventsComponent,
+          basesKanbanColumnMenuEventsComponent
         ],
         menuAnnouncers: [
           bookmarksMenuEventsComponent,

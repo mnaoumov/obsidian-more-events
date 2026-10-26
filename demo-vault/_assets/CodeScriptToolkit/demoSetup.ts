@@ -63,11 +63,13 @@ const DEMO_COMMUNITY_PLUGIN_MANIFEST_JSON = JSON.stringify(
 
 const ALL_PROPERTIES_MENU_EVENT_NAME = 'more-events:all-properties-menu';
 const BASES_COLUMN_MENU_EVENT_NAME = 'more-events:bases-column-menu';
+const BASES_KANBAN_COLUMN_MENU_EVENT_NAME = 'more-events:bases-kanban-column-menu';
 const BOOKMARKS_MENU_EVENT_NAME = 'more-events:bookmarks-menu';
 const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
 const CALLOUT_MENU_EVENT_NAME = 'more-events:callout-menu';
 const CANVAS_VIEW_MENU_EVENT_NAME = 'more-events:canvas-view-menu';
 const CSS_SNIPPET_MENU_EVENT_NAME = 'more-events:css-snippet-menu';
+const EXTERNAL_IMAGE_MENU_EVENT_NAME = 'more-events:external-image-menu';
 const PDF_OUTLINE_MENU_EVENT_NAME = 'more-events:pdf-outline-menu';
 const PDF_PAGE_MENU_EVENT_NAME = 'more-events:pdf-page-menu';
 const PDF_THUMBNAIL_MENU_EVENT_NAME = 'more-events:pdf-thumbnail-menu';
@@ -100,6 +102,7 @@ let calloutAndPluginSettingTabMenuListeningComponent: Component | null = null;
 let canvasAndRibbonMenuListeningComponent: Component | null = null;
 let communityPluginListeningComponent: Component | null = null;
 let corePluginListeningComponent: Component | null = null;
+let externalImageAndBasesKanbanColumnMenuListeningComponent: Component | null = null;
 let pdfMenuListeningComponent: Component | null = null;
 let propertyAndCssSnippetMenuListeningComponent: Component | null = null;
 let propertyValueAndBasesColumnMenuListeningComponent: Component | null = null;
@@ -881,13 +884,75 @@ export function stopListeningToPropertyAndCssSnippetMenus(): void {
 }
 
 /**
+ * Subscribes to the external image and Bases board column menu events and adds one item to each menu, until the
+ * stop button below.
+ *
+ * Manual equivalent: the same two `app.workspace.on(...)` calls from your own plugin's `onload`.
+ */
+export function startListeningToExternalImageAndBasesKanbanColumnMenus(app: App): void {
+  if (externalImageAndBasesKanbanColumnMenuListeningComponent) {
+    new Notice('Already listening. Right-click an image embedded from a URL, or a column of a base\'s board.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(EXTERNAL_IMAGE_MENU_EVENT_NAME, (menu, leaf, image) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which image is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            const shownUrl = image.url.length > 60 ? `${image.url.slice(0, 60)}...` : image.url;
+            new Notice(`The image on line ${String(image.line + 1)} of ${leaf.getDisplayText()}, from ${shownUrl}`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(BASES_KANBAN_COLUMN_MENU_EVENT_NAME, (menu, leaf, column) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which column is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            const groupText = column.groupKey === null ? 'the column of the notes with no value' : `the "${column.groupKey}" column`;
+            new Notice(`${groupText} of the "${column.viewName}" view of ${leaf.getDisplayText()}`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.load();
+  externalImageAndBasesKanbanColumnMenuListeningComponent = component;
+
+  new Notice('Listening. Now right-click the image in this note, or a column of the demo board.');
+}
+
+/**
+ * Drops the external image and Bases board column menu subscriptions.
+ *
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToExternalImageAndBasesKanbanColumnMenus(): void {
+  if (!externalImageAndBasesKanbanColumnMenuListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  externalImageAndBasesKanbanColumnMenuListeningComponent.unload();
+  externalImageAndBasesKanbanColumnMenuListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
+/**
  * Opens the demo base in a new tab, turning the **Bases** core plugin on first if it is off, so there is a table
  * header to right-click.
  *
  * Manual equivalent: turn on **Bases** in **Settings -> Core plugins**, then open `_assets/Context menu demo.base`
- * from the file explorer.
+ * from the file explorer, and pick the view from its view menu. With no `viewName`, the base shows its first view.
  */
-export async function openDemoBase(app: App): Promise<void> {
+export async function openDemoBase(app: App, viewName?: string): Promise<void> {
   const file = app.vault.getFileByPath(DEMO_BASE_PATH);
   if (!file) {
     new Notice(`${DEMO_BASE_PATH} is missing from this vault.`);
@@ -904,7 +969,12 @@ export async function openDemoBase(app: App): Promise<void> {
     new Notice(createPluginNameFragment('', 'Bases', ' was off, so it was turned on to open the demo base.'));
   }
 
-  await app.workspace.getLeaf('tab').openFile(file, { active: true });
+  // The view's state names the base's view to show.
+  await app.workspace.getLeaf('tab').setViewState({
+    active: true,
+    state: viewName ? { file: file.path, viewName } : { file: file.path },
+    type: 'bases'
+  });
 }
 
 /**
