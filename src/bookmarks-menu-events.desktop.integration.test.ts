@@ -56,14 +56,14 @@ describe('Bookmarks menu events', () => {
     const record = await rightClickInBookmarksView('bookmark');
 
     expect(record.subjects).toEqual(['Bookmarked note.md']);
-    expect(record.shownItemTitles).toContain('Added by a More Events listener');
+    expect(record.shownItemTitles).toContain('Added by a listener');
   });
 
   it('should let a listener add an item to the bookmarks view\'s empty-area menu', { timeout: TEST_TIMEOUT_IN_MS }, async () => {
     const record = await rightClickInBookmarksView('empty-area');
 
     expect(record.subjects).toEqual(['bookmarks']);
-    expect(record.shownItemTitles).toContain('Added by a More Events listener');
+    expect(record.shownItemTitles).toContain('Added by a listener');
     // The menu is Obsidian's own, with the item added to it, rather than a second menu of this plugin's.
     expect(record.shownItemTitles).toContain('New group');
   });
@@ -93,7 +93,7 @@ async function rightClickInBookmarksView(clickTarget: ClickTarget): Promise<Menu
       } = lib;
       // Three waits at 8 s declare 24 s in one transport call, under the 30 s a desktop closure gets.
       const WAIT_TIMEOUT_IN_MS = 8000;
-      const ADDED_ITEM_TITLE = 'Added by a More Events listener';
+      const ADDED_ITEM_TITLE = 'Added by a listener';
       const NOTE_PATH = 'Bookmarked note.md';
       const EMPTY_AREA_OFFSET_IN_PIXELS = 20;
 
