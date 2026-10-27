@@ -31,6 +31,7 @@ Each event fires just before the menu opens, after Obsidian has added its own it
 | `more-events:core-plugin-setting-tab-menu` | a core plugin's tab in the Settings sidebar | `corePluginId` |
 | `more-events:css-snippet-menu` | a CSS snippet's row in **Settings -> Appearance** (desktop) | `snippet` |
 | `more-events:external-image-menu` | a Live Preview image embedded from a URL | `leaf`, `image` |
+| `more-events:file-explorer-root-menu` | the vault name or the File Explorer empty area | `spot`: `vault-name` or `empty-area` |
 | `more-events:history-menu` | a view's back or forward button | `leaf`, `direction` |
 | `more-events:leaf-menu` | a tab header, or a view's **More options** (*relay*) | `leaf` |
 | `more-events:markdown-properties-menu` | a note's **Properties** heading (*relay*) | `file` |
@@ -417,3 +418,25 @@ require('/demoSetup.ts').stopListeningToNoteAndSearchMenus();
 Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, for the tab and tab group menus, `leaf-menu` and `tab-group-menu`, for the note margin, Properties and Search results menus, `markdown-viewport-menu`, `markdown-properties-menu` and `search:results-menu`, and for the canvas node, connection, selection and connection drop menus, `canvas:node-menu`, `canvas:edge-menu`, `canvas:selection-menu` and `canvas:node-connection-drop-menu`, but documents and types them nowhere. `More Events` relays them under names it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
 The vault name menu, the back and forward history menus, the bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu, the CSS snippet menu, the external image menu and the board column menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
+
+## Try the File Explorer root menu
+
+The vault name and the empty area below the File Explorer files both stand for the vault root. This event receives the menu and a plain string: `vault-name` or `empty-area`. Enable **Files** in the left sidebar, then start listening:
+
+```code-button
+---
+caption: Listen to File Explorer root menus
+---
+require('/demoSetup.ts').startListeningToFileExplorerRootMenus(app);
+```
+
+Right-click either spot. Choose the added item to see which spot opened it. With `Root Folder Context Menu` installed, its folder actions and this listener's item share one menu. Without it, the vault name retains its normal vault menu. `more-events:vault-menu` remains the existing event for that native desktop vault menu; the root event identifies both root-menu locations and also works when the folder menu replaces it.
+
+The shared `obsidian-lib` component owns one installation across subscribers, including separately bundled library copies. Unloading either plugin leaves the other working. This event does not itself request that the root be presented as an ordinary folder.
+
+```code-button
+---
+caption: Stop listening to File Explorer root menus
+---
+require('/demoSetup.ts').stopListeningToFileExplorerRootMenus();
+```

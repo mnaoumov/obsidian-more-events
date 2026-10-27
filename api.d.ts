@@ -767,8 +767,32 @@ export interface WebViewerHistoryMenuItem {
   readonly url: string;
 }
 
+/**
+ * The File Explorer vault-root context-menu event.
+ */
+export type FileExplorerRootMenuEventName = 'more-events:file-explorer-root-menu';
+
+/**
+ * The spot from which the vault-root menu was opened.
+ */
+export type FileExplorerRootMenuSpot = 'empty-area' | 'vault-name';
+
 declare module 'obsidian' {
   interface Workspace {
+    /**
+     * Subscribes to the vault-root menu opened from the vault name or the File Explorer's empty area.
+     *
+     * Add items to `menu` before it opens. With `Root Folder Context Menu` enabled this is the root's
+     * folder menu, with unsafe root operations removed; otherwise the vault name retains its native menu.
+     *
+     * @param name - Should be `'more-events:file-explorer-root-menu'`.
+     * @param callback - Receives the menu and the spot that opened it.
+     * @param context - The context passed as `this` to the callback.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See below.
+    on(name: FileExplorerRootMenuEventName, callback: (menu: Menu, spot: FileExplorerRootMenuSpot) => unknown, context?: unknown): EventRef;
+
     /**
      * Subscribes to the context menu of a property in the **All properties** view.
      *

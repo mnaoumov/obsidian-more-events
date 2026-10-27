@@ -32,6 +32,7 @@ import type {
   CorePluginSettingTabMenuEventName,
   CssSnippetMenuEventName,
   ExternalImageMenuEventName,
+  FileExplorerRootMenuEventName,
   HistoryMenuEventName,
   LeafMenuEventName,
   MarkdownPropertiesMenuEventName,
@@ -88,6 +89,8 @@ export type {
   CssSnippetMenuItem,
   ExternalImageMenuEventName,
   ExternalImageMenuItem,
+  FileExplorerRootMenuEventName,
+  FileExplorerRootMenuSpot,
   HistoryMenuDirection,
   HistoryMenuEventName,
   LeafMenuEventName,
@@ -337,3 +340,8 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * `markdown-properties-menu`, `canvas:node-menu`, `canvas:edge-menu` and `canvas:selection-menu`.
  */
 export const PLUGIN_API_VERSION = '1.4.0';
+
+/**
+ * The File Explorer vault-root context-menu event.
+ */
+export const FILE_EXPLORER_ROOT_MENU_EVENT_NAME: FileExplorerRootMenuEventName = 'more-events:file-explorer-root-menu';

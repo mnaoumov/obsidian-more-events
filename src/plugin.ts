@@ -1,6 +1,7 @@
 import type { PluginApiDeclaration } from '@mnaoumov/obsidian-lib/plugin/plugin-api';
 
 import { OpenDemoVaultCommandHandler } from '@mnaoumov/obsidian-lib/command-handlers/open-demo-vault-command-handler';
+import { FileExplorerRootMenuComponent } from '@mnaoumov/obsidian-lib/components/file-explorer-root-menu-component';
 import { PluginBase } from '@mnaoumov/obsidian-lib/plugin/plugin';
 
 import { AllPropertiesMenuEventsComponent } from './all-properties-menu-events-component.ts';
@@ -20,6 +21,7 @@ import { HistoryMenuEventsComponent } from './history-menu-events-component.ts';
 import { MarkdownMenuEventsComponent } from './markdown-menu-events-component.ts';
 import { MoreEventsApiImpl } from './more-events-api-impl.ts';
 import {
+  FILE_EXPLORER_ROOT_MENU_EVENT_NAME,
   PLUGIN_API_CONTRACT,
   PLUGIN_API_VERSION
 } from './more-events-api.ts';
@@ -63,6 +65,15 @@ export class Plugin extends PluginBase {
   }
 
   protected override async onloadImpl(): Promise<void> {
+    this.addChild(
+      new FileExplorerRootMenuComponent({
+        app: this.app,
+        handler: ({ menu, spot }): void => {
+          this.app.workspace.trigger(FILE_EXPLORER_ROOT_MENU_EVENT_NAME, menu, spot);
+        }
+      })
+    );
+
     const communityPluginEventsComponent = this.addChild(
       new CommunityPluginEventsComponent({
         app: this.app
