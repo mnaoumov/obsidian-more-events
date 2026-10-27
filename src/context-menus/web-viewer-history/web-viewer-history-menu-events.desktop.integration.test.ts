@@ -18,17 +18,17 @@ interface MenuRecord {
   /**
    * The history entries the listener was given.
    */
-  historyItems: WebViewerHistoryMenuItem[];
+  readonly historyItems: WebViewerHistoryMenuItem[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 
   /**
    * The view types of the leaves the listener was given.
    */
-  subjects: string[];
+  readonly subjects: string[];
 }
 
 /*

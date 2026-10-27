@@ -18,12 +18,12 @@ interface MenuRecord {
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 
   /**
    * The ribbon sides the listener was given.
    */
-  sides: RibbonSide[];
+  readonly sides: RibbonSide[];
 }
 
 /*

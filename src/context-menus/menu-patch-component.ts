@@ -21,7 +21,7 @@ export interface DeferredMenuAnnouncer {
    * element right-clicked first, then each of its ancestors, ending with the window.
    * @returns `true` when the menu was this announcer's, so no other announcer is asked.
    */
-  announceDeferredMenu: (menu: MenuOriginal, mouseEvent: MouseEvent, eventPath: readonly EventTarget[]) => boolean;
+  readonly announceDeferredMenu: (menu: MenuOriginal, mouseEvent: MouseEvent, eventPath: readonly EventTarget[]) => boolean;
 }
 
 /**
@@ -36,7 +36,7 @@ export interface MenuAnnouncer {
    * @param mouseEvent - The mouse event it is being shown for.
    * @returns `true` when the menu was this announcer's, so no other announcer is asked.
    */
-  announceMenu: (menu: MenuOriginal, mouseEvent: MouseEvent) => boolean;
+  readonly announceMenu: (menu: MenuOriginal, mouseEvent: MouseEvent) => boolean;
 }
 
 /**
@@ -79,7 +79,7 @@ export interface PositionedMenuAnnouncer {
    * @param parentEl - The element the menu was anchored to with `setParentElement`, usually the button that opens it.
    * @returns `true` when the menu was this announcer's, so no other announcer is asked.
    */
-  announcePositionedMenu: (menu: MenuOriginal, parentEl: HTMLElement) => boolean;
+  readonly announcePositionedMenu: (menu: MenuOriginal, parentEl: HTMLElement) => boolean;
 }
 
 /**

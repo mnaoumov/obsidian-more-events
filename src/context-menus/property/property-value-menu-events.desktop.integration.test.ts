@@ -38,17 +38,17 @@ interface MenuRecord {
   /**
    * Whether the listener was given the leaf the note is open in, once per call.
    */
-  noteLeafMatches: boolean[];
+  readonly noteLeafMatches: boolean[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 
   /**
    * The values the listener was given.
    */
-  values: PropertyValueMenuItem[];
+  readonly values: PropertyValueMenuItem[];
 }
 
 /*

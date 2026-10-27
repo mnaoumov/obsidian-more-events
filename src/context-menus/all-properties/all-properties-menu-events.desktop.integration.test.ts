@@ -16,17 +16,17 @@ interface MenuRecord {
   /**
    * The property names the listener was given, one array per announcement.
    */
-  propertyNames: (readonly string[])[];
+  readonly propertyNames: (readonly string[])[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 
   /**
    * The view types of the leaves the listener was given.
    */
-  subjects: string[];
+  readonly subjects: string[];
 }
 
 /*

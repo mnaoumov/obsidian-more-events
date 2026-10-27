@@ -19,17 +19,17 @@ interface MenuRecord {
   /**
    * The canvas positions the listener was given.
    */
-  positions: CanvasMenuPosition[];
+  readonly positions: CanvasMenuPosition[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 
   /**
    * The view types of the leaves the listener was given.
    */
-  subjects: string[];
+  readonly subjects: string[];
 }
 
 /*

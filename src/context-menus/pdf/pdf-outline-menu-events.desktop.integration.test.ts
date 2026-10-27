@@ -18,22 +18,22 @@ interface MenuRecord {
   /**
    * The paths of the files open in the leaves the listener was given.
    */
-  filePaths: string[];
+  readonly filePaths: string[];
 
   /**
    * The outline items the listener was given.
    */
-  outlineItems: PdfOutlineMenuItem[];
+  readonly outlineItems: PdfOutlineMenuItem[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 
   /**
    * The view types of the leaves the listener was given.
    */
-  subjects: string[];
+  readonly subjects: string[];
 }
 
 /*

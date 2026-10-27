@@ -21,12 +21,12 @@ interface MenuRecord {
   /**
    * The community plugin ids the listener was given.
    */
-  communityPluginIds: string[];
+  readonly communityPluginIds: string[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 }
 
 /*

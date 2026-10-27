@@ -27,17 +27,17 @@ interface MenuRecord {
   /**
    * What each of the three listeners was given, one entry per call: the event's last word and the ids it named.
    */
-  calls: string[];
+  readonly calls: string[];
 
   /**
    * The view types of the leaves the listeners were given.
    */
-  leafViewTypes: string[];
+  readonly leafViewTypes: string[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 }
 
 /*
@@ -103,7 +103,7 @@ interface DropRecord extends MenuRecord {
   /**
    * Whether the drop point the listener was given lies below the card and within its width, in canvas coordinates.
    */
-  isDropBelowCard: boolean;
+  readonly isDropBelowCard: boolean;
 }
 
 /**

@@ -26,12 +26,12 @@ interface MenuRecord {
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 
   /**
    * Whether the listener was given the subject the suite opened the menu for, once per call.
    */
-  subjectMatches: boolean[];
+  readonly subjectMatches: boolean[];
 }
 
 /*

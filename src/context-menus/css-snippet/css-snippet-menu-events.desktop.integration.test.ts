@@ -38,12 +38,12 @@ interface MenuRecord {
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 
   /**
    * The snippets the listener was given.
    */
-  snippets: CssSnippetMenuItem[];
+  readonly snippets: CssSnippetMenuItem[];
 }
 
 interface SettingTabWithUpdate {

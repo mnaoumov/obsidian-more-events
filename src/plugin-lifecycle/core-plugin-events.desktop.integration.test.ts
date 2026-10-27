@@ -23,14 +23,14 @@ const DEMO_CORE_PLUGIN_ID = 'canvas' as InternalPluginNameType;
 const TEST_TIMEOUT_IN_MS = 120_000;
 
 interface CorePluginEventRecord {
-  corePluginId: string;
-  corePluginName: string;
-  isUserInitiated: boolean;
+  readonly corePluginId: string;
+  readonly corePluginName: string;
+  readonly isUserInitiated: boolean;
 }
 
 interface RecordedEvents {
-  disabled: CorePluginEventRecord[];
-  enabled: CorePluginEventRecord[];
+  readonly disabled: CorePluginEventRecord[];
+  readonly enabled: CorePluginEventRecord[];
 }
 
 /*

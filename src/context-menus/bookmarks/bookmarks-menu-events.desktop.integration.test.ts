@@ -30,13 +30,13 @@ interface MenuRecord {
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 
   /**
    * What the listener was told the menu is for: the paths of the bookmarks for the item menu, or the view
    * type of the leaf for the empty-area menu.
    */
-  subjects: string[];
+  readonly subjects: string[];
 }
 
 /*

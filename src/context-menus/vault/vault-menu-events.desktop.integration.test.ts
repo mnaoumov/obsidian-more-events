@@ -16,12 +16,12 @@ interface MenuRecord {
   /**
    * How many times the listener was called.
    */
-  listenerCallCount: number;
+  readonly listenerCallCount: number;
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 }
 
 /*

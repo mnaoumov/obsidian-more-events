@@ -21,17 +21,17 @@ interface MenuRecord {
   /**
    * The directions the listener was given.
    */
-  directions: HistoryMenuDirection[];
+  readonly directions: HistoryMenuDirection[];
 
   /**
    * Whether each leaf the listener was given was the one whose button was right-clicked.
    */
-  leafMatches: boolean[];
+  readonly leafMatches: boolean[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 }
 
 /**

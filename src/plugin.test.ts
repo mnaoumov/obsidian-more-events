@@ -372,19 +372,21 @@ const PLUGIN_ID = 'more-events';
 const STRICT_PROXY_TARGET_SYMBOL = Symbol.for('strictProxyTarget');
 
 interface AppGlobal {
+  // eslint-disable-next-line typescript-dev-toolkit/readonly-interface-members -- Tests replace and restore the global app.
   app: AppType;
 }
 
 interface LoadedFlagHolder {
+  // eslint-disable-next-line typescript-dev-toolkit/readonly-interface-members -- Tests reset the mock component's load state.
   loaded__: boolean;
 }
 
 interface ObsidianModule {
-  Component: new () => object;
+  readonly Component: new () => object;
 }
 
 interface PluginApisReader {
-  getPluginApis: () => PluginApiDeclaration[];
+  readonly getPluginApis: () => PluginApiDeclaration[];
 }
 
 interface PluginEventsComponentConstructorParams {

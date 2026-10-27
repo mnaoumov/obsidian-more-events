@@ -28,27 +28,27 @@ interface MenuRecord {
   /**
    * The URL the external image was embedded with, a `data:` URL the suite drew, so the suite needs no network.
    */
-  externalUrl: string;
+  readonly externalUrl: string;
 
   /**
    * Whether `file-menu` fired for the menu, which is how Obsidian already announces an image from the vault.
    */
-  hasFileMenuFired: boolean;
+  readonly hasFileMenuFired: boolean;
 
   /**
    * The images the listener was given.
    */
-  images: ExternalImageMenuItem[];
+  readonly images: ExternalImageMenuItem[];
 
   /**
    * Whether the listener was given the leaf the note is open in, once per call.
    */
-  noteLeafMatches: boolean[];
+  readonly noteLeafMatches: boolean[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 }
 
 /*
