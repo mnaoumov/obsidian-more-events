@@ -147,6 +147,13 @@ export interface BasesKanbanColumnMenuItem {
 }
 
 /**
+ * The name of the event triggered when the **More options** menu of a Bases view's configuration page is about to
+ * open — the button beside the page's title, which offers **Set as default view**, **Duplicate view** and
+ * **Delete view**.
+ */
+export type BasesViewMenuEventName = 'more-events:bases-view-menu';
+
+/**
  * The name of the event triggered when the context menu of one or more bookmarks is about to open.
  */
 export type BookmarksMenuEventName = 'more-events:bookmarks-menu';
@@ -812,6 +819,23 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: BasesKanbanColumnMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, column: BasesKanbanColumnMenuItem) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the **More options** menu of a Bases view's configuration page.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, for a
+     * click on the button beside the title of the page the **Views** toolbar menu opens for a view, in a base opened
+     * in its own tab. A base embedded in a note is not announced.
+     *
+     * @param name - Should be `'more-events:bases-view-menu'`.
+     * @param callback - The callback receiving the menu, the leaf holding the **Bases** view (its `view.file`
+     * is the base), and the name of the view the page configures, as the base's `views` list writes it. That
+     * need not be the view the base shows, since the list of views opens the page of any of them.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: BasesViewMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, viewName: string) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of one or more bookmarks in the **Bookmarks** view.

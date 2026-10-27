@@ -6,6 +6,7 @@ import { PluginBase } from '@mnaoumov/obsidian-lib/plugin/plugin';
 import { AllPropertiesMenuEventsComponent } from './all-properties-menu-events-component.ts';
 import { BasesColumnMenuEventsComponent } from './bases-column-menu-events-component.ts';
 import { BasesKanbanColumnMenuEventsComponent } from './bases-kanban-column-menu-events-component.ts';
+import { BasesViewMenuEventsComponent } from './bases-view-menu-events-component.ts';
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
 import { CalloutMenuEventsComponent } from './callout-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
@@ -194,6 +195,12 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const basesViewMenuEventsComponent = this.addChild(
+      new BasesViewMenuEventsComponent({
+        app: this.app
+      })
+    );
+
     const historyMenuEventsComponent = this.addChild(
       new HistoryMenuEventsComponent({
         app: this.app
@@ -257,7 +264,8 @@ export class Plugin extends PluginBase {
           historyMenuEventsComponent
         ],
         positionedMenuAnnouncers: [
-          communityPluginMenuEventsComponent
+          communityPluginMenuEventsComponent,
+          basesViewMenuEventsComponent
         ]
       })
     );

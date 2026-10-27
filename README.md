@@ -59,6 +59,7 @@ Each event fires just before the menu opens, after Obsidian has added its own it
 | `more-events:all-properties-menu` | a property in the **All properties** view | `leaf`, `propertyNames` |
 | `more-events:bases-column-menu` | a Bases table column header | `leaf`, `column` |
 | `more-events:bases-kanban-column-menu` | a Bases board column's empty area | `leaf`, `column` |
+| `more-events:bases-view-menu` | a Bases view settings page's **More options** button (a click) | `leaf`, `viewName` |
 | `more-events:bookmarks-menu` | one or more bookmarks (*relay*) | `bookmarks` |
 | `more-events:bookmarks-view-menu` | the **Bookmarks** view's empty area | `leaf` |
 | `more-events:callout-menu` | a Live Preview callout | `leaf`, `callout` |

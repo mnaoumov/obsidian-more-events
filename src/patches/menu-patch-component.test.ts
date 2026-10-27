@@ -115,8 +115,27 @@ describe('MenuPatchComponent', () => {
     const deferred = createDeferredAnnouncer([], 'deferred', true);
     loadComponent({ deferredMenuAnnouncers: [deferred], menuAnnouncers: [announcer] });
 
-    Menu.create2__().asOriginalType2__().showAtMouseEvent(new MouseEvent('contextmenu'));
+    createMenuAnchoredTo(null).showAtMouseEvent(new MouseEvent('contextmenu'));
 
+    expect(announcer.announceMenu).not.toHaveBeenCalled();
+    expect(deferred.announceDeferredMenu).not.toHaveBeenCalled();
+  });
+
+  it('should ask the positioned announcers about an anchored menu shown after the dispatch of an event whose path it never recorded', () => {
+    vi.spyOn(Menu.prototype, 'showAtMouseEvent').mockReturnThis();
+    const announcer = createAnnouncer([], 'sync', true);
+    const deferred = createDeferredAnnouncer([], 'deferred', true);
+    const positioned = createPositionedAnnouncer([], 'positioned', true);
+    loadComponent({ deferredMenuAnnouncers: [deferred], menuAnnouncers: [announcer], positionedMenuAnnouncers: [positioned] });
+    const buttonEl = activeDocument.body.createDiv();
+    // A click, which is not recorded, as `Menu.forEvent` shows a menu for it on a later task.
+    const event_ = new MouseEvent('click', { bubbles: true });
+    buttonEl.dispatchEvent(event_);
+    const menu = createMenuAnchoredTo(buttonEl);
+
+    menu.showAtMouseEvent(event_);
+
+    expect(positioned.announcePositionedMenu).toHaveBeenCalledExactlyOnceWith(menu, buttonEl);
     expect(announcer.announceMenu).not.toHaveBeenCalled();
     expect(deferred.announceDeferredMenu).not.toHaveBeenCalled();
   });
@@ -355,5 +374,5 @@ function mouseEventWithCurrentTarget(currentTarget: HTMLElement): MouseEvent {
 function showAfterDispatch(win: Window): void {
   const event_ = new MouseEvent('contextmenu');
   win.dispatchEvent(event_);
-  Menu.create2__().asOriginalType2__().showAtMouseEvent(event_);
+  createMenuAnchoredTo(null).showAtMouseEvent(event_);
 }

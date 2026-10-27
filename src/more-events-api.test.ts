@@ -8,6 +8,7 @@ import {
   ALL_PROPERTIES_MENU_EVENT_NAME,
   BASES_COLUMN_MENU_EVENT_NAME,
   BASES_KANBAN_COLUMN_MENU_EVENT_NAME,
+  BASES_VIEW_MENU_EVENT_NAME,
   BOOKMARKS_MENU_EVENT_NAME,
   BOOKMARKS_VIEW_MENU_EVENT_NAME,
   CALLOUT_MENU_EVENT_NAME,
@@ -81,6 +82,7 @@ describe('the published contract', () => {
     expect(EXTERNAL_IMAGE_MENU_EVENT_NAME).toBe('more-events:external-image-menu');
     expect(HISTORY_MENU_EVENT_NAME).toBe('more-events:history-menu');
     expect(BASES_KANBAN_COLUMN_MENU_EVENT_NAME).toBe('more-events:bases-kanban-column-menu');
+    expect(BASES_VIEW_MENU_EVENT_NAME).toBe('more-events:bases-view-menu');
     expect(VAULT_MENU_EVENT_NAME).toBe('more-events:vault-menu');
     expect(LEAF_MENU_EVENT_NAME).toBe('more-events:leaf-menu');
     expect(TAB_GROUP_MENU_EVENT_NAME).toBe('more-events:tab-group-menu');

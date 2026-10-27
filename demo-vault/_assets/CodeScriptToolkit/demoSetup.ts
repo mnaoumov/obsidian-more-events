@@ -64,6 +64,7 @@ const DEMO_COMMUNITY_PLUGIN_MANIFEST_JSON = JSON.stringify(
 const ALL_PROPERTIES_MENU_EVENT_NAME = 'more-events:all-properties-menu';
 const BASES_COLUMN_MENU_EVENT_NAME = 'more-events:bases-column-menu';
 const BASES_KANBAN_COLUMN_MENU_EVENT_NAME = 'more-events:bases-kanban-column-menu';
+const BASES_VIEW_MENU_EVENT_NAME = 'more-events:bases-view-menu';
 const BOOKMARKS_MENU_EVENT_NAME = 'more-events:bookmarks-menu';
 const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
 const CALLOUT_MENU_EVENT_NAME = 'more-events:callout-menu';
@@ -110,6 +111,7 @@ const PDF_SIDEBAR_POLL_IN_MILLISECONDS = 100;
 let allPropertiesAndHistoryMenuListeningComponent: Component | null = null;
 let bookmarksMenuListeningComponent: Component | null = null;
 let calloutAndPluginSettingTabMenuListeningComponent: Component | null = null;
+let basesViewMenuListeningComponent: Component | null = null;
 let canvasAndRibbonMenuListeningComponent: Component | null = null;
 let communityPluginListeningComponent: Component | null = null;
 let corePluginListeningComponent: Component | null = null;
@@ -1003,6 +1005,52 @@ export function stopListeningToExternalImageAndBasesKanbanColumnMenus(): void {
 
   externalImageAndBasesKanbanColumnMenuListeningComponent.unload();
   externalImageAndBasesKanbanColumnMenuListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
+/**
+ * Subscribes to the Bases view menu event and adds one item to the menu, until the stop button below.
+ *
+ * Manual equivalent: the same `app.workspace.on(...)` call from your own plugin's `onload`.
+ */
+export function startListeningToBasesViewMenu(app: App): void {
+  if (basesViewMenuListeningComponent) {
+    new Notice('Already listening. Open a view\'s settings in a base and click its More options button.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(BASES_VIEW_MENU_EVENT_NAME, (menu, leaf, viewName) => {
+      menu.addItem((item) => {
+        item
+          .setTitle('Which view is this? (added by a listener)')
+          .setIcon('lucide-info')
+          .onClick(() => {
+            new Notice(`The "${viewName}" view of ${leaf.getDisplayText()}`, NOTICE_DURATION_IN_MILLISECONDS);
+          });
+      });
+    })
+  );
+  component.load();
+  basesViewMenuListeningComponent = component;
+
+  new Notice('Listening. Now open a view\'s settings in the demo base and click its More options button.');
+}
+
+/**
+ * Stops the listener the start button above registered.
+ *
+ * Manual equivalent: unloading the component that registered it, which a plugin gets for free when it is disabled.
+ */
+export function stopListeningToBasesViewMenu(): void {
+  if (!basesViewMenuListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  basesViewMenuListeningComponent.unload();
+  basesViewMenuListeningComponent = null;
   new Notice('Stopped listening.');
 }
 
