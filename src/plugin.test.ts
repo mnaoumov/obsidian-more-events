@@ -5,7 +5,12 @@ import type {
 } from 'obsidian';
 import type { Mock } from 'vitest';
 
+import {
+  FileExplorerRootMenuComponent,
+  FileExplorerRootMenuSpot
+} from '@mnaoumov/obsidian-lib/components/file-explorer-root-menu-component';
 import { castTo } from '@mnaoumov/typescript-lib/object-utils';
+import { Menu } from 'obsidian';
 import { App } from 'obsidian-test-mocks/obsidian';
 import {
   afterEach,
@@ -52,6 +57,17 @@ import { VaultMenuEventsComponent } from './vault-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './web-viewer-history-menu-events-component.ts';
 import { WorkspaceMenuEventsComponent } from './workspace-menu-events-component.ts';
 
+vi.mock('@mnaoumov/obsidian-lib/components/file-explorer-root-menu-component', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@mnaoumov/obsidian-lib/components/file-explorer-root-menu-component')>();
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    ...original,
+    // eslint-disable-next-line prefer-arrow-callback -- The component stub must be constructible.
+    FileExplorerRootMenuComponent: vi.fn(function fileExplorerRootMenuComponentStub() {
+      return new Component();
+    })
+  };
+});
 vi.mock('./community-plugin-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
@@ -656,6 +672,23 @@ describe('Plugin', () => {
     plugin.unload();
   });
 
+  it('should publish both root menu spots through the shared component without requesting folder replacement', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+    const calls = vi.mocked(FileExplorerRootMenuComponent).mock.calls;
+    expect(calls).toHaveLength(1);
+    const params = calls[0]?.[0];
+    expect(params?.app).toBe(app);
+    expect(params?.shouldPresentRootAsFolder).toBeUndefined();
+    const trigger = vi.spyOn(app.workspace, 'trigger');
+    const menu = new Menu();
+    for (const spot of [FileExplorerRootMenuSpot.EmptyArea, FileExplorerRootMenuSpot.VaultName]) {
+      params?.handler({ menu, mouseEvent: new MouseEvent('contextmenu'), rootFolder: app.vault.getRoot(), spot });
+      expect(trigger).toHaveBeenLastCalledWith('more-events:file-explorer-root-menu', menu, spot);
+    }
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
   it('should register the open demo vault command', async () => {
     const plugin = new Plugin(app, manifest);
     const addCommandSpy = vi.spyOn(plugin, 'addCommand');

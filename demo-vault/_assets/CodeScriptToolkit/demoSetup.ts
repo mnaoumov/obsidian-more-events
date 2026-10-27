@@ -1438,3 +1438,31 @@ async function installDemoCommunityPlugin(app: App): Promise<void> {
   // Obsidian reads the plugins folder at startup, so a manifest written a moment ago is not known yet.
   await app.plugins.loadManifests();
 }
+
+let rootMenuListeningComponent: Component | null = null;
+
+/**
+ * Adds a live item identifying which vault-root spot opened the menu.
+ *
+ * @param app - The application.
+ */
+export function startListeningToFileExplorerRootMenus(app: App): void {
+  stopListeningToFileExplorerRootMenus();
+  const component = new Component();
+  component.registerEvent(app.workspace.on('more-events:file-explorer-root-menu', (menu, spot) => {
+    menu.addItem((item) => item.setTitle(`Root menu from ${spot} (added by a listener)`).onClick(() => {
+      new Notice(`The vault root menu was opened from ${spot}.`, NOTICE_DURATION_IN_MILLISECONDS);
+    }));
+  }));
+  component.load();
+  rootMenuListeningComponent = component;
+  new Notice('Listening. Right-click the vault name or the empty area below the File Explorer files.');
+}
+
+/**
+ * Removes the vault-root demo subscription.
+ */
+export function stopListeningToFileExplorerRootMenus(): void {
+  rootMenuListeningComponent?.unload();
+  rootMenuListeningComponent = null;
+}

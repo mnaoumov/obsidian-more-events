@@ -26,6 +26,7 @@ import {
   CORE_PLUGIN_SETTING_TAB_MENU_EVENT_NAME,
   CSS_SNIPPET_MENU_EVENT_NAME,
   EXTERNAL_IMAGE_MENU_EVENT_NAME,
+  FILE_EXPLORER_ROOT_MENU_EVENT_NAME,
   HISTORY_MENU_EVENT_NAME,
   LEAF_MENU_EVENT_NAME,
   MARKDOWN_PROPERTIES_MENU_EVENT_NAME,
@@ -55,6 +56,7 @@ import {
  */
 describe('the published contract', () => {
   it('should keep the event names it published', () => {
+    expect(FILE_EXPLORER_ROOT_MENU_EVENT_NAME).toBe('more-events:file-explorer-root-menu');
     expect(CORE_PLUGIN_ENABLED_EVENT_NAME).toBe('more-events:core-plugin-enabled');
     expect(CORE_PLUGIN_DISABLED_EVENT_NAME).toBe('more-events:core-plugin-disabled');
     expect(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME).toBe('more-events:community-plugin-enabled');
