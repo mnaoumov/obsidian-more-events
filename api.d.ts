@@ -569,6 +569,12 @@ export type PdfPageMenuEventName = 'more-events:pdf-page-menu';
  */
 export type PdfThumbnailMenuEventName = 'more-events:pdf-thumbnail-menu';
 
+/** The PDF toolbar's sidebar options menu, opened by its sidebar chevron. */
+export type PdfSidebarMenuEventName = 'more-events:pdf-sidebar-menu';
+
+/** The PDF toolbar's display options menu, opened by its zoom chevron. */
+export type PdfDisplayMenuEventName = 'more-events:pdf-display-menu';
+
 /**
  * The name of the event triggered when a property's own menu is about to open — the right-click or the click on
  * the property's icon in the properties editor, which offers **Property type**, the clipboard items and
@@ -1216,6 +1222,19 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: PdfPageMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, pageNumber: number) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the sidebar options or display options menu of a PDF opened in its own tab.
+     *
+     * Add items to `menu` before it opens. Embedded PDFs are not announced.
+     *
+     * @param name - The sidebar or display menu event name.
+     * @param callback - Receives the menu and the leaf whose `view.file` is the PDF.
+     * @param context - The context passed as `this` to the callback.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: PdfDisplayMenuEventName | PdfSidebarMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of a page thumbnail in the PDF view's sidebar.

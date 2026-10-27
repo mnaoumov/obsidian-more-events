@@ -37,8 +37,10 @@ import type {
   LeafMenuEventName,
   MarkdownPropertiesMenuEventName,
   MarkdownViewportMenuEventName,
+  PdfDisplayMenuEventName,
   PdfOutlineMenuEventName,
   PdfPageMenuEventName,
+  PdfSidebarMenuEventName,
   PdfThumbnailMenuEventName,
   PropertyMenuEventName,
   PropertyValueMenuEventName,
@@ -97,9 +99,11 @@ export type {
   MarkdownPropertiesMenuEventName,
   MarkdownViewportMenuEventName,
   MoreEventsApi,
+  PdfDisplayMenuEventName,
   PdfOutlineMenuEventName,
   PdfOutlineMenuItem,
   PdfPageMenuEventName,
+  PdfSidebarMenuEventName,
   PdfThumbnailMenuEventName,
   PropertyMenuEventName,
   PropertyMenuItem,
@@ -345,3 +349,13 @@ export const PLUGIN_API_VERSION = '1.4.0';
  * The File Explorer vault-root context-menu event.
  */
 export const FILE_EXPLORER_ROOT_MENU_EVENT_NAME: FileExplorerRootMenuEventName = 'more-events:file-explorer-root-menu';
+
+/**
+The PDF toolbar's sidebar options menu event.
+*/
+export const PDF_SIDEBAR_MENU_EVENT_NAME: PdfSidebarMenuEventName = 'more-events:pdf-sidebar-menu';
+
+/**
+The PDF toolbar's display options menu event.
+*/
+export const PDF_DISPLAY_MENU_EVENT_NAME: PdfDisplayMenuEventName = 'more-events:pdf-display-menu';
