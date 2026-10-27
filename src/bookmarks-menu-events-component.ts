@@ -1,11 +1,8 @@
-import type { BookmarkItem } from '@obsidian-typings/obsidian-public-latest';
 import type {
   App,
-  Events,
   Menu
 } from 'obsidian';
 
-import { castTo } from '@mnaoumov/typescript-lib/object-utils';
 import { Component } from 'obsidian';
 
 import type { MenuAnnouncer } from './patches/menu-patch-component.ts';
@@ -43,7 +40,7 @@ export interface BookmarksMenuEventsComponentConstructorParams {
  *
  * **The bookmark menu is a relay, and needs no patch.** Obsidian already triggers its own
  * `bookmarks:bookmarks-menu` for it, with the menu and the bookmarks it is for, but documents it nowhere
- * and types it nowhere. This component re-publishes it as `more-events:bookmarks-menu`, so a consumer
+ * in the public API. `obsidian-typings` declares it. This component re-publishes it as `more-events:bookmarks-menu`, so a consumer
  * has one typed name to depend on and this plugin is the one place that has to follow Obsidian if it ever
  * renames its own.
  *
@@ -87,14 +84,8 @@ export class BookmarksMenuEventsComponent extends Component implements MenuAnnou
    * Subscribes to Obsidian's own bookmarks menu event.
    */
   public override onload(): void {
-    /*
-     * An upcast rather than `app.workspace.on`, because no typings declare the event: `Workspace` redeclares
-     * `on` as a closed set of overloads, and the generic `Events.on` is what accepts any name.
-     */
-    // TODO: Call `app.workspace.on` directly once `obsidian-typings` declares `bookmarks:bookmarks-menu`.
-    const workspaceEvents: Events = this.app.workspace;
-    this.registerEvent(workspaceEvents.on(OBSIDIAN_BOOKMARKS_MENU_EVENT_NAME, (menu: unknown, bookmarks: unknown) => {
-      this.app.workspace.trigger(BOOKMARKS_MENU_EVENT_NAME, castTo<Menu>(menu), castTo<BookmarkItem[]>(bookmarks));
+    this.registerEvent(this.app.workspace.on(OBSIDIAN_BOOKMARKS_MENU_EVENT_NAME, (menu, bookmarks) => {
+      this.app.workspace.trigger(BOOKMARKS_MENU_EVENT_NAME, menu, bookmarks);
     }));
   }
 }
