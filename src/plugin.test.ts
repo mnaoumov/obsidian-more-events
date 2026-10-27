@@ -21,41 +21,41 @@ import {
   vi
 } from 'vitest';
 
-import { AllPropertiesMenuEventsComponent } from './all-properties-menu-events-component.ts';
-import { BasesColumnMenuEventsComponent } from './bases-column-menu-events-component.ts';
-import { BasesKanbanColumnMenuEventsComponent } from './bases-kanban-column-menu-events-component.ts';
-import { BasesViewMenuEventsComponent } from './bases-view-menu-events-component.ts';
-import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
-import { CalloutMenuEventsComponent } from './callout-menu-events-component.ts';
-import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
-import { CanvasObjectMenuEventsComponent } from './canvas-object-menu-events-component.ts';
-import { CommunityPluginEventsComponent } from './community-plugin-events-component.ts';
-import { CommunityPluginMenuEventsComponent } from './community-plugin-menu-events-component.ts';
-import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
-import { CssSnippetMenuEventsComponent } from './css-snippet-menu-events-component.ts';
-import { ExternalImageMenuEventsComponent } from './external-image-menu-events-component.ts';
-import { HistoryMenuEventsComponent } from './history-menu-events-component.ts';
-import { MarkdownMenuEventsComponent } from './markdown-menu-events-component.ts';
-import { MoreEventsApiImpl } from './more-events-api-impl.ts';
+import { MoreEventsApiImpl } from './api/more-events-api-impl.ts';
 import {
   PLUGIN_API_CONTRACT,
   PLUGIN_API_VERSION
-} from './more-events-api.ts';
-import { MenuPatchComponent } from './patches/menu-patch-component.ts';
-import { PdfOutlineMenuEventsComponent } from './pdf-outline-menu-events-component.ts';
-import { PdfPageMenuEventsComponent } from './pdf-page-menu-events-component.ts';
-import { PdfThumbnailMenuEventsComponent } from './pdf-thumbnail-menu-events-component.ts';
-import { PluginSettingTabMenuEventsComponent } from './plugin-setting-tab-menu-events-component.ts';
+} from './api/more-events-api.ts';
+import { AllPropertiesMenuEventsComponent } from './context-menus/all-properties/all-properties-menu-events-component.ts';
+import { BasesColumnMenuEventsComponent } from './context-menus/bases/bases-column-menu-events-component.ts';
+import { BasesKanbanColumnMenuEventsComponent } from './context-menus/bases/bases-kanban-column-menu-events-component.ts';
+import { BasesViewMenuEventsComponent } from './context-menus/bases/bases-view-menu-events-component.ts';
+import { BookmarksMenuEventsComponent } from './context-menus/bookmarks/bookmarks-menu-events-component.ts';
+import { CalloutMenuEventsComponent } from './context-menus/callout/callout-menu-events-component.ts';
+import { CanvasMenuEventsComponent } from './context-menus/canvas/canvas-menu-events-component.ts';
+import { CanvasObjectMenuEventsComponent } from './context-menus/canvas/canvas-object-menu-events-component.ts';
+import { CommunityPluginMenuEventsComponent } from './context-menus/community-plugin/community-plugin-menu-events-component.ts';
+import { CssSnippetMenuEventsComponent } from './context-menus/css-snippet/css-snippet-menu-events-component.ts';
+import { ExternalImageMenuEventsComponent } from './context-menus/external-image/external-image-menu-events-component.ts';
+import { HistoryMenuEventsComponent } from './context-menus/history/history-menu-events-component.ts';
+import { MarkdownMenuEventsComponent } from './context-menus/markdown/markdown-menu-events-component.ts';
+import { MenuPatchComponent } from './context-menus/menu-patch-component.ts';
+import { PdfOutlineMenuEventsComponent } from './context-menus/pdf/pdf-outline-menu-events-component.ts';
+import { PdfPageMenuEventsComponent } from './context-menus/pdf/pdf-page-menu-events-component.ts';
+import { PdfThumbnailMenuEventsComponent } from './context-menus/pdf/pdf-thumbnail-menu-events-component.ts';
+import { PluginSettingTabMenuEventsComponent } from './context-menus/plugin-setting-tab/plugin-setting-tab-menu-events-component.ts';
+import { PropertyMenuEventsComponent } from './context-menus/property/property-menu-events-component.ts';
+import { PropertyValueMenuEventsComponent } from './context-menus/property/property-value-menu-events-component.ts';
+import { RibbonMenuEventsComponent } from './context-menus/ribbon/ribbon-menu-events-component.ts';
+import { SearchMenuEventsComponent } from './context-menus/search/search-menu-events-component.ts';
+import { SidebarToggleMenuEventsComponent } from './context-menus/sidebar-toggle/sidebar-toggle-menu-events-component.ts';
+import { TableMenuEventsComponent } from './context-menus/table/table-menu-events-component.ts';
+import { VaultMenuEventsComponent } from './context-menus/vault/vault-menu-events-component.ts';
+import { WebViewerHistoryMenuEventsComponent } from './context-menus/web-viewer-history/web-viewer-history-menu-events-component.ts';
+import { WorkspaceMenuEventsComponent } from './context-menus/workspace/workspace-menu-events-component.ts';
+import { CommunityPluginEventsComponent } from './plugin-lifecycle/community-plugin-events-component.ts';
+import { CorePluginEventsComponent } from './plugin-lifecycle/core-plugin-events-component.ts';
 import { Plugin } from './plugin.ts';
-import { PropertyMenuEventsComponent } from './property-menu-events-component.ts';
-import { PropertyValueMenuEventsComponent } from './property-value-menu-events-component.ts';
-import { RibbonMenuEventsComponent } from './ribbon-menu-events-component.ts';
-import { SearchMenuEventsComponent } from './search-menu-events-component.ts';
-import { SidebarToggleMenuEventsComponent } from './sidebar-toggle-menu-events-component.ts';
-import { TableMenuEventsComponent } from './table-menu-events-component.ts';
-import { VaultMenuEventsComponent } from './vault-menu-events-component.ts';
-import { WebViewerHistoryMenuEventsComponent } from './web-viewer-history-menu-events-component.ts';
-import { WorkspaceMenuEventsComponent } from './workspace-menu-events-component.ts';
 
 vi.mock('@mnaoumov/obsidian-lib/components/file-explorer-root-menu-component', async (importOriginal) => {
   const original = await importOriginal<typeof import('@mnaoumov/obsidian-lib/components/file-explorer-root-menu-component')>();
@@ -68,7 +68,7 @@ vi.mock('@mnaoumov/obsidian-lib/components/file-explorer-root-menu-component', a
     })
   };
 });
-vi.mock('./community-plugin-events-component.ts', async () => {
+vi.mock('./plugin-lifecycle/community-plugin-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -78,7 +78,7 @@ vi.mock('./community-plugin-events-component.ts', async () => {
   };
 });
 
-vi.mock('./bookmarks-menu-events-component.ts', async () => {
+vi.mock('./context-menus/bookmarks/bookmarks-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -88,7 +88,7 @@ vi.mock('./bookmarks-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./canvas-menu-events-component.ts', async () => {
+vi.mock('./context-menus/canvas/canvas-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -98,7 +98,7 @@ vi.mock('./canvas-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./ribbon-menu-events-component.ts', async () => {
+vi.mock('./context-menus/ribbon/ribbon-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -108,7 +108,7 @@ vi.mock('./ribbon-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./all-properties-menu-events-component.ts', async () => {
+vi.mock('./context-menus/all-properties/all-properties-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -118,7 +118,7 @@ vi.mock('./all-properties-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./web-viewer-history-menu-events-component.ts', async () => {
+vi.mock('./context-menus/web-viewer-history/web-viewer-history-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -128,7 +128,7 @@ vi.mock('./web-viewer-history-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./pdf-thumbnail-menu-events-component.ts', async () => {
+vi.mock('./context-menus/pdf/pdf-thumbnail-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -138,7 +138,7 @@ vi.mock('./pdf-thumbnail-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./sidebar-toggle-menu-events-component.ts', async () => {
+vi.mock('./context-menus/sidebar-toggle/sidebar-toggle-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -148,7 +148,7 @@ vi.mock('./sidebar-toggle-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./community-plugin-menu-events-component.ts', async () => {
+vi.mock('./context-menus/community-plugin/community-plugin-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -158,7 +158,7 @@ vi.mock('./community-plugin-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./external-image-menu-events-component.ts', async () => {
+vi.mock('./context-menus/external-image/external-image-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -168,7 +168,7 @@ vi.mock('./external-image-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./bases-kanban-column-menu-events-component.ts', async () => {
+vi.mock('./context-menus/bases/bases-kanban-column-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -178,7 +178,7 @@ vi.mock('./bases-kanban-column-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./bases-view-menu-events-component.ts', async () => {
+vi.mock('./context-menus/bases/bases-view-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -188,7 +188,7 @@ vi.mock('./bases-view-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./history-menu-events-component.ts', async () => {
+vi.mock('./context-menus/history/history-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -198,7 +198,7 @@ vi.mock('./history-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./vault-menu-events-component.ts', async () => {
+vi.mock('./context-menus/vault/vault-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -208,7 +208,7 @@ vi.mock('./vault-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./workspace-menu-events-component.ts', async () => {
+vi.mock('./context-menus/workspace/workspace-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -218,7 +218,7 @@ vi.mock('./workspace-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./search-menu-events-component.ts', async () => {
+vi.mock('./context-menus/search/search-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -228,7 +228,7 @@ vi.mock('./search-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./canvas-object-menu-events-component.ts', async () => {
+vi.mock('./context-menus/canvas/canvas-object-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -237,7 +237,7 @@ vi.mock('./canvas-object-menu-events-component.ts', async () => {
     })
   };
 });
-vi.mock('./markdown-menu-events-component.ts', async () => {
+vi.mock('./context-menus/markdown/markdown-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -247,7 +247,7 @@ vi.mock('./markdown-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./callout-menu-events-component.ts', async () => {
+vi.mock('./context-menus/callout/callout-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -257,7 +257,7 @@ vi.mock('./callout-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./plugin-setting-tab-menu-events-component.ts', async () => {
+vi.mock('./context-menus/plugin-setting-tab/plugin-setting-tab-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -267,7 +267,7 @@ vi.mock('./plugin-setting-tab-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./table-menu-events-component.ts', async () => {
+vi.mock('./context-menus/table/table-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -277,7 +277,7 @@ vi.mock('./table-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./property-value-menu-events-component.ts', async () => {
+vi.mock('./context-menus/property/property-value-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -287,7 +287,7 @@ vi.mock('./property-value-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./bases-column-menu-events-component.ts', async () => {
+vi.mock('./context-menus/bases/bases-column-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -297,7 +297,7 @@ vi.mock('./bases-column-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./property-menu-events-component.ts', async () => {
+vi.mock('./context-menus/property/property-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -307,7 +307,7 @@ vi.mock('./property-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./css-snippet-menu-events-component.ts', async () => {
+vi.mock('./context-menus/css-snippet/css-snippet-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -317,7 +317,7 @@ vi.mock('./css-snippet-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./pdf-outline-menu-events-component.ts', async () => {
+vi.mock('./context-menus/pdf/pdf-outline-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -327,7 +327,7 @@ vi.mock('./pdf-outline-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./pdf-page-menu-events-component.ts', async () => {
+vi.mock('./context-menus/pdf/pdf-page-menu-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -337,7 +337,7 @@ vi.mock('./pdf-page-menu-events-component.ts', async () => {
   };
 });
 
-vi.mock('./patches/menu-patch-component.ts', async () => {
+vi.mock('./context-menus/menu-patch-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
@@ -347,7 +347,7 @@ vi.mock('./patches/menu-patch-component.ts', async () => {
   };
 });
 
-vi.mock('./core-plugin-events-component.ts', async () => {
+vi.mock('./plugin-lifecycle/core-plugin-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
