@@ -96,10 +96,10 @@ export class InternalPluginPatchComponent extends MonkeyAroundComponent {
       methodName: 'enable',
       patchHandler: ({
         fallback,
-        originalArguments,
+        originalArguments: [isEnabledByUser],
         originalThis
       }) => {
-        this.userInitiationRecorder.recordUserInitiation(originalThis.instance.id, originalArguments[0] ?? false);
+        this.userInitiationRecorder.recordUserInitiation(originalThis.instance.id, isEnabledByUser ?? false);
         return fallback();
       }
     });
@@ -109,10 +109,10 @@ export class InternalPluginPatchComponent extends MonkeyAroundComponent {
       methodName: 'disable',
       patchHandler: ({
         fallback,
-        originalArguments,
+        originalArguments: [isDisabledByUser],
         originalThis
       }) => {
-        this.userInitiationRecorder.recordUserInitiation(originalThis.instance.id, originalArguments[0] ?? false);
+        this.userInitiationRecorder.recordUserInitiation(originalThis.instance.id, isDisabledByUser ?? false);
         fallback();
       }
     });
