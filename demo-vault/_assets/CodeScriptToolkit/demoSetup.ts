@@ -79,6 +79,8 @@ const HISTORY_MENU_EVENT_NAME = 'more-events:history-menu';
 const LEAF_MENU_EVENT_NAME = 'more-events:leaf-menu';
 const MARKDOWN_PROPERTIES_MENU_EVENT_NAME = 'more-events:markdown-properties-menu';
 const MARKDOWN_VIEWPORT_MENU_EVENT_NAME = 'more-events:markdown-viewport-menu';
+const PDF_DISPLAY_MENU_EVENT_NAME = 'more-events:pdf-display-menu';
+const PDF_SIDEBAR_MENU_EVENT_NAME = 'more-events:pdf-sidebar-menu';
 const PDF_OUTLINE_MENU_EVENT_NAME = 'more-events:pdf-outline-menu';
 const PDF_PAGE_MENU_EVENT_NAME = 'more-events:pdf-page-menu';
 const PDF_THUMBNAIL_MENU_EVENT_NAME = 'more-events:pdf-thumbnail-menu';
@@ -553,10 +555,10 @@ export async function openDemoPdf(app: App): Promise<void> {
 }
 
 /**
- * Subscribes to the PDF thumbnail, outline and page menu events and adds one item to each menu, until the stop
+ * Subscribes to the PDF toolbar, thumbnail, outline and page menu events and adds one item to each menu, until the stop
  * button below.
  *
- * Manual equivalent: the same three `app.workspace.on(...)` calls from your own plugin's `onload`.
+ * Manual equivalent: the same `app.workspace.on(...)` calls from your own plugin's `onload`.
  */
 export function startListeningToPdfMenus(app: App): void {
   if (pdfMenuListeningComponent) {
@@ -576,6 +578,14 @@ export function startListeningToPdfMenus(app: App): void {
   }
 
   const component = new Component();
+  for (const eventName of [PDF_DISPLAY_MENU_EVENT_NAME, PDF_SIDEBAR_MENU_EVENT_NAME] as const) {
+    component.registerEvent(app.workspace.on(eventName, (menu, leaf) => {
+      menu.addItem((item) => item
+        .setTitle('Which PDF is this? (added by a listener)')
+        .setIcon('lucide-info')
+        .onClick(() => { new Notice(leaf.getDisplayText(), NOTICE_DURATION_IN_MILLISECONDS); }));
+    }));
+  }
   component.registerEvent(app.workspace.on(PDF_THUMBNAIL_MENU_EVENT_NAME, addWhichPageItem));
   component.registerEvent(app.workspace.on(PDF_PAGE_MENU_EVENT_NAME, addWhichPageItem));
   component.registerEvent(
@@ -681,7 +691,7 @@ export function stopListeningToSidebarToggleAndCommunityPluginMenus(): void {
  * Subscribes to the callout and plugin settings tab menu events and adds one item to each menu, until the stop
  * button below.
  *
- * Manual equivalent: the same three `app.workspace.on(...)` calls from your own plugin's `onload`.
+ * Manual equivalent: the same `app.workspace.on(...)` calls from your own plugin's `onload`.
  */
 export function startListeningToCalloutAndPluginSettingTabMenus(app: App): void {
   if (calloutAndPluginSettingTabMenuListeningComponent) {
@@ -1149,7 +1159,7 @@ export function stopListeningToVaultAndTabMenus(): void {
  * Subscribes to the note margin, **Properties** heading and **Search** results menu events and adds one item to each
  * menu, until the stop button below.
  *
- * Manual equivalent: the same three `app.workspace.on(...)` calls from your own plugin's `onload`.
+ * Manual equivalent: the same `app.workspace.on(...)` calls from your own plugin's `onload`.
  */
 export function startListeningToNoteAndSearchMenus(app: App): void {
   if (noteAndSearchMenuListeningComponent) {

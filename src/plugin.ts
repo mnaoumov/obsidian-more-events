@@ -27,6 +27,7 @@ import { MenuPatchComponent } from './context-menus/menu-patch-component.ts';
 import { PdfOutlineMenuEventsComponent } from './context-menus/pdf/pdf-outline-menu-events-component.ts';
 import { PdfPageMenuEventsComponent } from './context-menus/pdf/pdf-page-menu-events-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './context-menus/pdf/pdf-thumbnail-menu-events-component.ts';
+import { PdfToolbarMenuEventsComponent } from './context-menus/pdf/pdf-toolbar-menu-events-component.ts';
 import { PluginSettingTabMenuEventsComponent } from './context-menus/plugin-setting-tab/plugin-setting-tab-menu-events-component.ts';
 import { PropertyMenuEventsComponent } from './context-menus/property/property-menu-events-component.ts';
 import { PropertyValueMenuEventsComponent } from './context-menus/property/property-value-menu-events-component.ts';
@@ -206,6 +207,8 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const pdfToolbarMenuEventsComponent = this.addChild(new PdfToolbarMenuEventsComponent({ app: this.app }));
+
     const basesViewMenuEventsComponent = this.addChild(
       new BasesViewMenuEventsComponent({
         app: this.app
@@ -276,7 +279,8 @@ export class Plugin extends PluginBase {
         ],
         positionedMenuAnnouncers: [
           communityPluginMenuEventsComponent,
-          basesViewMenuEventsComponent
+          basesViewMenuEventsComponent,
+          pdfToolbarMenuEventsComponent
         ]
       })
     );

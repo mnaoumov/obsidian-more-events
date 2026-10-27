@@ -43,6 +43,7 @@ import { MenuPatchComponent } from './context-menus/menu-patch-component.ts';
 import { PdfOutlineMenuEventsComponent } from './context-menus/pdf/pdf-outline-menu-events-component.ts';
 import { PdfPageMenuEventsComponent } from './context-menus/pdf/pdf-page-menu-events-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './context-menus/pdf/pdf-thumbnail-menu-events-component.ts';
+import { PdfToolbarMenuEventsComponent } from './context-menus/pdf/pdf-toolbar-menu-events-component.ts';
 import { PluginSettingTabMenuEventsComponent } from './context-menus/plugin-setting-tab/plugin-setting-tab-menu-events-component.ts';
 import { PropertyMenuEventsComponent } from './context-menus/property/property-menu-events-component.ts';
 import { PropertyValueMenuEventsComponent } from './context-menus/property/property-value-menu-events-component.ts';
@@ -123,6 +124,16 @@ vi.mock('./context-menus/web-viewer-history/web-viewer-history-menu-events-compo
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     WebViewerHistoryMenuEventsComponent: vi.fn(function webViewerHistoryMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./context-menus/pdf/pdf-toolbar-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A constructible stub must return a fresh real Component, as in the other component mocks.
+    PdfToolbarMenuEventsComponent: vi.fn(function pdfToolbarMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -634,7 +645,8 @@ describe('Plugin', () => {
     expect(castTo<PluginEventsComponentConstructorParams>(basesViewCalls[0]?.[0]).app).toBe(plugin.app);
     expect(vi.mocked(MenuPatchComponent).mock.calls[0]?.[0].positionedMenuAnnouncers).toEqual([
       vi.mocked(CommunityPluginMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(BasesViewMenuEventsComponent).mock.results[0]?.value
+      vi.mocked(BasesViewMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(PdfToolbarMenuEventsComponent).mock.results[0]?.value
     ]);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
@@ -689,6 +701,15 @@ describe('Plugin', () => {
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();
   });
+  it('should register the PDF toolbar announcer with the app', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+    expect(vi.mocked(PdfToolbarMenuEventsComponent)).toHaveBeenCalledExactlyOnceWith({ app });
+    expect(vi.mocked(MenuPatchComponent).mock.calls[0]?.[0].positionedMenuAnnouncers).toContain(getFirstInstance(PdfToolbarMenuEventsComponent));
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
   it('should register the open demo vault command', async () => {
     const plugin = new Plugin(app, manifest);
     const addCommandSpy = vi.spyOn(plugin, 'addCommand');

@@ -12,43 +12,45 @@ Obsidian lets a plugin add items to some of its context menus: it raises `file-m
 
 Each event fires just before the menu opens, after Obsidian has added its own items, so an item a listener adds appears in it. The listener receives the `Menu` first, then the arguments below. Obsidian raises an undocumented event of its own for the rows marked *relay*, and `More Events` relays it under a stable name. The others fire nothing in Obsidian.
 
-| Event | Fires for the menu of | Arguments after `menu` |
-| --- | --- | --- |
-| `more-events:all-properties-menu` | a property in the **All properties** view | `leaf`, `propertyNames` |
-| `more-events:bases-column-menu` | a Bases table column header | `leaf`, `column` |
-| `more-events:bases-kanban-column-menu` | a Bases board column's empty area | `leaf`, `column` |
-| `more-events:bases-view-menu` | a Bases view settings page's **More options** button (a click) | `leaf`, `viewName` |
-| `more-events:bookmarks-menu` | one or more bookmarks (*relay*) | `bookmarks` |
-| `more-events:bookmarks-view-menu` | the **Bookmarks** view's empty area | `leaf` |
-| `more-events:callout-menu` | a Live Preview callout | `leaf`, `callout` |
-| `more-events:canvas-edge-menu` | a canvas connection (*relay*) | `leaf`, `edge` |
-| `more-events:canvas-node-connection-drop-menu` | a connection dropped onto empty canvas (*relay*) | `leaf`, `fromNode`, `drop` |
-| `more-events:canvas-node-menu` | a canvas node (*relay*) | `leaf`, `node` |
-| `more-events:canvas-selection-menu` | a canvas selection (*relay*) | `leaf`, `selection` |
-| `more-events:canvas-view-menu` | a canvas's empty background | `leaf`, `position` |
-| `more-events:community-plugin-menu` | a plugin's row in **Settings -> Community plugins**, or its **More options** button | `communityPluginId` |
-| `more-events:community-plugin-setting-tab-menu` | a community plugin's tab in the Settings sidebar | `communityPluginId` |
-| `more-events:core-plugin-setting-tab-menu` | a core plugin's tab in the Settings sidebar | `corePluginId` |
-| `more-events:css-snippet-menu` | a CSS snippet's row in **Settings -> Appearance** (desktop) | `snippet` |
-| `more-events:external-image-menu` | a Live Preview image embedded from a URL | `leaf`, `image` |
-| `more-events:file-explorer-root-menu` | the vault name or the File Explorer empty area | `spot`: `vault-name` or `empty-area` |
-| `more-events:history-menu` | a view's back or forward button | `leaf`, `direction` |
-| `more-events:leaf-menu` | a tab header, or a view's **More options** (*relay*) | `leaf` |
-| `more-events:markdown-properties-menu` | a note's **Properties** heading (*relay*) | `file` |
-| `more-events:markdown-viewport-menu` | a note's margin or the editor's gutter (*relay*) | `view`, `mode` |
-| `more-events:pdf-outline-menu` | an entry in a PDF's outline | `leaf`, `outlineItem` |
-| `more-events:pdf-page-menu` | a page of a PDF (desktop) | `leaf`, `pageNumber` |
-| `more-events:pdf-thumbnail-menu` | a page thumbnail in a PDF's sidebar | `leaf`, `pageNumber` |
-| `more-events:property-menu` | a property's icon | `leaf`, `property` |
-| `more-events:property-value-menu` | a value of a list or tags property | `leaf`, `value` |
-| `more-events:ribbon-menu` | the ribbon's empty area | `side` |
-| `more-events:search-results-menu` | the **Search** view's result count (*relay*) | `searchView` |
-| `more-events:sidebar-toggle-menu` | a sidebar's toggle button | `side` |
-| `more-events:tab-group-menu` | a tab group's tab list chevron (*relay*) | `tabGroup` |
-| `more-events:table-cell-menu` | a Live Preview table cell | `leaf`, `cell` |
-| `more-events:table-handle-menu` | a Live Preview table's row or column drag handle | `leaf`, `handle` |
-| `more-events:vault-menu` | the vault name in the left sidebar (desktop) | nothing |
-| `more-events:web-viewer-history-menu` | a page in the **Web viewer**'s History view | `leaf`, `historyItem` |
+| Event                                           | Fires for the menu of                                                               | Arguments after `menu`               |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------ |
+| `more-events:all-properties-menu`               | a property in the **All properties** view                                           | `leaf`, `propertyNames`              |
+| `more-events:bases-column-menu`                 | a Bases table column header                                                         | `leaf`, `column`                     |
+| `more-events:bases-kanban-column-menu`          | a Bases board column's empty area                                                   | `leaf`, `column`                     |
+| `more-events:bases-view-menu`                   | a Bases view settings page's **More options** button (a click)                      | `leaf`, `viewName`                   |
+| `more-events:bookmarks-menu`                    | one or more bookmarks (*relay*)                                                     | `bookmarks`                          |
+| `more-events:bookmarks-view-menu`               | the **Bookmarks** view's empty area                                                 | `leaf`                               |
+| `more-events:callout-menu`                      | a Live Preview callout                                                              | `leaf`, `callout`                    |
+| `more-events:canvas-edge-menu`                  | a canvas connection (*relay*)                                                       | `leaf`, `edge`                       |
+| `more-events:canvas-node-connection-drop-menu`  | a connection dropped onto empty canvas (*relay*)                                    | `leaf`, `fromNode`, `drop`           |
+| `more-events:canvas-node-menu`                  | a canvas node (*relay*)                                                             | `leaf`, `node`                       |
+| `more-events:canvas-selection-menu`             | a canvas selection (*relay*)                                                        | `leaf`, `selection`                  |
+| `more-events:canvas-view-menu`                  | a canvas's empty background                                                         | `leaf`, `position`                   |
+| `more-events:community-plugin-menu`             | a plugin's row in **Settings -> Community plugins**, or its **More options** button | `communityPluginId`                  |
+| `more-events:community-plugin-setting-tab-menu` | a community plugin's tab in the Settings sidebar                                    | `communityPluginId`                  |
+| `more-events:core-plugin-setting-tab-menu`      | a core plugin's tab in the Settings sidebar                                         | `corePluginId`                       |
+| `more-events:css-snippet-menu`                  | a CSS snippet's row in **Settings -> Appearance** (desktop)                         | `snippet`                            |
+| `more-events:external-image-menu`               | a Live Preview image embedded from a URL                                            | `leaf`, `image`                      |
+| `more-events:file-explorer-root-menu`           | the vault name or the File Explorer empty area                                      | `spot`: `vault-name` or `empty-area` |
+| `more-events:history-menu`                      | a view's back or forward button                                                     | `leaf`, `direction`                  |
+| `more-events:leaf-menu`                         | a tab header, or a view's **More options** (*relay*)                                | `leaf`                               |
+| `more-events:markdown-properties-menu`          | a note's **Properties** heading (*relay*)                                           | `file`                               |
+| `more-events:markdown-viewport-menu`            | a note's margin or the editor's gutter (*relay*)                                    | `view`, `mode`                       |
+| `more-events:pdf-display-menu`                  | the PDF toolbar display options chevron (a click)                                   | `leaf`                               |
+| `more-events:pdf-outline-menu`                  | an entry in a PDF's outline                                                         | `leaf`, `outlineItem`                |
+| `more-events:pdf-page-menu`                     | a page of a PDF (desktop)                                                           | `leaf`, `pageNumber`                 |
+| `more-events:pdf-sidebar-menu`                  | the PDF toolbar sidebar options chevron (a click)                                   | `leaf`                               |
+| `more-events:pdf-thumbnail-menu`                | a page thumbnail in a PDF's sidebar                                                 | `leaf`, `pageNumber`                 |
+| `more-events:property-menu`                     | a property's icon                                                                   | `leaf`, `property`                   |
+| `more-events:property-value-menu`               | a value of a list or tags property                                                  | `leaf`, `value`                      |
+| `more-events:ribbon-menu`                       | the ribbon's empty area                                                             | `side`                               |
+| `more-events:search-results-menu`               | the **Search** view's result count (*relay*)                                        | `searchView`                         |
+| `more-events:sidebar-toggle-menu`               | a sidebar's toggle button                                                           | `side`                               |
+| `more-events:tab-group-menu`                    | a tab group's tab list chevron (*relay*)                                            | `tabGroup`                           |
+| `more-events:table-cell-menu`                   | a Live Preview table cell                                                           | `leaf`, `cell`                       |
+| `more-events:table-handle-menu`                 | a Live Preview table's row or column drag handle                                    | `leaf`, `handle`                     |
+| `more-events:vault-menu`                        | the vault name in the left sidebar (desktop)                                        | nothing                              |
+| `more-events:web-viewer-history-menu`           | a page in the **Web viewer**'s History view                                         | `leaf`, `historyItem`                |
 
 The full declarations are in [`api.d.ts`](https://github.com/mnaoumov/obsidian-more-events/blob/main/api.d.ts), and [05 Why it patches](<./05 Why it patches.md>) explains how the events are recovered. The live examples and contract details follow below.
 
@@ -147,7 +149,7 @@ require('/demoSetup.ts').stopListeningToAllPropertiesAndHistoryMenus();
 
 ## Try the PDF ones
 
-A PDF open in its own tab has three menus that fire nothing: a page thumbnail's, an outline entry's and a page's own. First, a PDF to right-click. This opens a three-page demo PDF in a new tab, with its thumbnail sidebar open:
+A PDF open in its own tab has menus that fire nothing: the toolbar's sidebar and display options, a page thumbnail's, an outline entry's and a page's own. First, a PDF to right-click. This opens a three-page demo PDF in a new tab, with its thumbnail sidebar open:
 
 ```code-button
 ---
@@ -167,7 +169,7 @@ caption: Start listening to the PDF menus
 require('/demoSetup.ts').startListeningToPdfMenus(app);
 ```
 
-Now right-click the thumbnail of page 2: below Obsidian's **Copy link to page 2** is **Which page is this? (added by a listener)**, and clicking it names the PDF and the page. Switch the sidebar to the outline with the button at its top and right-click **Part 2**: below **Copy link to "Part 2"** is **Which outline entry is this? (added by a listener)**. Then select some text on a page and right-click it: below Obsidian's **Copy** and quote items is **Which page is this? (added by a listener)** again, on the desktop app only, as Obsidian shows a page no menu on mobile. Then stop:
+Click the chevron next to the sidebar toggle, then the one next to zoom-in: each options menu gains **Which PDF is this? (added by a listener)**. That item names the PDF whose toolbar you clicked. Embedded PDFs are not announced. Now right-click the thumbnail of page 2: below Obsidian's **Copy link to page 2** is **Which page is this? (added by a listener)**, and clicking it names the PDF and the page. Switch the sidebar to the outline with the button at its top and right-click **Part 2**: below **Copy link to "Part 2"** is **Which outline entry is this? (added by a listener)**. Then select some text on a page and right-click it: below Obsidian's **Copy** and quote items is **Which page is this? (added by a listener)** again, on the desktop app only, as Obsidian shows a page no menu on mobile. Then stop:
 
 ```code-button
 ---
