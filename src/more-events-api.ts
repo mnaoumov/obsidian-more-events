@@ -14,6 +14,7 @@ import type {
   AllPropertiesMenuEventName,
   BasesColumnMenuEventName,
   BasesKanbanColumnMenuEventName,
+  BasesViewMenuEventName,
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
   CalloutMenuEventName,
@@ -58,6 +59,7 @@ export type {
   BasesColumnMenuItem,
   BasesKanbanColumnMenuEventName,
   BasesKanbanColumnMenuItem,
+  BasesViewMenuEventName,
   BookmarkMenuItem,
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
@@ -131,6 +133,11 @@ export const BASES_COLUMN_MENU_EVENT_NAME: BasesColumnMenuEventName = 'more-even
  * Triggered on `app.workspace` when the context menu of a column in a Bases board view is about to open.
  */
 export const BASES_KANBAN_COLUMN_MENU_EVENT_NAME: BasesKanbanColumnMenuEventName = 'more-events:bases-kanban-column-menu';
+
+/**
+ * Triggered on `app.workspace` when the **More options** menu of a Bases view's configuration page is about to open.
+ */
+export const BASES_VIEW_MENU_EVENT_NAME: BasesViewMenuEventName = 'more-events:bases-view-menu';
 
 /**
  * Triggered on `app.workspace` when the context menu of one or more bookmarks is about to open.

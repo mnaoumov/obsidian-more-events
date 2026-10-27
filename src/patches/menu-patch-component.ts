@@ -59,15 +59,17 @@ export interface MenuPatchComponentConstructorParams {
   readonly menuAnnouncers: readonly MenuAnnouncer[];
 
   /**
-   * The announcers to ask, in order, about each menu shown with `showAtPosition`, outside any `contextmenu`
-   * dispatch, and anchored to an element.
+   * The announcers to ask, in order, about each menu anchored to an element and shown with `showAtPosition` outside
+   * any `contextmenu` dispatch, or shown after the dispatch of an event whose path was not recorded.
    */
   readonly positionedMenuAnnouncers: readonly PositionedMenuAnnouncer[];
 }
 
 /**
- * One kind of menu that Obsidian shows with `showAtPosition` and no event at all, anchored to an element with
- * `setParentElement`, without triggering any event for it, and that a component of this plugin announces instead.
+ * One kind of menu that Obsidian anchors to an element with `setParentElement` and shows with nothing else to tell
+ * it apart by, without triggering any event for it, and that a component of this plugin announces instead: shown
+ * with `showAtPosition` and no event at all, or by `Menu.forEvent` for an event that is not a `contextmenu` one,
+ * such as a button's click.
  */
 export interface PositionedMenuAnnouncer {
   /**
@@ -123,6 +125,11 @@ interface MenuWithParentEl {
  * as a menu shown with `showAtMouseEvent` would. Shown at any other time, as a button's click shows one, it goes to
  * the {@link PositionedMenuAnnouncer}s when it was anchored with `setParentElement`, and that element names it. A
  * submenu, and a menu anchored to nothing, reaches no announcer.
+ *
+ * **A menu `Menu.forEvent` shows for a click is told apart by its anchor too.** Only `contextmenu` paths are
+ * recorded, so a menu shown after the dispatch of any other event has no path, and goes to the
+ * {@link PositionedMenuAnnouncer}s when it was anchored, as the Bases toolbar's **More options** buttons anchor
+ * theirs (`app.js:120135` in 1.15.0).
  *
  * **Transparent.** The announcer runs before the original, while `addItem` still accepts items, and the
  * original's return value is passed through untouched. The recording listener only reads the event.
@@ -188,6 +195,9 @@ export class MenuPatchComponent extends MonkeyAroundComponent {
           const eventPath = this.eventPaths.get(mouseEvent);
           if (eventPath) {
             this.deferredMenuAnnouncers.some((deferredMenuAnnouncer) => deferredMenuAnnouncer.announceDeferredMenu(originalThis, mouseEvent, eventPath));
+          } else {
+            // Not a `contextmenu` event: `Menu.forEvent` for a click, which only the anchor can name.
+            this.announceAnchoredMenu(originalThis);
           }
         }
         // The original shows the menu through `showAtPosition`, which must not announce it a second time.
@@ -215,6 +225,13 @@ export class MenuPatchComponent extends MonkeyAroundComponent {
     });
   }
 
+  private announceAnchoredMenu(menu: MenuOriginal): void {
+    const { parentEl } = castTo<MenuWithParentEl>(menu);
+    if (parentEl) {
+      this.positionedMenuAnnouncers.some((positionedMenuAnnouncer) => positionedMenuAnnouncer.announcePositionedMenu(menu, parentEl));
+    }
+  }
+
   private announcePositionedMenu(menu: MenuOriginal): void {
     // `currentTarget` is `null` again once the event's dispatch has finished, so this is a menu shown during it.
     const contextMenuEvent = this.lastContextMenuEvent;
@@ -223,10 +240,7 @@ export class MenuPatchComponent extends MonkeyAroundComponent {
       return;
     }
 
-    const { parentEl } = castTo<MenuWithParentEl>(menu);
-    if (parentEl) {
-      this.positionedMenuAnnouncers.some((positionedMenuAnnouncer) => positionedMenuAnnouncer.announcePositionedMenu(menu, parentEl));
-    }
+    this.announceAnchoredMenu(menu);
   }
 
   private recordWindow(win: Window): void {

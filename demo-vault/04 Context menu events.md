@@ -25,6 +25,7 @@ They are shaped like Obsidian's own: the listener receives the `Menu` first, the
 - **`more-events:pdf-page-menu`** is the menu of a page in a PDF, on the desktop app, where Obsidian offers **Copy** and its quote and link items for a text selection. The listener gets the PDF's leaf and the page number.
 - **`more-events:external-image-menu`** is the menu of an image embedded from a URL in a note's Live Preview editor, where Obsidian offers **Copy image** and **Remove image**. The listener gets the note's leaf, and the image's line and URL.
 - **`more-events:bases-kanban-column-menu`** is the menu of a column's empty area in a base's board view, where Obsidian offers **Add item** and **Hide column**. The listener gets the base's leaf, the value the column groups by and the name of the base's view.
+- **`more-events:bases-view-menu`** is the menu of the **More options** button beside the title of a view's settings in a base, where Obsidian offers **Set as default view**, **Duplicate view** and **Delete view**. It opens on a click rather than a right-click. The listener gets the base's leaf and the name of the view those settings are for.
 - **`more-events:history-menu`** is the menu of the back or forward arrow at the left of a note's header, where Obsidian lists the pages that way. The listener gets the note's leaf and which way the menu goes.
 
 ## Try the bookmarks ones
@@ -306,6 +307,35 @@ Then stop:
 caption: Stop listening to the external image and board column menus
 ---
 require('/demoSetup.ts').stopListeningToExternalImageAndBasesKanbanColumnMenus();
+```
+
+## Try the Bases view one
+
+This menu opens on a click, not a right-click, and a moment later, so `More Events` tells it apart by the button it hangs from. Start listening:
+
+```code-button
+---
+caption: Start listening to the Bases view menu
+---
+require('/demoSetup.ts').startListeningToBasesViewMenu(app);
+```
+
+Then open the demo base, right-click the views button at the left of its toolbar to open the settings of the view it shows, and click the **More options** button beside the settings' title: below Obsidian's **Set as default view**, **Duplicate view** and **Delete view** is **Which view is this? (added by a listener)**, and clicking it names the view.
+
+```code-button
+---
+caption: Open the demo base to try its view settings
+---
+await require('/demoSetup.ts').openDemoBase(app, 'Demo board');
+```
+
+Then stop:
+
+```code-button
+---
+caption: Stop listening to the Bases view menu
+---
+require('/demoSetup.ts').stopListeningToBasesViewMenu();
 ```
 
 ## Try the vault name, history, tab and tab group ones

@@ -19,6 +19,7 @@ import {
 import { AllPropertiesMenuEventsComponent } from './all-properties-menu-events-component.ts';
 import { BasesColumnMenuEventsComponent } from './bases-column-menu-events-component.ts';
 import { BasesKanbanColumnMenuEventsComponent } from './bases-kanban-column-menu-events-component.ts';
+import { BasesViewMenuEventsComponent } from './bases-view-menu-events-component.ts';
 import { BookmarksMenuEventsComponent } from './bookmarks-menu-events-component.ts';
 import { CalloutMenuEventsComponent } from './callout-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './canvas-menu-events-component.ts';
@@ -156,6 +157,16 @@ vi.mock('./bases-kanban-column-menu-events-component.ts', async () => {
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     BasesKanbanColumnMenuEventsComponent: vi.fn(function basesKanbanColumnMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./bases-view-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    BasesViewMenuEventsComponent: vi.fn(function basesViewMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -598,6 +609,22 @@ describe('Plugin', () => {
     plugin.unload();
   });
 
+  it('should add the Bases view menu events component as a positioned announcer, after the community plugin one', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+
+    const basesViewCalls = vi.mocked(BasesViewMenuEventsComponent).mock.calls;
+    expect(basesViewCalls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(basesViewCalls[0]?.[0]).app).toBe(plugin.app);
+    expect(vi.mocked(MenuPatchComponent).mock.calls[0]?.[0].positionedMenuAnnouncers).toEqual([
+      vi.mocked(CommunityPluginMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(BasesViewMenuEventsComponent).mock.results[0]?.value
+    ]);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
   it('should add the history menu events component as an immediate announcer, and the community plugin one as a positioned one too', async () => {
     const plugin = new Plugin(app, manifest);
     await plugin.onload();
@@ -605,9 +632,9 @@ describe('Plugin', () => {
     const historyCalls = vi.mocked(HistoryMenuEventsComponent).mock.calls;
     expect(historyCalls).toHaveLength(1);
     expect(castTo<PluginEventsComponentConstructorParams>(historyCalls[0]?.[0]).app).toBe(plugin.app);
-    expect(vi.mocked(MenuPatchComponent).mock.calls[0]?.[0].positionedMenuAnnouncers).toEqual([
+    expect(vi.mocked(MenuPatchComponent).mock.calls[0]?.[0].positionedMenuAnnouncers).toContain(
       vi.mocked(CommunityPluginMenuEventsComponent).mock.results[0]?.value
-    ]);
+    );
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();
