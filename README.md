@@ -91,7 +91,9 @@ Each event fires just before the menu opens, after Obsidian has added its own it
 | `more-events:vault-menu` | the vault name in the left sidebar (desktop) | nothing |
 | `more-events:web-viewer-history-menu` | a page in the **Web viewer**'s History view | `leaf`, `historyItem` |
 
-## Similar plugins
+## See also
+
+[My other Obsidian resources](https://github.com/mnaoumov/obsidian-resources)
 
 No similar plugin was found when this was last searched for, on 2026-10-26.
 
@@ -184,10 +186,6 @@ Contributions are welcome — see [CONTRIBUTING](./CONTRIBUTING.md) to get set u
 <a href="https://www.buymeacoffee.com/mnaoumov" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60" width="217"></a>
 
 <!-- markdownlint-enable MD033 -->
-
-## My other Obsidian resources
-
-[See my other Obsidian resources](https://github.com/mnaoumov/obsidian-resources).
 
 ## License
 
