@@ -37,59 +37,10 @@ A copy of the vault ships with every release. You can access it via any of the f
 
 ## What it does
 
-Every event fires on `app.workspace`. The full declarations are in [`api.d.ts`](./api.d.ts), and [05 Why it patches](<./demo-vault/05 Why it patches.md>) explains how they are recovered.
+Every event fires on `app.workspace`.
 
-### Plugin lifecycle
-
-Each event fires once per plugin that changed, after it changed, and says whether the user did it (`isUserInitiated`). For community plugins, enabled means loaded. Nothing fires for the plugins already enabled when `More Events` loads: read that from the [API](<./demo-vault/03 For plugin developers.md>). Details: [01 Core plugin events](<./demo-vault/01 Core plugin events.md>), [02 Community plugin events](<./demo-vault/02 Community plugin events.md>).
-
-| Event | Fires after | Payload |
-| --- | --- | --- |
-| `more-events:core-plugin-enabled` | a core plugin is enabled | `{ corePluginId, corePluginName, isUserInitiated }` |
-| `more-events:core-plugin-disabled` | a core plugin is disabled | `{ corePluginId, corePluginName, isUserInitiated }` |
-| `more-events:community-plugin-enabled` | a community plugin is loaded | `{ communityPluginId, communityPluginName, isUserInitiated }` |
-| `more-events:community-plugin-disabled` | a community plugin is unloaded | `{ communityPluginId, communityPluginName, isUserInitiated }` |
-
-### Context menus
-
-Each event fires just before the menu opens, after Obsidian has added its own items, so an item a listener adds appears in it. The listener gets the `Menu` first, then the arguments below. Obsidian raises an undocumented event of its own for the rows marked *relay*, and `More Events` relays it under a stable name. The others fire nothing in Obsidian. Details: [04 Context menu events](<./demo-vault/04 Context menu events.md>).
-
-| Event | Fires for the menu of | Arguments after `menu` |
-| --- | --- | --- |
-| `more-events:all-properties-menu` | a property in the **All properties** view | `leaf`, `propertyNames` |
-| `more-events:bases-column-menu` | a Bases table column header | `leaf`, `column` |
-| `more-events:bases-kanban-column-menu` | a Bases board column's empty area | `leaf`, `column` |
-| `more-events:bases-view-menu` | a Bases view settings page's **More options** button (a click) | `leaf`, `viewName` |
-| `more-events:bookmarks-menu` | one or more bookmarks (*relay*) | `bookmarks` |
-| `more-events:bookmarks-view-menu` | the **Bookmarks** view's empty area | `leaf` |
-| `more-events:callout-menu` | a Live Preview callout | `leaf`, `callout` |
-| `more-events:canvas-edge-menu` | a canvas connection (*relay*) | `leaf`, `edge` |
-| `more-events:canvas-node-connection-drop-menu` | a connection dropped onto empty canvas (*relay*) | `leaf`, `fromNode`, `drop` |
-| `more-events:canvas-node-menu` | a canvas node (*relay*) | `leaf`, `node` |
-| `more-events:canvas-selection-menu` | a canvas selection (*relay*) | `leaf`, `selection` |
-| `more-events:canvas-view-menu` | a canvas's empty background | `leaf`, `position` |
-| `more-events:community-plugin-menu` | a plugin's row in **Settings -> Community plugins**, or its **More options** button | `communityPluginId` |
-| `more-events:community-plugin-setting-tab-menu` | a community plugin's tab in the Settings sidebar | `communityPluginId` |
-| `more-events:core-plugin-setting-tab-menu` | a core plugin's tab in the Settings sidebar | `corePluginId` |
-| `more-events:css-snippet-menu` | a CSS snippet's row in **Settings -> Appearance** (desktop) | `snippet` |
-| `more-events:external-image-menu` | a Live Preview image embedded from a URL | `leaf`, `image` |
-| `more-events:history-menu` | a view's back or forward button | `leaf`, `direction` |
-| `more-events:leaf-menu` | a tab header, or a view's **More options** (*relay*) | `leaf` |
-| `more-events:markdown-properties-menu` | a note's **Properties** heading (*relay*) | `file` |
-| `more-events:markdown-viewport-menu` | a note's margin or the editor's gutter (*relay*) | `view`, `mode` |
-| `more-events:pdf-outline-menu` | an entry in a PDF's outline | `leaf`, `outlineItem` |
-| `more-events:pdf-page-menu` | a page of a PDF (desktop) | `leaf`, `pageNumber` |
-| `more-events:pdf-thumbnail-menu` | a page thumbnail in a PDF's sidebar | `leaf`, `pageNumber` |
-| `more-events:property-menu` | a property's icon | `leaf`, `property` |
-| `more-events:property-value-menu` | a value of a list or tags property | `leaf`, `value` |
-| `more-events:ribbon-menu` | the ribbon's empty area | `side` |
-| `more-events:search-results-menu` | the **Search** view's result count (*relay*) | `searchView` |
-| `more-events:sidebar-toggle-menu` | a sidebar's toggle button | `side` |
-| `more-events:tab-group-menu` | a tab group's tab list chevron (*relay*) | `tabGroup` |
-| `more-events:table-cell-menu` | a Live Preview table cell | `leaf`, `cell` |
-| `more-events:table-handle-menu` | a Live Preview table's row or column drag handle | `leaf`, `handle` |
-| `more-events:vault-menu` | the vault name in the left sidebar (desktop) | nothing |
-| `more-events:web-viewer-history-menu` | a page in the **Web viewer**'s History view | `leaf`, `historyItem` |
+1. **Plugin lifecycle events**, for example `more-events:core-plugin-enabled`: see [01 Core plugin events](<./demo-vault/01 Core plugin events.md>) and [02 Community plugin events](<./demo-vault/02 Community plugin events.md>).
+2. **Context menu events**, for example `more-events:all-properties-menu`, so listeners can add items before a menu opens: see [04 Context menu events](<./demo-vault/04 Context menu events.md>).
 
 ## See also
 

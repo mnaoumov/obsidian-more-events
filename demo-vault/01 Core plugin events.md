@@ -2,7 +2,10 @@
 
 Obsidian tells a plugin nothing useful about its core plugins being turned on and off. There is a signal — `app.internalPlugins` fires an untyped `change` — but it does not say which plugin moved, which way, or who did it, so the usual answer has been to monkey-patch Obsidian's internals and hope no other plugin in the vault is patching the same prototype. This plugin does that once, in one place, and re-publishes the result as two ordinary workspace events.
 
-The two names are `more-events:core-plugin-enabled` and `more-events:core-plugin-disabled`. Each carries the core plugin's id, its display name, and whether Obsidian was told the user did it.
+| Event | Fires after | Payload |
+| --- | --- | --- |
+| `more-events:core-plugin-disabled` | a core plugin is disabled | `{ corePluginId, corePluginName, isUserInitiated }` |
+| `more-events:core-plugin-enabled` | a core plugin is enabled | `{ corePluginId, corePluginName, isUserInitiated }` |
 
 ## Watch them arrive
 

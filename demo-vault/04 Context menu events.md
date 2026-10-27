@@ -10,23 +10,46 @@ demo-topics:
 
 Obsidian lets a plugin add items to some of its context menus: it raises `file-menu` when you right-click a file, `editor-menu` in a note, and a few others. Many more menus are built with no event at all, so the only way to add an item to one is to patch the code that builds it. This set publishes events for those menus, starting with the **Bookmarks** view.
 
-They are shaped like Obsidian's own: the listener receives the `Menu` first, then what the menu is for, and whatever it adds shows up in the menu Obsidian opens.
+Each event fires just before the menu opens, after Obsidian has added its own items, so an item a listener adds appears in it. The listener receives the `Menu` first, then the arguments below. Obsidian raises an undocumented event of its own for the rows marked *relay*, and `More Events` relays it under a stable name. The others fire nothing in Obsidian.
 
-- **`more-events:bookmarks-menu`** is the menu of one or more bookmarks. The listener gets the bookmarks: the one you right-clicked, or every selected one.
-- **`more-events:bookmarks-view-menu`** is the menu of the view's empty area, below the last bookmark, where Obsidian offers **New group**. The listener gets the view's leaf.
-- **`more-events:canvas-view-menu`** is the menu of a canvas's empty background, where Obsidian offers **Add card**. The listener gets the canvas's leaf and the point you right-clicked, in the canvas's own coordinates.
-- **`more-events:canvas-node-menu`**, **`more-events:canvas-edge-menu`** and **`more-events:canvas-selection-menu`** are the menus of a single node on a canvas, a single connection, and a selection of several. The listener gets the canvas's leaf and what the menu is for, as the canvas file stores it.
-- **`more-events:canvas-node-connection-drop-menu`** is the menu that opens when you drag a new connection out of a card's edge and let go on empty canvas, where Obsidian offers **Add card** and **Add note from vault**. The listener gets the canvas's leaf, the card the connection came out of, and where it was dropped.
-- **`more-events:ribbon-menu`** is the menu of the ribbon's empty area, below its icons, where Obsidian offers **Hide ribbon**. The listener gets which ribbon it is.
-- **`more-events:all-properties-menu`** is the menu of a property in the **All properties** view, where Obsidian offers its types, **Rename** and **Delete**. The listener gets the names of the properties the menu acts on: the one you right-clicked, or the whole selection when that property is part of one.
-- **`more-events:web-viewer-history-menu`** is the menu of a visited page in the **Web viewer**'s History view, where Obsidian offers **Copy URL** and **Remove from history**. The listener gets that page's title and address.
-- **`more-events:pdf-thumbnail-menu`** is the menu of a page thumbnail in a PDF's sidebar, where Obsidian offers **Copy link to page**. The listener gets the PDF's leaf and the page number.
-- **`more-events:pdf-outline-menu`** is the menu of an entry in a PDF's outline, where Obsidian offers **Copy link to** that section. The listener gets the PDF's leaf, and the entry's title and page number.
-- **`more-events:pdf-page-menu`** is the menu of a page in a PDF, on the desktop app, where Obsidian offers **Copy** and its quote and link items for a text selection. The listener gets the PDF's leaf and the page number.
-- **`more-events:external-image-menu`** is the menu of an image embedded from a URL in a note's Live Preview editor, where Obsidian offers **Copy image** and **Remove image**. The listener gets the note's leaf, and the image's line and URL.
-- **`more-events:bases-kanban-column-menu`** is the menu of a column's empty area in a base's board view, where Obsidian offers **Add item** and **Hide column**. The listener gets the base's leaf, the value the column groups by and the name of the base's view.
-- **`more-events:bases-view-menu`** is the menu of the **More options** button beside the title of a view's settings in a base, where Obsidian offers **Set as default view**, **Duplicate view** and **Delete view**. It opens on a click rather than a right-click. The listener gets the base's leaf and the name of the view those settings are for.
-- **`more-events:history-menu`** is the menu of the back or forward arrow at the left of a note's header, where Obsidian lists the pages that way. The listener gets the note's leaf and which way the menu goes.
+| Event | Fires for the menu of | Arguments after `menu` |
+| --- | --- | --- |
+| `more-events:all-properties-menu` | a property in the **All properties** view | `leaf`, `propertyNames` |
+| `more-events:bases-column-menu` | a Bases table column header | `leaf`, `column` |
+| `more-events:bases-kanban-column-menu` | a Bases board column's empty area | `leaf`, `column` |
+| `more-events:bases-view-menu` | a Bases view settings page's **More options** button (a click) | `leaf`, `viewName` |
+| `more-events:bookmarks-menu` | one or more bookmarks (*relay*) | `bookmarks` |
+| `more-events:bookmarks-view-menu` | the **Bookmarks** view's empty area | `leaf` |
+| `more-events:callout-menu` | a Live Preview callout | `leaf`, `callout` |
+| `more-events:canvas-edge-menu` | a canvas connection (*relay*) | `leaf`, `edge` |
+| `more-events:canvas-node-connection-drop-menu` | a connection dropped onto empty canvas (*relay*) | `leaf`, `fromNode`, `drop` |
+| `more-events:canvas-node-menu` | a canvas node (*relay*) | `leaf`, `node` |
+| `more-events:canvas-selection-menu` | a canvas selection (*relay*) | `leaf`, `selection` |
+| `more-events:canvas-view-menu` | a canvas's empty background | `leaf`, `position` |
+| `more-events:community-plugin-menu` | a plugin's row in **Settings -> Community plugins**, or its **More options** button | `communityPluginId` |
+| `more-events:community-plugin-setting-tab-menu` | a community plugin's tab in the Settings sidebar | `communityPluginId` |
+| `more-events:core-plugin-setting-tab-menu` | a core plugin's tab in the Settings sidebar | `corePluginId` |
+| `more-events:css-snippet-menu` | a CSS snippet's row in **Settings -> Appearance** (desktop) | `snippet` |
+| `more-events:external-image-menu` | a Live Preview image embedded from a URL | `leaf`, `image` |
+| `more-events:history-menu` | a view's back or forward button | `leaf`, `direction` |
+| `more-events:leaf-menu` | a tab header, or a view's **More options** (*relay*) | `leaf` |
+| `more-events:markdown-properties-menu` | a note's **Properties** heading (*relay*) | `file` |
+| `more-events:markdown-viewport-menu` | a note's margin or the editor's gutter (*relay*) | `view`, `mode` |
+| `more-events:pdf-outline-menu` | an entry in a PDF's outline | `leaf`, `outlineItem` |
+| `more-events:pdf-page-menu` | a page of a PDF (desktop) | `leaf`, `pageNumber` |
+| `more-events:pdf-thumbnail-menu` | a page thumbnail in a PDF's sidebar | `leaf`, `pageNumber` |
+| `more-events:property-menu` | a property's icon | `leaf`, `property` |
+| `more-events:property-value-menu` | a value of a list or tags property | `leaf`, `value` |
+| `more-events:ribbon-menu` | the ribbon's empty area | `side` |
+| `more-events:search-results-menu` | the **Search** view's result count (*relay*) | `searchView` |
+| `more-events:sidebar-toggle-menu` | a sidebar's toggle button | `side` |
+| `more-events:tab-group-menu` | a tab group's tab list chevron (*relay*) | `tabGroup` |
+| `more-events:table-cell-menu` | a Live Preview table cell | `leaf`, `cell` |
+| `more-events:table-handle-menu` | a Live Preview table's row or column drag handle | `leaf`, `handle` |
+| `more-events:vault-menu` | the vault name in the left sidebar (desktop) | nothing |
+| `more-events:web-viewer-history-menu` | a page in the **Web viewer**'s History view | `leaf`, `historyItem` |
+
+The full declarations are in [`api.d.ts`](https://github.com/mnaoumov/obsidian-more-events/blob/main/api.d.ts), and [05 Why it patches](<./05 Why it patches.md>) explains how the events are recovered. The live examples and contract details follow below.
 
 ## Try the bookmarks ones
 
