@@ -36,6 +36,20 @@
       "expect": "^7.0.3",
       "manualCheck": "The check reads the range @wdio/utils declares, not a version, because that range is what forces the override. When it moves to ^8 or later the override and this entry can both go. Before lifting it, re-run the deepmergeCustom probe rather than trusting the range alone: @wdio/config passes a handler that reads `meta.key`, and that is precisely the API 8.0.0 renamed, so a regression there would be silent rather than a crash."
     },
+    "katex": {
+      "section": "overrides",
+      "why": "Clears GHSA-238p-pmpm-9mq7 (inherited renderer options can bypass trust restrictions), fixed in 0.18.2. Latest markdownlint 0.42.0 pins micromark-extension-math 3.1.0, which still requires katex ^0.16.0. The extension uses the default export renderToString(value, options), retained in 0.18.2. Override the transitive renderer rather than downgrading the tooling with audit fix --force.",
+      "check": "node -e \"process.stdout.write(require('./node_modules/micromark-extension-math/package.json').dependencies.katex)\"",
+      "expect": "^0.16.0",
+      "manualCheck": "Remove when micromark-extension-math accepts a patched KaTeX release. Verify inline and display math rendering through micromark and run lint:md before lifting or updating the override."
+    },
+    "moment": {
+      "section": "overrides",
+      "why": "Clears GHSA-4p3w-j4w9-5jqw (path traversal through non-string locale names), fixed in 2.31.0. Latest eslint-plugin-obsidianmd 0.4.2 pins obsidian 1.12.3, which pins moment 2.29.4; obsidian-test-mocks 7.2.3 accepts moment ^2.29.4 and reused the vulnerable copy. Root obsidian 1.14.4 already uses 2.31.0. The override remains within Moment 2.x and unifies all copies on the patched release.",
+      "check": "node -e \"process.stdout.write(JSON.stringify([require('./node_modules/eslint-plugin-obsidianmd/node_modules/obsidian/package.json').dependencies.moment,require('./node_modules/obsidian-test-mocks/package.json').peerDependencies.moment]))\"",
+      "expect": "[\"2.29.4\",\"^2.29.4\"]",
+      "manualCheck": "Remove once eslint-plugin-obsidianmd resolves Moment >=2.31.0 without the override; obsidian-test-mocks already accepts the patched release through its peer range. Recheck both paths after changing either dependency."
+    },
     "typescript": {
       "section": "overrides",
       "why": "TypeScript 7 (tsgo) breaks this toolchain: @typescript-eslint's parser crashes on the native API, so type-aware ESLint cannot run on 7. @typescript-eslint peer-requires the range below, so 6.x is the last usable major. Hold until @mnaoumov/obsidian-dev-toolkit migrates.",

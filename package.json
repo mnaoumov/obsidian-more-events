@@ -53,6 +53,8 @@
     "@vitest/coverage-v8": "$@vitest/coverage-v8",
     "deepmerge-ts": "^8.0.2",
     "eslint": "$eslint",
+    "katex": "^0.18.2",
+    "moment": "^2.31.0",
     "typescript": "6.0.3"
   },
   "dependencies": {
