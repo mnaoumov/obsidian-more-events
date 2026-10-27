@@ -187,7 +187,7 @@ Four frames — `images/screenshots/screenshot-desktop-{1,2}.png` at 1200x800 an
 
 ## The README is a landing page
 
-**A new event adds exactly ONE row to the README's table for its set** (`### Plugin lifecycle` or `### Context menus` under `## What it does`, rows sorted by event name): the name, what it fires for, and its payload or the arguments after `menu`, marked *relay* when it relays an Obsidian event. Its explanation, measurements and edge cases go in the demo vault note for its set, never in the README. A new set gets its own table, with one demo-vault link in its intro line rather than one per row. The README was 24 KB with one prose paragraph per event before this (2026-10-26). The mechanism (why it patches, how menus are told apart) lives in `demo-vault/05 Why it patches.md`.
+**A new event adds exactly ONE row to its demo-vault note's table** (`01 Core plugin events`, `02 Community plugin events` or `04 Context menu events`, rows sorted by event name): the name, what it fires for, and its payload or the arguments after `menu`, marked *relay* when it relays an Obsidian event. Its explanation, measurements, edge cases and live buttons belong in that note too. **The README changes only when a new SET of events appears**: one short line naming the set, with one example event and a link to its note, never one row per event. The mechanism (why it patches, how menus are told apart) lives in `demo-vault/05 Why it patches.md`.
 
 ## Release traps
 

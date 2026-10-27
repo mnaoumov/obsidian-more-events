@@ -2,7 +2,10 @@
 
 Obsidian tells a plugin even less about community plugins than it does about core ones. There is a signal — `app.plugins` fires a `changed` event — but it carries **no payload at all**: not the plugin, not its id, not the direction, not who did it, and it is fired from enabling, disabling, the manifest load and the update check alike. This plugin watches that signal once, in one place, works out what actually moved, and re-publishes the result as two ordinary workspace events.
 
-The two names are `more-events:community-plugin-enabled` and `more-events:community-plugin-disabled`. Each carries the plugin's id, its display name, and whether Obsidian was told the user did it — exactly as the [core plugin events](<./01 Core plugin events.md>) do.
+| Event | Fires after | Payload |
+| --- | --- | --- |
+| `more-events:community-plugin-disabled` | a community plugin is unloaded | `{ communityPluginId, communityPluginName, isUserInitiated }` |
+| `more-events:community-plugin-enabled` | a community plugin is loaded | `{ communityPluginId, communityPluginName, isUserInitiated }` |
 
 ## Watch them arrive
 
