@@ -35,12 +35,13 @@ const COMMUNITY_PLUGIN_NAMES_BY_ID: Record<string, string> = {
 };
 
 interface CommunityPluginManifestStub {
-  name: string;
+  readonly name: string;
 }
 
 interface CommunityPluginStub {
+  // eslint-disable-next-line typescript-dev-toolkit/readonly-interface-members -- The fixture records the disable flag like Obsidian does.
   _userDisabled?: boolean;
-  manifest: CommunityPluginManifestStub;
+  readonly manifest: CommunityPluginManifestStub;
 }
 
 describe('CommunityPluginEventsComponent', () => {

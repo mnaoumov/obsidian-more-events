@@ -55,17 +55,17 @@ interface MenuRecord {
   /**
    * The community plugin ids the community event's listener was given.
    */
-  communityPluginIds: string[];
+  readonly communityPluginIds: string[];
 
   /**
    * The core plugin ids the core event's listener was given.
    */
-  corePluginIds: string[];
+  readonly corePluginIds: string[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 }
 
 /*

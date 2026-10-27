@@ -25,6 +25,7 @@ import type {
 import { MenuPatchComponent } from './menu-patch-component.ts';
 
 interface AnchoredMenu {
+  // eslint-disable-next-line typescript-dev-toolkit/readonly-interface-members -- The menu fixture changes its anchor in the test.
   parentEl: HTMLElement | null;
 }
 

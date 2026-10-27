@@ -39,14 +39,14 @@ const TEST_COMMUNITY_PLUGIN_MANIFEST_JSON = JSON.stringify(
 );
 
 interface CommunityPluginEventRecord {
-  communityPluginId: string;
-  communityPluginName: string;
-  isUserInitiated: boolean;
+  readonly communityPluginId: string;
+  readonly communityPluginName: string;
+  readonly isUserInitiated: boolean;
 }
 
 interface RecordedEvents {
-  disabled: CommunityPluginEventRecord[];
-  enabled: CommunityPluginEventRecord[];
+  readonly disabled: CommunityPluginEventRecord[];
+  readonly enabled: CommunityPluginEventRecord[];
 }
 
 /*

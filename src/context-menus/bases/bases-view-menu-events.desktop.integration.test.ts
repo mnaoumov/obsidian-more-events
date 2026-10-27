@@ -29,17 +29,17 @@ interface MenuRecord {
   /**
    * Whether the listener was given the leaf the base is open in, once per call.
    */
-  baseLeafMatches: boolean[];
+  readonly baseLeafMatches: boolean[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 
   /**
    * The view names the listener was given.
    */
-  viewNames: string[];
+  readonly viewNames: string[];
 }
 
 /*

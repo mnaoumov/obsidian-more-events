@@ -16,27 +16,27 @@ interface MenuRecord {
   /**
    * The paths of the files open in the leaves the listener was given.
    */
-  filePaths: string[];
+  readonly filePaths: string[];
 
   /**
    * The page numbers the listener was given.
    */
-  pageNumbers: number[];
+  readonly pageNumbers: number[];
 
   /**
    * The text selected when the listener ran.
    */
-  selections: string[];
+  readonly selections: string[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 
   /**
    * The view types of the leaves the listener was given.
    */
-  subjects: string[];
+  readonly subjects: string[];
 }
 
 /*

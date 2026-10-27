@@ -73,6 +73,7 @@ describe('CssSnippetMenuEventsComponent', () => {
 });
 
 interface MutableSetting {
+  // eslint-disable-next-line typescript-dev-toolkit/readonly-interface-members -- Tests switch the active Settings tab.
   activeTab: null | SettingTabStub;
   readonly modalEl: HTMLElement;
 }

@@ -26,9 +26,11 @@ import { CorePluginEventsComponent } from './core-plugin-events-component.ts';
 const STRICT_PROXY_TARGET_SYMBOL = Symbol.for('strictProxyTarget');
 
 interface CorePluginInstanceStub {
-  id: string;
-  name: string;
+  readonly id: string;
+  readonly name: string;
+  // eslint-disable-next-line typescript-dev-toolkit/readonly-interface-members -- Tests install a spy on the user-disable hook.
   onUserDisable?: () => void;
+  // eslint-disable-next-line typescript-dev-toolkit/readonly-interface-members -- Tests install a spy on the user-enable hook.
   onUserEnable?: () => void;
 }
 

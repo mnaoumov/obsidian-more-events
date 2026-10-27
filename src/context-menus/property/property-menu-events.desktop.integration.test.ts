@@ -35,17 +35,17 @@ interface MenuRecord {
   /**
    * Whether the listener was given the leaf the note is open in, once per call.
    */
-  noteLeafMatches: boolean[];
+  readonly noteLeafMatches: boolean[];
 
   /**
    * The properties the listener was given.
    */
-  properties: PropertyMenuItem[];
+  readonly properties: PropertyMenuItem[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 }
 
 type MouseButton = 'left' | 'right';

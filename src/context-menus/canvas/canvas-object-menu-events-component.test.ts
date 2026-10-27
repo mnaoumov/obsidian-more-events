@@ -22,20 +22,20 @@ import {
 import { CanvasObjectMenuEventsComponent } from './canvas-object-menu-events-component.ts';
 
 interface FakeCanvas {
-  edges: Map<string, FakeCanvasItem>;
-  nodes: Map<string, FakeCanvasItem>;
-  selection: Set<FakeCanvasItem>;
-  view: FakeCanvasView;
+  readonly edges: Map<string, FakeCanvasItem>;
+  readonly nodes: Map<string, FakeCanvasItem>;
+  readonly selection: Set<FakeCanvasItem>;
+  readonly view: FakeCanvasView;
 }
 
 interface FakeCanvasItem {
-  canvas: FakeCanvas;
-  getData: () => object;
-  id: string;
+  readonly canvas: FakeCanvas;
+  readonly getData: () => object;
+  readonly id: string;
 }
 
 interface FakeCanvasView {
-  leaf: object;
+  readonly leaf: object;
 }
 
 describe('CanvasObjectMenuEventsComponent', () => {

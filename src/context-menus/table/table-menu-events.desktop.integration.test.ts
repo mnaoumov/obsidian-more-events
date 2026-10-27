@@ -69,22 +69,22 @@ interface MenuRecord {
   /**
    * The cells the cell menu listener was given.
    */
-  cells: TableCellMenuItem[];
+  readonly cells: TableCellMenuItem[];
 
   /**
    * The handles the handle menu listener was given.
    */
-  handles: TableHandleMenuItem[];
+  readonly handles: TableHandleMenuItem[];
 
   /**
    * Whether each listener was given the leaf the note is open in, once per call.
    */
-  noteLeafMatches: boolean[];
+  readonly noteLeafMatches: boolean[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 }
 
 /*

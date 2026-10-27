@@ -41,17 +41,17 @@ interface MenuRecord {
   /**
    * Whether the listener was given the leaf the base is open in, once per call.
    */
-  baseLeafMatches: boolean[];
+  readonly baseLeafMatches: boolean[];
 
   /**
    * The columns the listener was given.
    */
-  columns: BasesKanbanColumnMenuItem[];
+  readonly columns: BasesKanbanColumnMenuItem[];
 
   /**
    * The titles of the items in the menu that opened on screen.
    */
-  shownItemTitles: string[];
+  readonly shownItemTitles: string[];
 }
 
 type Target = 'card' | 'header';
