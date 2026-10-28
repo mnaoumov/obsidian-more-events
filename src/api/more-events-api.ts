@@ -18,7 +18,10 @@ import type {
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
   CalloutMenuEventName,
+  CanvasAlignMenuEventName,
   CanvasEdgeMenuEventName,
+  CanvasGroupBackgroundMenuEventName,
+  CanvasLineDirectionMenuEventName,
   CanvasNodeConnectionDropMenuEventName,
   CanvasNodeMenuEventName,
   CanvasSelectionMenuEventName,
@@ -68,7 +71,10 @@ export type {
   BookmarksViewMenuEventName,
   CalloutMenuEventName,
   CalloutMenuItem,
+  CanvasAlignMenuEventName,
   CanvasEdgeMenuEventName,
+  CanvasGroupBackgroundMenuEventName,
+  CanvasLineDirectionMenuEventName,
   CanvasMenuPosition,
   CanvasMenuSelection,
   CanvasNodeConnectionDrop,
@@ -328,7 +334,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * The version of the contract above — independent of the plugin's own version, so a consumer asks for
  * `'^1'` and keeps working across releases that change nothing it depends on.
  *
- * `1.4.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the context-menu events
+ * `1.5.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the context-menu events
  * were ADDED and nothing already published changed its meaning, so a consumer written against any
  * `1.x` compiles and runs unaltered. The payloads are declared additive-only in `api.d.ts` precisely so
  * this stays a minor.
@@ -341,9 +347,10 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * table's cell and drag handle menus, a property value's menu, a Bases table column header's menu, a property's own
  * menu, a CSS snippet row's menu, an external image's menu, a Bases board column's menu, the vault name's menu and a view's back and forward button history menus, and
  * the relays of Obsidian's own `leaf-menu`, `tab-group-menu`, `search:results-menu`, `markdown-viewport-menu`,
- * `markdown-properties-menu`, `canvas:node-menu`, `canvas:edge-menu` and `canvas:selection-menu`.
+ * `markdown-properties-menu`, `canvas:node-menu`, `canvas:edge-menu` and `canvas:selection-menu`, and `1.5.0` added the
+ * canvas selection toolbar's **Align**, **Line direction** and group background menus.
  */
-export const PLUGIN_API_VERSION = '1.4.0';
+export const PLUGIN_API_VERSION = '1.5.0';
 
 /**
  * The File Explorer vault-root context-menu event.
@@ -359,3 +366,18 @@ export const PDF_SIDEBAR_MENU_EVENT_NAME: PdfSidebarMenuEventName = 'more-events
 The PDF toolbar's display options menu event.
 */
 export const PDF_DISPLAY_MENU_EVENT_NAME: PdfDisplayMenuEventName = 'more-events:pdf-display-menu';
+
+/**
+ * The canvas selection toolbar's **Align** menu event.
+ */
+export const CANVAS_ALIGN_MENU_EVENT_NAME: CanvasAlignMenuEventName = 'more-events:canvas-align-menu';
+
+/**
+ * The canvas selection toolbar's **Line direction** menu event.
+ */
+export const CANVAS_LINE_DIRECTION_MENU_EVENT_NAME: CanvasLineDirectionMenuEventName = 'more-events:canvas-line-direction-menu';
+
+/**
+ * The canvas selection toolbar's group background menu event.
+ */
+export const CANVAS_GROUP_BACKGROUND_MENU_EVENT_NAME: CanvasGroupBackgroundMenuEventName = 'more-events:canvas-group-background-menu';

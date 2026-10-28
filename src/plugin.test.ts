@@ -34,6 +34,7 @@ import { BookmarksMenuEventsComponent } from './context-menus/bookmarks/bookmark
 import { CalloutMenuEventsComponent } from './context-menus/callout/callout-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './context-menus/canvas/canvas-menu-events-component.ts';
 import { CanvasObjectMenuEventsComponent } from './context-menus/canvas/canvas-object-menu-events-component.ts';
+import { CanvasToolbarMenuEventsComponent } from './context-menus/canvas/canvas-toolbar-menu-events-component.ts';
 import { CommunityPluginMenuEventsComponent } from './context-menus/community-plugin/community-plugin-menu-events-component.ts';
 import { CssSnippetMenuEventsComponent } from './context-menus/css-snippet/css-snippet-menu-events-component.ts';
 import { ExternalImageMenuEventsComponent } from './context-menus/external-image/external-image-menu-events-component.ts';
@@ -124,6 +125,16 @@ vi.mock('./context-menus/web-viewer-history/web-viewer-history-menu-events-compo
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     WebViewerHistoryMenuEventsComponent: vi.fn(function webViewerHistoryMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./context-menus/canvas/canvas-toolbar-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A constructible stub must return a fresh real Component, as in the other component mocks.
+    CanvasToolbarMenuEventsComponent: vi.fn(function canvasToolbarMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -648,7 +659,8 @@ describe('Plugin', () => {
     expect(vi.mocked(MenuPatchComponent).mock.calls[0]?.[0].positionedMenuAnnouncers).toEqual([
       vi.mocked(CommunityPluginMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(BasesViewMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(PdfToolbarMenuEventsComponent).mock.results[0]?.value
+      vi.mocked(PdfToolbarMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(CanvasToolbarMenuEventsComponent).mock.results[0]?.value
     ]);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
@@ -708,6 +720,15 @@ describe('Plugin', () => {
     await plugin.onload();
     expect(vi.mocked(PdfToolbarMenuEventsComponent)).toHaveBeenCalledExactlyOnceWith({ app });
     expect(vi.mocked(MenuPatchComponent).mock.calls[0]?.[0].positionedMenuAnnouncers).toContain(getFirstInstance(PdfToolbarMenuEventsComponent));
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
+  it('should register the canvas toolbar announcer with the app', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+    expect(vi.mocked(CanvasToolbarMenuEventsComponent)).toHaveBeenCalledExactlyOnceWith({ app });
+    expect(vi.mocked(MenuPatchComponent).mock.calls[0]?.[0].positionedMenuAnnouncers).toContain(getFirstInstance(CanvasToolbarMenuEventsComponent));
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();
   });

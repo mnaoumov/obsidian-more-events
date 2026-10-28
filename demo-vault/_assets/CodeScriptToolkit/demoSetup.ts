@@ -68,7 +68,10 @@ const BASES_VIEW_MENU_EVENT_NAME = 'more-events:bases-view-menu';
 const BOOKMARKS_MENU_EVENT_NAME = 'more-events:bookmarks-menu';
 const BOOKMARKS_VIEW_MENU_EVENT_NAME = 'more-events:bookmarks-view-menu';
 const CALLOUT_MENU_EVENT_NAME = 'more-events:callout-menu';
+const CANVAS_ALIGN_MENU_EVENT_NAME = 'more-events:canvas-align-menu';
 const CANVAS_EDGE_MENU_EVENT_NAME = 'more-events:canvas-edge-menu';
+const CANVAS_GROUP_BACKGROUND_MENU_EVENT_NAME = 'more-events:canvas-group-background-menu';
+const CANVAS_LINE_DIRECTION_MENU_EVENT_NAME = 'more-events:canvas-line-direction-menu';
 const CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME = 'more-events:canvas-node-connection-drop-menu';
 const CANVAS_NODE_MENU_EVENT_NAME = 'more-events:canvas-node-menu';
 const CANVAS_SELECTION_MENU_EVENT_NAME = 'more-events:canvas-selection-menu';
@@ -296,10 +299,10 @@ export async function openDemoCanvas(app: App): Promise<void> {
 }
 
 /**
- * Subscribes to the canvas view, node, connection and selection menu events and the ribbon menu event, and adds one
- * item to each menu, until the stop button below.
+ * Subscribes to the canvas view, node, connection, selection and selection toolbar menu events and the ribbon menu
+ * event, and adds one item to each menu, until the stop button below.
  *
- * Manual equivalent: the same five `app.workspace.on(...)` calls from your own plugin's `onload`.
+ * Manual equivalent: the same `app.workspace.on(...)` calls from your own plugin's `onload`.
  */
 export function startListeningToCanvasAndRibbonMenus(app: App): void {
   if (canvasAndRibbonMenuListeningComponent) {
@@ -368,6 +371,20 @@ export function startListeningToCanvasAndRibbonMenus(app: App): void {
       });
     })
   );
+  for (const eventName of [CANVAS_ALIGN_MENU_EVENT_NAME, CANVAS_GROUP_BACKGROUND_MENU_EVENT_NAME, CANVAS_LINE_DIRECTION_MENU_EVENT_NAME] as const) {
+    component.registerEvent(
+      app.workspace.on(eventName, (menu, leaf, selection) => {
+        menu.addItem((item) => {
+          item
+            .setTitle('What will this act on? (added by a listener)')
+            .setIcon('lucide-info')
+            .onClick(() => {
+              new Notice(`In ${leaf.getDisplayText()}: ${String(selection.nodes.length)} node(s) and ${String(selection.edges.length)} connection(s) are selected.`);
+            });
+        });
+      })
+    );
+  }
   component.registerEvent(
     app.workspace.on(RIBBON_MENU_EVENT_NAME, (menu, side) => {
       menu.addItem((item) => {
