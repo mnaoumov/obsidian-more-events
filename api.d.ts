@@ -196,6 +196,25 @@ export interface CalloutMenuItem {
 export type CanvasEdgeMenuEventName = 'more-events:canvas-edge-menu';
 
 /**
+ * The name of the event triggered when the **Align** menu of the toolbar above a canvas selection is about to
+ * open, which offers the align, arrange, distribute and justify items.
+ */
+export type CanvasAlignMenuEventName = 'more-events:canvas-align-menu';
+
+/**
+ * The name of the event triggered when the **Line direction** menu of the toolbar above a canvas selection of
+ * connections is about to open, which offers **Nondirectional**, **Unidirectional** and **Bidirectional**.
+ */
+export type CanvasLineDirectionMenuEventName = 'more-events:canvas-line-direction-menu';
+
+/**
+ * The name of the event triggered when the background menu of the toolbar above a selected canvas group that has
+ * a background is about to open, which offers **Replace background**, **Remove background** and the background
+ * styles.
+ */
+export type CanvasGroupBackgroundMenuEventName = 'more-events:canvas-group-background-menu';
+
+/**
  * What a canvas selection menu is for: every selected node and every selected connection, each as the canvas
  * file stores it.
  *
@@ -1019,6 +1038,30 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: CanvasSelectionMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, selection: CanvasMenuSelection) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to a menu of the toolbar shown above a canvas selection: **Align**, **Line direction**, or a
+     * group's background.
+     *
+     * Add items to `menu` and they appear in it, after Obsidian's own. Triggered before the menu is shown, when its
+     * toolbar button is clicked. A group's background button opens a menu only when the group already has a
+     * background; otherwise it opens the file picker, and nothing is announced. A canvas in a hover popover is not
+     * announced.
+     *
+     * @param name - The **Align**, **Line direction** or group background menu event name.
+     * @param callback - The callback receiving the menu, the leaf holding the **Canvas** view, and what is
+     * selected, as the canvas file stores it: copies. The **Align** menu acts on the selected nodes, or, for a
+     * single selected group, on the nodes inside it; the **Line direction** menu on the selected connections; the
+     * background menu on the one selected group.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(
+      name: CanvasAlignMenuEventName | CanvasGroupBackgroundMenuEventName | CanvasLineDirectionMenuEventName,
+      callback: (menu: Menu, leaf: WorkspaceLeaf, selection: CanvasMenuSelection) => unknown,
+      context?: unknown
+    ): EventRef;
 
     /**
      * Subscribes to a community plugin being enabled or disabled.

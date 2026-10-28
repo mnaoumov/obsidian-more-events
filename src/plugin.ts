@@ -18,6 +18,7 @@ import { BookmarksMenuEventsComponent } from './context-menus/bookmarks/bookmark
 import { CalloutMenuEventsComponent } from './context-menus/callout/callout-menu-events-component.ts';
 import { CanvasMenuEventsComponent } from './context-menus/canvas/canvas-menu-events-component.ts';
 import { CanvasObjectMenuEventsComponent } from './context-menus/canvas/canvas-object-menu-events-component.ts';
+import { CanvasToolbarMenuEventsComponent } from './context-menus/canvas/canvas-toolbar-menu-events-component.ts';
 import { CommunityPluginMenuEventsComponent } from './context-menus/community-plugin/community-plugin-menu-events-component.ts';
 import { CssSnippetMenuEventsComponent } from './context-menus/css-snippet/css-snippet-menu-events-component.ts';
 import { ExternalImageMenuEventsComponent } from './context-menus/external-image/external-image-menu-events-component.ts';
@@ -209,6 +210,8 @@ export class Plugin extends PluginBase {
 
     const pdfToolbarMenuEventsComponent = this.addChild(new PdfToolbarMenuEventsComponent({ app: this.app }));
 
+    const canvasToolbarMenuEventsComponent = this.addChild(new CanvasToolbarMenuEventsComponent({ app: this.app }));
+
     const basesViewMenuEventsComponent = this.addChild(
       new BasesViewMenuEventsComponent({
         app: this.app
@@ -280,7 +283,8 @@ export class Plugin extends PluginBase {
         positionedMenuAnnouncers: [
           communityPluginMenuEventsComponent,
           basesViewMenuEventsComponent,
-          pdfToolbarMenuEventsComponent
+          pdfToolbarMenuEventsComponent,
+          canvasToolbarMenuEventsComponent
         ]
       })
     );

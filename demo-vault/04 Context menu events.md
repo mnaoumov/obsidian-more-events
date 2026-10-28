@@ -21,7 +21,10 @@ Each event fires just before the menu opens, after Obsidian has added its own it
 | `more-events:bookmarks-menu`                    | one or more bookmarks (*relay*)                                                     | `bookmarks`                          |
 | `more-events:bookmarks-view-menu`               | the **Bookmarks** view's empty area                                                 | `leaf`                               |
 | `more-events:callout-menu`                      | a Live Preview callout                                                              | `leaf`, `callout`                    |
+| `more-events:canvas-align-menu`                 | a canvas selection toolbar's **Align** button (a click)                             | `leaf`, `selection`                  |
 | `more-events:canvas-edge-menu`                  | a canvas connection (*relay*)                                                       | `leaf`, `edge`                       |
+| `more-events:canvas-group-background-menu`      | a selected canvas group's background button, once it has one (a click)              | `leaf`, `selection`                  |
+| `more-events:canvas-line-direction-menu`        | a canvas selection toolbar's **Line direction** button (a click)                    | `leaf`, `selection`                  |
 | `more-events:canvas-node-connection-drop-menu`  | a connection dropped onto empty canvas (*relay*)                                    | `leaf`, `fromNode`, `drop`           |
 | `more-events:canvas-node-menu`                  | a canvas node (*relay*)                                                             | `leaf`, `node`                       |
 | `more-events:canvas-selection-menu`             | a canvas selection (*relay*)                                                        | `leaf`, `selection`                  |
@@ -87,7 +90,7 @@ require('/demoSetup.ts').stopListeningToBookmarksMenus();
 
 ## Try the canvas and ribbon ones
 
-First, a canvas to right-click, with two cards and a connection between them. This opens the demo canvas in a new tab, turning the **Canvas** core plugin back on first if the toggle on [01 Core plugin events](<./01 Core plugin events.md>) left it off:
+First, a canvas to right-click, with two cards, a connection between them and a group with a background. This opens the demo canvas in a new tab, turning the **Canvas** core plugin back on first if the toggle on [01 Core plugin events](<./01 Core plugin events.md>) left it off:
 
 ```code-button
 ---
@@ -107,7 +110,7 @@ caption: Start listening to the canvas and ribbon menus
 require('/demoSetup.ts').startListeningToCanvasAndRibbonMenus(app);
 ```
 
-Now right-click the empty canvas, away from the cards: below Obsidian's own items is **Where did I click? (added by a listener)**, and clicking it shows the point in canvas coordinates. Right-click a card: below Obsidian's **Zoom to selection** is **Which node is this? (added by a listener)**. Right-click the connection between the cards: below **Follow connection** is **What does this connect? (added by a listener)**. Select both cards with Shift and right-click one: below **Create group** is **What is selected? (added by a listener)**. Hover a card, drag from the small circle on one of its edges and let go on empty canvas: below **Add note from vault** is **Where was this dropped? (added by a listener)**. Then right-click the ribbon on the far left, in the gap below its icons: Obsidian's **Hide ribbon** is joined by **Added by a listener to the ribbon**. Then stop:
+Now right-click the empty canvas, away from the cards: below Obsidian's own items is **Where did I click? (added by a listener)**, and clicking it shows the point in canvas coordinates. Right-click a card: below Obsidian's **Zoom to selection** is **Which node is this? (added by a listener)**. Right-click the connection between the cards: below **Follow connection** is **What does this connect? (added by a listener)**. Select both cards with Shift and right-click one: below **Create group** is **What is selected? (added by a listener)**. Hover a card, drag from the small circle on one of its edges and let go on empty canvas: below **Add note from vault** is **Where was this dropped? (added by a listener)**. With both cards still selected, click **Align** in the toolbar above them: below Obsidian's alignment items is **What will this act on? (added by a listener)**. Click the connection alone and then **Line direction** in its toolbar, or click the label of the group below the cards and then its background button (the picture icon): each menu carries the same item. Then right-click the ribbon on the far left, in the gap below its icons: Obsidian's **Hide ribbon** is joined by **Added by a listener to the ribbon**. Then stop:
 
 ```code-button
 ---
@@ -419,7 +422,7 @@ require('/demoSetup.ts').stopListeningToNoteAndSearchMenus();
 
 Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, for the tab and tab group menus, `leaf-menu` and `tab-group-menu`, for the note margin, Properties and Search results menus, `markdown-viewport-menu`, `markdown-properties-menu` and `search:results-menu`, and for the canvas node, connection, selection and connection drop menus, `canvas:node-menu`, `canvas:edge-menu`, `canvas:selection-menu` and `canvas:node-connection-drop-menu`, but documents and types them nowhere. `More Events` relays them under names it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
-The vault name menu, the back and forward history menus, the bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu, the CSS snippet menu, the external image menu and the board column menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
+The vault name menu, the back and forward history menus, the bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu, the CSS snippet menu, the external image menu, the board column menu and the canvas selection toolbar's **Align**, **Line direction** and group background menus raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
 
 ## Try the File Explorer root menu
 

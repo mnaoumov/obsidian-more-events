@@ -8,18 +8,13 @@ import type {
   Events,
   Menu
 } from 'obsidian';
-import type {
-  AllCanvasNodeData,
-  CanvasEdgeData,
-  NodeSide
-} from 'obsidian/canvas.d.ts';
+import type { NodeSide } from 'obsidian/canvas.d.ts';
 
 import { castTo } from '@mnaoumov/typescript-lib/object-utils';
 import { Component } from 'obsidian';
 
 import type {
   CanvasMenuPosition,
-  CanvasMenuSelection,
   CanvasNodeConnectionDrop
 } from '../../../api.d.ts';
 
@@ -29,6 +24,11 @@ import {
   CANVAS_NODE_MENU_EVENT_NAME,
   CANVAS_SELECTION_MENU_EVENT_NAME
 } from '../../api/more-events-api.ts';
+import {
+  getEdgeData,
+  getNodeData,
+  getSelection
+} from './canvas-selection.ts';
 
 /**
  * The event Obsidian itself triggers on `app.workspace` for a single canvas node's menu, undocumented (`app.js:156385`
@@ -141,35 +141,4 @@ function getConnectionDrop(edge: CanvasViewCanvasEdge): CanvasNodeConnectionDrop
     position: { x: dropNode.x, y: dropNode.y },
     toSide: castTo<NodeSide>(edge.to.side)
   };
-}
-
-function getEdgeData(edge: CanvasViewCanvasEdge): CanvasEdgeData {
-  return castTo<CanvasEdgeData>(edge.getData());
-}
-
-function getNodeData(node: CanvasViewCanvasNode): AllCanvasNodeData {
-  return castTo<AllCanvasNodeData>(node.getData());
-}
-
-/**
- * Copies what is selected on a canvas.
- *
- * The selection holds nodes and connections alike, with no kind on either, so each item is told apart by which of
- * the canvas's two maps holds it under its id.
- *
- * @param canvas - The canvas.
- * @returns The selected nodes and connections, as the canvas file stores them.
- */
-function getSelection(canvas: CanvasViewCanvas): CanvasMenuSelection {
-  const edges: CanvasEdgeData[] = [];
-  const nodes: AllCanvasNodeData[] = [];
-  for (const item of castTo<Iterable<CanvasViewCanvasEdge | CanvasViewCanvasNode>>(canvas.selection)) {
-    if (canvas.nodes.get(item.id) === item) {
-      nodes.push(getNodeData(castTo<CanvasViewCanvasNode>(item)));
-    } else if (canvas.edges.get(item.id) === item) {
-      edges.push(getEdgeData(castTo<CanvasViewCanvasEdge>(item)));
-    }
-  }
-
-  return { edges, nodes };
 }
