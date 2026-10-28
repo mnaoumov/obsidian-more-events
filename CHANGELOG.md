@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## 1.3.0
+
+- chore(deps): cap integration emulator cores with obsidian-integration-testing 17.7.1
+- refactor: name patched plugin lifecycle arguments
+- fix(deps): resolve KaTeX and Moment audit findings
+- chore: adopt readonly interface members
+- feat: publish PDF toolbar menu events
+- refactor: group events and tests by subject
+- feat: publish File Explorer root menu events
+- refactor: use typed bookmarks menu workspace event
+- docs: move event reference tables into demo notes
+- docs(readme): combine related resources and plugin comparisons
+- feat: announce the Bases view settings More options menu
+- docs: cut the README to one table row per event
+- feat: relay the canvas connection drop menu
+- docs: add Similar plugins section to README
+- feat: context-menu events for the history buttons and the plugin row's More options button
+- feat: relays of the canvas node, connection and selection menus
+- feat: relays of the Search results, note margin and Properties heading menus
+- feat: context-menu events for the vault name, and relays of leaf-menu and tab-group-menu
+- feat: context-menu events for external images and Bases board columns
+- feat: context-menu events for PDF outline items and pages
+- feat: context-menu events for a property's icon and CSS snippet rows
+- feat: context-menu events for property values and Bases column headers
+- feat: context-menu events for Live Preview table cells and drag handles
+- feat: context-menu events for callouts and plugin settings tabs
+- feat: context-menu events for the sidebar toggle buttons and community plugin rows
+- feat: context-menu event for PDF page thumbnails
+- feat: context-menu events for All properties and Web viewer history items
+- fix(demo-vault): turn Canvas on before opening the demo canvas
+- docs: record the 1.2.0 release in AGENTS.md
+
 ## 1.2.0
 
 - feat: publish the canvas view and ribbon context-menu events
