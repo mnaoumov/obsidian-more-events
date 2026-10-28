@@ -1,5 +1,6 @@
 import type {
   Menu,
+  Point,
   WorkspaceLeaf
 } from 'obsidian';
 
@@ -36,6 +37,13 @@ Topics:
 
 interface MenuRecord {
   /**
+   * Whether the right-clicked pill was still in the document once the menu opened. A pill the properties editor
+   * re-rendered after the right-click is no longer inside its row, so no listener is told about its menu while
+   * Obsidian's own menu still opens.
+   */
+  readonly isPillConnectedAtMenu: boolean;
+
+  /**
    * Whether the listener was given the leaf the note is open in, once per call.
    */
   readonly noteLeafMatches: boolean[];
@@ -63,7 +71,8 @@ describe('Property value menu events', () => {
   it('should let a listener add an item to a list property value\'s menu', { timeout: TEST_TIMEOUT_IN_MS }, async () => {
     const record = await rightClickPropertyValue();
 
-    expect(record.values).toEqual([{ index: 1, key: 'Topics', value: 'Beta' }]);
+    expect(record.values, `the pill was ${record.isPillConnectedAtMenu ? 'still' : 'no longer'} in the document when the menu opened`)
+      .toEqual([{ index: 1, key: 'Topics', value: 'Beta' }]);
     expect(record.noteLeafMatches).toEqual([true]);
     expect(record.shownItemTitles).toContain('Added by a listener');
     // The menu is Obsidian's own, with the item added to it, rather than a second menu of this plugin's.
@@ -112,21 +121,55 @@ async function rightClickPropertyValue(): Promise<MenuRecord> {
           type: 'markdown'
         });
 
-        const selector = '.metadata-property[data-property-key="topics"] .multi-select-pill';
+        /*
+         * A menu an earlier test left open would satisfy the wait for this one's menu before the right-click had
+         * opened anything, so the right-click waits for none to be open rather than closing one it did not open.
+         */
         await waitUntil({
-          message: 'the property values to render',
-          predicate: () => leaf.view.containerEl.querySelectorAll(selector).length === 3,
+          message: 'no menu to be open before the right-click',
+          predicate: () => !activeDocument.body.querySelector('.menu'),
           timeoutInMilliseconds: WAIT_TIMEOUT_IN_MS
         });
-        const pillEl = leaf.view.containerEl.querySelectorAll(selector)[1];
+
+        const selector = '.metadata-property[data-property-key="topics"] .multi-select-pill';
+        function findPillEl(): Element | undefined {
+          return leaf.view.containerEl.querySelectorAll(selector)[1];
+        }
+        function pointIn(el: Element): Point {
+          const rect = el.getBoundingClientRect();
+          return { x: Math.round(rect.left + rect.width / 3), y: Math.round(rect.top + rect.height / 2) };
+        }
+
+        /*
+         * The click point is read from the pill's rect, so the pill has to be where the click lands: the new tab
+         * still lays itself out after the values first render, and a rect read mid-layout points at whatever was
+         * there. The point is taken only once it holds between two polls and the pill is what is under it.
+         */
+        let lastPoint: null | Point = null;
+        await waitUntil({
+          message: 'the second property value to render, hold still and be under the click point',
+          predicate: () => {
+            if (leaf.view.containerEl.querySelectorAll(selector).length !== 3) {
+              return false;
+            }
+            const candidateEl = findPillEl();
+            if (!candidateEl) {
+              return false;
+            }
+            const point = pointIn(candidateEl);
+            const isStill = point.x === lastPoint?.x && point.y === lastPoint.y;
+            lastPoint = point;
+            return isStill && candidateEl.contains(activeDocument.elementFromPoint(point.x, point.y));
+          },
+          timeoutInMilliseconds: WAIT_TIMEOUT_IN_MS
+        });
+        const pillEl = findPillEl();
         if (!pillEl) {
           throw new Error('No rendered property value');
         }
-        const pillRect = pillEl.getBoundingClientRect();
         await clickMouse({
           button: 'right',
-          x: Math.round(pillRect.left + pillRect.width / 3),
-          y: Math.round(pillRect.top + pillRect.height / 2)
+          ...pointIn(pillEl)
         });
 
         await waitUntil({
@@ -137,6 +180,7 @@ async function rightClickPropertyValue(): Promise<MenuRecord> {
 
         const menuEl = activeDocument.body.querySelector('.menu');
         return {
+          isPillConnectedAtMenu: pillEl.isConnected,
           noteLeafMatches,
           shownItemTitles: Array.from(menuEl?.querySelectorAll('.menu-item-title') ?? [], (titleEl) => titleEl.textContent),
           values
