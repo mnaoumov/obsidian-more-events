@@ -1,5 +1,6 @@
 import type { PluginApiDeclaration } from '@mnaoumov/obsidian-lib/plugin/plugin-api';
 
+import { OpenBugReportCommandHandler } from '@mnaoumov/obsidian-lib/command-handlers/open-bug-report-command-handler';
 import { OpenDemoVaultCommandHandler } from '@mnaoumov/obsidian-lib/command-handlers/open-demo-vault-command-handler';
 import { FileExplorerRootMenuComponent } from '@mnaoumov/obsidian-lib/components/file-explorer-root-menu-component';
 import { PluginBase } from '@mnaoumov/obsidian-lib/plugin/plugin';
@@ -295,6 +296,11 @@ export class Plugin extends PluginBase {
     });
 
     await this.commandHandlerComponent.registerCommandHandlers(() => [
+      new OpenBugReportCommandHandler({
+        app: this.app,
+        gitHubRepo: 'mnaoumov/obsidian-more-events',
+        pluginId: this.manifest.id
+      }),
       new OpenDemoVaultCommandHandler({
         app: this.app,
         pluginId: this.manifest.id,
