@@ -55,6 +55,7 @@ import { TableMenuEventsComponent } from './context-menus/table/table-menu-event
 import { VaultMenuEventsComponent } from './context-menus/vault/vault-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './context-menus/web-viewer-history/web-viewer-history-menu-events-component.ts';
 import { WorkspaceMenuEventsComponent } from './context-menus/workspace/workspace-menu-events-component.ts';
+import { NewFileReadyEventsComponent } from './files/new-file-ready-events-component.ts';
 import { CommunityPluginEventsComponent } from './plugin-lifecycle/community-plugin-events-component.ts';
 import { CorePluginEventsComponent } from './plugin-lifecycle/core-plugin-events-component.ts';
 import { Plugin } from './plugin.ts';
@@ -235,6 +236,16 @@ vi.mock('./context-menus/workspace/workspace-menu-events-component.ts', async ()
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     WorkspaceMenuEventsComponent: vi.fn(function workspaceMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./files/new-file-ready-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    NewFileReadyEventsComponent: vi.fn(function newFileReadyEventsComponentStub() {
       return new Component();
     })
   };
@@ -644,6 +655,18 @@ describe('Plugin', () => {
     const canvasObjectCalls = vi.mocked(CanvasObjectMenuEventsComponent).mock.calls;
     expect(canvasObjectCalls).toHaveLength(1);
     expect(castTo<PluginEventsComponentConstructorParams>(canvasObjectCalls[0]?.[0]).app).toBe(plugin.app);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
+  it('should add the new file ready events component with the app', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+
+    const calls = vi.mocked(NewFileReadyEventsComponent).mock.calls;
+    expect(calls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(calls[0]?.[0]).app).toBe(plugin.app);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();

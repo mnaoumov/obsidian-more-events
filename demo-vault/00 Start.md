@@ -2,7 +2,7 @@
 
 Welcome to the [More Events](https://github.com/mnaoumov/obsidian-more-events/) demo vault. This plugin has no user interface at all: it is a home for the events Obsidian does not publish, named and typed, on `app.workspace`, for other plugins to subscribe to. If you are reading this as a user, the honest summary is that another plugin asked you to install it.
 
-**The first set is plugin lifecycle** — four events that let a plugin notice a **core** plugin — Backlinks, Canvas, Graph, any of them — or a **community** plugin being enabled or disabled. It is where the plugin started rather than where it stops. **The second set is context menus**, beginning with the **Bookmarks** view: Obsidian builds many context menus without an event a plugin could add an item from.
+**The first set is plugin lifecycle** — four events that let a plugin notice a **core** plugin — Backlinks, Canvas, Graph, any of them — or a **community** plugin being enabled or disabled. It is where the plugin started rather than where it stops. **The second set is context menus**, beginning with the **Bookmarks** view: Obsidian builds many context menus without an event a plugin could add an item from. **The third set is files**: an event for a newly created file once it holds its content, which Obsidian's own `create` does not promise.
 
 If you are reading it as a plugin developer, this vault is the documentation. Every note has buttons you can click here in Obsidian, so the events are something you watch arrive rather than something you take on trust.
 
@@ -15,3 +15,4 @@ If you are reading it as a plugin developer, this vault is the documentation. Ev
 - [03 For plugin developers](<./03 For plugin developers.md>)
 - [04 Context menu events](<./04 Context menu events.md>)
 - [05 Why it patches](<./05 Why it patches.md>)
+- [06 File events](<./06 File events.md>)

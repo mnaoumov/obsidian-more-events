@@ -40,6 +40,7 @@ import { TableMenuEventsComponent } from './context-menus/table/table-menu-event
 import { VaultMenuEventsComponent } from './context-menus/vault/vault-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './context-menus/web-viewer-history/web-viewer-history-menu-events-component.ts';
 import { WorkspaceMenuEventsComponent } from './context-menus/workspace/workspace-menu-events-component.ts';
+import { NewFileReadyEventsComponent } from './files/new-file-ready-events-component.ts';
 import { CommunityPluginEventsComponent } from './plugin-lifecycle/community-plugin-events-component.ts';
 import { CorePluginEventsComponent } from './plugin-lifecycle/core-plugin-events-component.ts';
 
@@ -245,6 +246,12 @@ export class Plugin extends PluginBase {
 
     this.addChild(
       new CanvasObjectMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    this.addChild(
+      new NewFileReadyEventsComponent({
         app: this.app
       })
     );
