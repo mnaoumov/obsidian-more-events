@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 1.4.0
+
+- docs(readme): point bug reports at the Report a bug command
+- feat: add a Report a bug command
+- docs: add issue-filing instructions for AI agents
+- chore(github): give the bug form the field ids bug-report links prefill
+- build(deps): override re2js to ^2.9.1 for GHSA-gg6h-894w-4m9c
+- build(deps): bump typescript-dev-toolkit to ^5.2.0
+- build(deps): bump @mnaoumov/typescript-dev-toolkit to ^5.1.0
+- test: stabilize the property value menu desktop suite
+- feat: publish canvas selection toolbar menu events
+- docs: record the 1.3.0 release of the context-menu events
+
 ## 1.3.0
 
 - chore(deps): cap integration emulator cores with obsidian-integration-testing 17.7.1
