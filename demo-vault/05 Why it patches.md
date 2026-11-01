@@ -21,3 +21,7 @@ The context menus that fire no event of their own take one more patch, on `Menu.
 - **A menu a button shows with no right-click at all**, such as a plugin row's **More options**, is told apart by the button Obsidian anchors it to.
 
 The menus Obsidian already raises an undocumented event for are relayed, with no patch. See [04 Context menu events](<./04 Context menu events.md>) for which ones those are.
+
+## The URI action patch
+
+`more-events:new-file-ready` takes one more patch, on the `obsidian://` action handlers. Obsidian calls a handler and drops the promise it returns, so nothing says when `obsidian://new` has finished writing the note it created. `More Events` wraps each handler, the ones already registered and every one registered later, and holds a file created while one runs until its promise settles. The wrapper returns the handler's own result untouched. See [06 File events](<./06 File events.md>) for what the event promises.

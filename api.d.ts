@@ -509,6 +509,13 @@ export type MarkdownPropertiesMenuEventName = 'more-events:markdown-properties-m
 export type MarkdownViewportMenuEventName = 'more-events:markdown-viewport-menu';
 
 /**
+ * The name of the event triggered once a newly created file has its initial content — at once for a file created
+ * with its content, and only after the `obsidian://` action that created it finished writing it, as
+ * `obsidian://new` (and so Web Clipper) does.
+ */
+export type NewFileReadyEventName = 'more-events:new-file-ready';
+
+/**
  * `More Events`' API, published through the `@mnaoumov/obsidian-lib` plugin registry.
  *
  * The events say when something changed; this says what the state is. A consumer needs both — it has to
@@ -1233,6 +1240,27 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: MarkdownViewportMenuEventName, callback: (menu: Menu, view: MarkdownView, mode: MarkdownViewModeType) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to a newly created file having its initial content: what Obsidian's own `create` does not promise.
+     *
+     * Exactly once per file created after the layout is ready, folders excluded. A file created while no
+     * `obsidian://` action runs, such as a new note or a file another plugin writes with `vault.create`, is announced
+     * straight from its `create`, which Obsidian fires once that content is written. A file created while an
+     * `obsidian://` action runs is announced once that action's handler has finished, because `obsidian://new` (what
+     * Web Clipper uses), `obsidian://unique` and `obsidian://daily` create the file empty and write the content
+     * afterwards; a plugin's own action is covered the same way when its handler returns a promise that settles when
+     * it is done. Another file created during that run is held until it ends too, so it comes late rather than early.
+     * A file deleted before its action ends is not announced. A plugin that creates a file and writes it afterwards
+     * outside any `obsidian://` action is not covered: nothing tells it apart from a file meant to stay as created.
+     *
+     * @param name - Should be `'more-events:new-file-ready'`.
+     * @param callback - The callback receiving the file.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: NewFileReadyEventName, callback: (file: TFile) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of an item in the PDF view's outline.

@@ -40,6 +40,7 @@ import type {
   LeafMenuEventName,
   MarkdownPropertiesMenuEventName,
   MarkdownViewportMenuEventName,
+  NewFileReadyEventName,
   PdfDisplayMenuEventName,
   PdfOutlineMenuEventName,
   PdfPageMenuEventName,
@@ -105,6 +106,7 @@ export type {
   MarkdownPropertiesMenuEventName,
   MarkdownViewportMenuEventName,
   MoreEventsApi,
+  NewFileReadyEventName,
   PdfDisplayMenuEventName,
   PdfOutlineMenuEventName,
   PdfOutlineMenuItem,
@@ -259,6 +261,11 @@ export const MARKDOWN_PROPERTIES_MENU_EVENT_NAME: MarkdownPropertiesMenuEventNam
 export const MARKDOWN_VIEWPORT_MENU_EVENT_NAME: MarkdownViewportMenuEventName = 'more-events:markdown-viewport-menu';
 
 /**
+ * Triggered on `app.workspace` once a newly created file has its initial content, including one an `obsidian://` action writes after creating it.
+ */
+export const NEW_FILE_READY_EVENT_NAME: NewFileReadyEventName = 'more-events:new-file-ready';
+
+/**
  * Triggered on `app.workspace` when the context menu of an item in the PDF view's outline is about to open.
  */
 export const PDF_OUTLINE_MENU_EVENT_NAME: PdfOutlineMenuEventName = 'more-events:pdf-outline-menu';
@@ -334,7 +341,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * The version of the contract above — independent of the plugin's own version, so a consumer asks for
  * `'^1'` and keeps working across releases that change nothing it depends on.
  *
- * `1.5.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the context-menu events
+ * `1.6.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the events since `1.0.0`
  * were ADDED and nothing already published changed its meaning, so a consumer written against any
  * `1.x` compiles and runs unaltered. The payloads are declared additive-only in `api.d.ts` precisely so
  * this stays a minor.
@@ -348,9 +355,10 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * menu, a CSS snippet row's menu, an external image's menu, a Bases board column's menu, the vault name's menu and a view's back and forward button history menus, and
  * the relays of Obsidian's own `leaf-menu`, `tab-group-menu`, `search:results-menu`, `markdown-viewport-menu`,
  * `markdown-properties-menu`, `canvas:node-menu`, `canvas:edge-menu` and `canvas:selection-menu`, and `1.5.0` added the
- * canvas selection toolbar's **Align**, **Line direction** and group background menus.
+ * canvas selection toolbar's **Align**, **Line direction** and group background menus, and `1.6.0` added
+ * `more-events:new-file-ready`.
  */
-export const PLUGIN_API_VERSION = '1.5.0';
+export const PLUGIN_API_VERSION = '1.6.0';
 
 /**
  * The File Explorer vault-root context-menu event.

@@ -31,6 +31,7 @@ import {
   LEAF_MENU_EVENT_NAME,
   MARKDOWN_PROPERTIES_MENU_EVENT_NAME,
   MARKDOWN_VIEWPORT_MENU_EVENT_NAME,
+  NEW_FILE_READY_EVENT_NAME,
   PDF_OUTLINE_MENU_EVENT_NAME,
   PDF_PAGE_MENU_EVENT_NAME,
   PDF_THUMBNAIL_MENU_EVENT_NAME,
@@ -58,6 +59,7 @@ describe('the published contract', () => {
   it('should keep the event names it published', () => {
     expect(FILE_EXPLORER_ROOT_MENU_EVENT_NAME).toBe('more-events:file-explorer-root-menu');
     expect(CORE_PLUGIN_ENABLED_EVENT_NAME).toBe('more-events:core-plugin-enabled');
+    expect(NEW_FILE_READY_EVENT_NAME).toBe('more-events:new-file-ready');
     expect(CORE_PLUGIN_DISABLED_EVENT_NAME).toBe('more-events:core-plugin-disabled');
     expect(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME).toBe('more-events:community-plugin-enabled');
     expect(COMMUNITY_PLUGIN_DISABLED_EVENT_NAME).toBe('more-events:community-plugin-disabled');
@@ -107,6 +109,6 @@ describe('the published contract', () => {
   });
 
   it('should publish a contract version independent of the plugin version', () => {
-    expect(PLUGIN_API_VERSION).toBe('1.5.0');
+    expect(PLUGIN_API_VERSION).toBe('1.6.0');
   });
 });

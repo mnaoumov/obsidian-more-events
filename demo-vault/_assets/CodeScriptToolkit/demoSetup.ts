@@ -1,6 +1,8 @@
 import type {
   App,
   Menu,
+  ObsidianProtocolData,
+  TFile,
   WorkspaceLeaf
 } from 'obsidian';
 
@@ -1332,6 +1334,79 @@ export function startListeningToCorePlugins(app: App): void {
   corePluginListeningComponent = component;
 
   new Notice('Listening. Now toggle a core plugin in Settings -> Core plugins.');
+}
+
+const NEW_FILE_READY_EVENT_NAME = 'more-events:new-file-ready';
+const NEW_FILE_READY_DEMO_NOTE_PATH = 'New file ready demo.md';
+let newFileReadyListeningComponent: Component | null = null;
+
+/**
+ * Subscribes to `more-events:new-file-ready` and, for comparison, to Obsidian's own `create`, and shows a notice
+ * for each with how much the file held at that moment, until the stop button below.
+ *
+ * Manual equivalent: the same two `on(...)` calls from your own plugin's `onload`.
+ */
+export function startListeningToNewFileReady(app: App): void {
+  if (newFileReadyListeningComponent) {
+    new Notice('Already listening. Create a note with the button below.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.vault.on('create', (file) => {
+      const size = app.vault.getFileByPath(file.path)?.stat.size;
+      if (size !== undefined) {
+        new Notice(`create: ${file.path} holds ${String(size)} bytes`, NOTICE_DURATION_IN_MILLISECONDS);
+      }
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(NEW_FILE_READY_EVENT_NAME, (file: TFile) => {
+      new Notice(`${NEW_FILE_READY_EVENT_NAME}: ${file.path} holds ${String(file.stat.size)} bytes`, NOTICE_DURATION_IN_MILLISECONDS);
+    })
+  );
+  component.load();
+  newFileReadyListeningComponent = component;
+
+  new Notice('Listening. Now create a note with the button below.');
+}
+
+/**
+ * Creates the demo note the way an `obsidian://new?file=...&content=...` link does, replacing it when it is
+ * already there.
+ *
+ * Manual equivalent: opening such a link, or clipping a page with Web Clipper.
+ */
+export async function createNoteThroughObsidianUri(app: App): Promise<void> {
+  const existingFile = app.vault.getFileByPath(NEW_FILE_READY_DEMO_NOTE_PATH);
+  if (existingFile) {
+    await app.fileManager.trashFile(existingFile);
+  }
+
+  await app.workspace.protocolHandler.handlers.get('new')?.({
+    action: 'new',
+    content: 'This note was created by `obsidian://new`, which writes its content after creating it.',
+    file: NEW_FILE_READY_DEMO_NOTE_PATH,
+    silent: 'true'
+  } as ObsidianProtocolData);
+}
+
+/**
+ * Drops both subscriptions of the new file ready demo.
+ *
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToNewFileReady(): void {
+  if (!newFileReadyListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  newFileReadyListeningComponent.unload();
+  newFileReadyListeningComponent = null;
+  new Notice('Stopped listening.');
 }
 
 /**
