@@ -11,6 +11,7 @@ import {
   PLUGIN_API_CONTRACT,
   PLUGIN_API_VERSION
 } from './api/more-events-api.ts';
+import { CanvasPatchComponent } from './canvas/canvas-patch-component.ts';
 import { AllPropertiesMenuEventsComponent } from './context-menus/all-properties/all-properties-menu-events-component.ts';
 import { BasesColumnMenuEventsComponent } from './context-menus/bases/bases-column-menu-events-component.ts';
 import { BasesKanbanColumnMenuEventsComponent } from './context-menus/bases/bases-kanban-column-menu-events-component.ts';
@@ -246,6 +247,12 @@ export class Plugin extends PluginBase {
 
     this.addChild(
       new CanvasObjectMenuEventsComponent({
+        app: this.app
+      })
+    );
+
+    this.addChild(
+      new CanvasPatchComponent({
         app: this.app
       })
     );

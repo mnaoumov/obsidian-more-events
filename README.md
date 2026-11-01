@@ -42,6 +42,7 @@ Every event fires on `app.workspace`.
 1. **Plugin lifecycle events**, for example `more-events:core-plugin-enabled`: see [01 Core plugin events](<./demo-vault/01 Core plugin events.md>) and [02 Community plugin events](<./demo-vault/02 Community plugin events.md>).
 2. **Context menu events**, for example `more-events:all-properties-menu`, so listeners can add items before a menu opens: see [04 Context menu events](<./demo-vault/04 Context menu events.md>).
 3. **File events**, for example `more-events:new-file-ready`, which fires once a new file holds its content, even when `obsidian://new` writes it after creating it: see [06 File events](<./demo-vault/06 File events.md>).
+4. **Canvas events**, for example `more-events:canvas-selection-changed`, and a hook to add a button to the toolbar above a canvas selection: see [07 Canvas events](<./demo-vault/07 Canvas events.md>).
 
 ## See also
 

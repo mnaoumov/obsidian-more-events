@@ -26,6 +26,7 @@ import {
   PLUGIN_API_CONTRACT,
   PLUGIN_API_VERSION
 } from './api/more-events-api.ts';
+import { CanvasPatchComponent } from './canvas/canvas-patch-component.ts';
 import { AllPropertiesMenuEventsComponent } from './context-menus/all-properties/all-properties-menu-events-component.ts';
 import { BasesColumnMenuEventsComponent } from './context-menus/bases/bases-column-menu-events-component.ts';
 import { BasesKanbanColumnMenuEventsComponent } from './context-menus/bases/bases-kanban-column-menu-events-component.ts';
@@ -236,6 +237,16 @@ vi.mock('./context-menus/workspace/workspace-menu-events-component.ts', async ()
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     WorkspaceMenuEventsComponent: vi.fn(function workspaceMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./canvas/canvas-patch-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    CanvasPatchComponent: vi.fn(function canvasPatchComponentStub() {
       return new Component();
     })
   };
@@ -655,6 +666,18 @@ describe('Plugin', () => {
     const canvasObjectCalls = vi.mocked(CanvasObjectMenuEventsComponent).mock.calls;
     expect(canvasObjectCalls).toHaveLength(1);
     expect(castTo<PluginEventsComponentConstructorParams>(canvasObjectCalls[0]?.[0]).app).toBe(plugin.app);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
+  it('should add the canvas patch component with the app', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+
+    const calls = vi.mocked(CanvasPatchComponent).mock.calls;
+    expect(calls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(calls[0]?.[0]).app).toBe(plugin.app);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();

@@ -19,12 +19,17 @@ import type {
   BookmarksViewMenuEventName,
   CalloutMenuEventName,
   CanvasAlignMenuEventName,
+  CanvasContentChangedEventName,
   CanvasEdgeMenuEventName,
   CanvasGroupBackgroundMenuEventName,
   CanvasLineDirectionMenuEventName,
   CanvasNodeConnectionDropMenuEventName,
+  CanvasNodeEditingChangedEventName,
   CanvasNodeMenuEventName,
+  CanvasReadOnlyChangedEventName,
+  CanvasSelectionChangedEventName,
   CanvasSelectionMenuEventName,
+  CanvasToolbarRenderedEventName,
   CanvasViewMenuEventName,
   CommunityPluginDisabledEventName,
   CommunityPluginEnabledEventName,
@@ -73,15 +78,22 @@ export type {
   CalloutMenuEventName,
   CalloutMenuItem,
   CanvasAlignMenuEventName,
+  CanvasContentChange,
+  CanvasContentChangedEventName,
   CanvasEdgeMenuEventName,
   CanvasGroupBackgroundMenuEventName,
+  CanvasItemChanges,
   CanvasLineDirectionMenuEventName,
   CanvasMenuPosition,
   CanvasMenuSelection,
   CanvasNodeConnectionDrop,
   CanvasNodeConnectionDropMenuEventName,
+  CanvasNodeEditingChangedEventName,
   CanvasNodeMenuEventName,
+  CanvasReadOnlyChangedEventName,
+  CanvasSelectionChangedEventName,
   CanvasSelectionMenuEventName,
+  CanvasToolbarRenderedEventName,
   CanvasViewMenuEventName,
   CommunityPluginDisabledEventName,
   CommunityPluginEnabledEventName,
@@ -341,7 +353,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * The version of the contract above — independent of the plugin's own version, so a consumer asks for
  * `'^1'` and keeps working across releases that change nothing it depends on.
  *
- * `1.6.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the events since `1.0.0`
+ * `1.7.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the events since `1.0.0`
  * were ADDED and nothing already published changed its meaning, so a consumer written against any
  * `1.x` compiles and runs unaltered. The payloads are declared additive-only in `api.d.ts` precisely so
  * this stays a minor.
@@ -356,9 +368,10 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * the relays of Obsidian's own `leaf-menu`, `tab-group-menu`, `search:results-menu`, `markdown-viewport-menu`,
  * `markdown-properties-menu`, `canvas:node-menu`, `canvas:edge-menu` and `canvas:selection-menu`, and `1.5.0` added the
  * canvas selection toolbar's **Align**, **Line direction** and group background menus, and `1.6.0` added
- * `more-events:new-file-ready`.
+ * `more-events:new-file-ready`, and `1.7.0` added the canvas events: the selection, content, read-only and card editing
+ * changes, and the selection toolbar being rendered.
  */
-export const PLUGIN_API_VERSION = '1.6.0';
+export const PLUGIN_API_VERSION = '1.7.0';
 
 /**
  * The File Explorer vault-root context-menu event.
@@ -389,3 +402,28 @@ export const CANVAS_LINE_DIRECTION_MENU_EVENT_NAME: CanvasLineDirectionMenuEvent
  * The canvas selection toolbar's group background menu event.
  */
 export const CANVAS_GROUP_BACKGROUND_MENU_EVENT_NAME: CanvasGroupBackgroundMenuEventName = 'more-events:canvas-group-background-menu';
+
+/**
+ * Triggered on `app.workspace` after a canvas's content has changed.
+ */
+export const CANVAS_CONTENT_CHANGED_EVENT_NAME: CanvasContentChangedEventName = 'more-events:canvas-content-changed';
+
+/**
+ * Triggered on `app.workspace` after a canvas card starts or stops being edited.
+ */
+export const CANVAS_NODE_EDITING_CHANGED_EVENT_NAME: CanvasNodeEditingChangedEventName = 'more-events:canvas-node-editing-changed';
+
+/**
+ * Triggered on `app.workspace` after a canvas is made read-only, or editable again.
+ */
+export const CANVAS_READ_ONLY_CHANGED_EVENT_NAME: CanvasReadOnlyChangedEventName = 'more-events:canvas-read-only-changed';
+
+/**
+ * Triggered on `app.workspace` after what is selected on a canvas has changed.
+ */
+export const CANVAS_SELECTION_CHANGED_EVENT_NAME: CanvasSelectionChangedEventName = 'more-events:canvas-selection-changed';
+
+/**
+ * Triggered on `app.workspace` after the toolbar above a canvas selection has been built.
+ */
+export const CANVAS_TOOLBAR_RENDERED_EVENT_NAME: CanvasToolbarRenderedEventName = 'more-events:canvas-toolbar-rendered';
