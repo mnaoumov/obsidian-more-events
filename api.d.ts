@@ -190,6 +190,77 @@ export interface CalloutMenuItem {
 }
 
 /**
+ * What changed in a canvas's content: the ids of the nodes and of the connections that were added, changed or
+ * removed.
+ *
+ * Plain data, and additive only, like the other payloads in this file. The content itself is the canvas file's, which
+ * the **Canvas** view hands out as JSON from its `getViewData()`.
+ */
+export interface CanvasContentChange {
+  /**
+   * The connections that changed.
+   */
+  readonly edges: CanvasItemChanges;
+
+  /**
+   * The nodes that changed.
+   */
+  readonly nodes: CanvasItemChanges;
+}
+
+/**
+ * The name of the event triggered after a canvas's content has changed: a node or a connection added, changed, moved,
+ * resized or removed, by an edit, an undo or a redo, or by the file changing on disk.
+ */
+export type CanvasContentChangedEventName = 'more-events:canvas-content-changed';
+
+/**
+ * The ids of the nodes, or of the connections, of a canvas that a change added, changed or removed, as the canvas
+ * file stores them. Each list is in the order the canvas file holds the ids, and any of them can be empty, though not
+ * all three.
+ *
+ * Plain data, and additive only, like the other payloads in this file.
+ */
+export interface CanvasItemChanges {
+  /**
+   * The ids the change added.
+   */
+  readonly added: readonly string[];
+
+  /**
+   * The ids whose stored data the change altered: moved, resized, recolored, relabeled or with a new text.
+   */
+  readonly changed: readonly string[];
+
+  /**
+   * The ids the change removed.
+   */
+  readonly removed: readonly string[];
+}
+
+/**
+ * The name of the event triggered after a canvas card starts or stops being edited: its editor opened in place, or
+ * closed.
+ */
+export type CanvasNodeEditingChangedEventName = 'more-events:canvas-node-editing-changed';
+
+/**
+ * The name of the event triggered after a canvas is made read-only, or editable again.
+ */
+export type CanvasReadOnlyChangedEventName = 'more-events:canvas-read-only-changed';
+
+/**
+ * The name of the event triggered after what is selected on a canvas has changed.
+ */
+export type CanvasSelectionChangedEventName = 'more-events:canvas-selection-changed';
+
+/**
+ * The name of the event triggered after the toolbar above a canvas selection has been built: the row of buttons
+ * with **Remove**, **Set color**, **Zoom to selection** and the rest.
+ */
+export type CanvasToolbarRenderedEventName = 'more-events:canvas-toolbar-rendered';
+
+/**
  * The name of the event triggered when the context menu of a connection on a canvas is about to open — the
  * right-click on an edge, which offers **Edit label**, **Follow connection** and **Remove**.
  */
@@ -1069,6 +1140,85 @@ declare module 'obsidian' {
       callback: (menu: Menu, leaf: WorkspaceLeaf, selection: CanvasMenuSelection) => unknown,
       context?: unknown
     ): EventRef;
+
+    /**
+     * Subscribes to a canvas's content having changed.
+     *
+     * Triggered after the change, once the canvas holds it, for every edit the canvas commits (a node or a connection
+     * added, changed, moved, resized or removed), for an undo and a redo, and for the canvas file changing on disk,
+     * by Sync or another editor, while it is open. Opening a canvas file is not a change and is not announced. A
+     * change that ends where it started, such as a node dragged back to its place, is not announced either.
+     *
+     * @param name - Should be `'more-events:canvas-content-changed'`.
+     * @param callback - The callback receiving the leaf holding the **Canvas** view, and the ids of what changed.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CanvasContentChangedEventName, callback: (leaf: WorkspaceLeaf, change: CanvasContentChange) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to a canvas card starting or stopping being edited.
+     *
+     * Triggered after the change, when a text card or a note card opens its editor in place and when it closes it,
+     * which deselecting the card or clicking elsewhere does.
+     *
+     * @param name - Should be `'more-events:canvas-node-editing-changed'`.
+     * @param callback - The callback receiving the leaf holding the **Canvas** view, the card's node id, as the
+     * canvas file stores it, and whether the card is being edited now.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CanvasNodeEditingChangedEventName, callback: (leaf: WorkspaceLeaf, nodeId: string, isEditing: boolean) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to a canvas being made read-only, or editable again.
+     *
+     * Triggered after the change, for the **Read-only** item of the canvas's settings menu and for the state a canvas
+     * file was left in being restored when it opens. Opening a canvas file resets the state first, so switching a leaf
+     * from one read-only canvas to another announces `false` and then `true`.
+     *
+     * @param name - Should be `'more-events:canvas-read-only-changed'`.
+     * @param callback - The callback receiving the leaf holding the **Canvas** view, and whether it is read-only now.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CanvasReadOnlyChangedEventName, callback: (leaf: WorkspaceLeaf, isReadOnly: boolean) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to what is selected on a canvas having changed.
+     *
+     * Triggered once per change, on the animation frame in which the canvas draws it, so selecting several items in
+     * one gesture, or clearing a selection and selecting something else, is one event. A gesture that leaves the
+     * selection as it was is not announced.
+     *
+     * @param name - Should be `'more-events:canvas-selection-changed'`.
+     * @param callback - The callback receiving the leaf holding the **Canvas** view, and what is selected now, as the
+     * canvas file stores it: copies. Both lists are empty when nothing is.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CanvasSelectionChangedEventName, callback: (leaf: WorkspaceLeaf, selection: CanvasMenuSelection) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to the toolbar above a canvas selection having been built.
+     *
+     * Add a button to `toolbarEl` and it shows in the toolbar beside Obsidian's own. Triggered after Obsidian has
+     * emptied the toolbar and built its buttons, which it does when the selection changes or the canvas turns
+     * read-only. A button added here lasts until the next build, which triggers this again, so add it here every
+     * time rather than once.
+     *
+     * @param name - Should be `'more-events:canvas-toolbar-rendered'`.
+     * @param callback - The callback receiving the leaf holding the **Canvas** view, the toolbar element, whose
+     * children are `button.clickable-icon` elements, and what is selected, as the canvas file stores it: copies.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: CanvasToolbarRenderedEventName, callback: (leaf: WorkspaceLeaf, toolbarEl: HTMLElement, selection: CanvasMenuSelection) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to a community plugin being enabled or disabled.

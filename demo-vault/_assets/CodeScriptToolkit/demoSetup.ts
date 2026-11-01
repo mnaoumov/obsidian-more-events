@@ -8,7 +8,9 @@ import type {
 
 import {
   Component,
-  Notice
+  Notice,
+  setIcon,
+  setTooltip
 } from 'obsidian';
 import { watchPluginApi } from '@mnaoumov/obsidian-lib/plugin/plugin-api';
 
@@ -1406,6 +1408,83 @@ export function stopListeningToNewFileReady(): void {
 
   newFileReadyListeningComponent.unload();
   newFileReadyListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
+const CANVAS_CONTENT_CHANGED_EVENT_NAME = 'more-events:canvas-content-changed';
+const CANVAS_NODE_EDITING_CHANGED_EVENT_NAME = 'more-events:canvas-node-editing-changed';
+const CANVAS_READ_ONLY_CHANGED_EVENT_NAME = 'more-events:canvas-read-only-changed';
+const CANVAS_SELECTION_CHANGED_EVENT_NAME = 'more-events:canvas-selection-changed';
+const CANVAS_TOOLBAR_RENDERED_EVENT_NAME = 'more-events:canvas-toolbar-rendered';
+let canvasEventListeningComponent: Component | null = null;
+
+/**
+ * Subscribes to the five canvas events, shows a notice for each, and adds a button to the selection toolbar, until
+ * the stop button below.
+ *
+ * Manual equivalent: the same `app.workspace.on(...)` calls from your own plugin's `onload`.
+ */
+export function startListeningToCanvasEvents(app: App): void {
+  if (canvasEventListeningComponent) {
+    new Notice('Already listening. Select, move or edit a card on the demo canvas.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(CANVAS_SELECTION_CHANGED_EVENT_NAME, (_leaf, selection) => {
+      new Notice(`${CANVAS_SELECTION_CHANGED_EVENT_NAME}: ${String(selection.nodes.length)} node(s), ${String(selection.edges.length)} connection(s)`, NOTICE_DURATION_IN_MILLISECONDS);
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(CANVAS_CONTENT_CHANGED_EVENT_NAME, (_leaf, change) => {
+      const describe = (kind: string, ids: readonly string[]): string => ids.length === 0 ? '' : ` ${kind} ${ids.join(', ')};`;
+      const nodes = describe('added', change.nodes.added) + describe('changed', change.nodes.changed) + describe('removed', change.nodes.removed);
+      const edges = describe('added', change.edges.added) + describe('changed', change.edges.changed) + describe('removed', change.edges.removed);
+      new Notice(`${CANVAS_CONTENT_CHANGED_EVENT_NAME}: nodes${nodes || ' unchanged;'} connections${edges || ' unchanged'}`, NOTICE_DURATION_IN_MILLISECONDS);
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(CANVAS_READ_ONLY_CHANGED_EVENT_NAME, (_leaf, isReadOnly) => {
+      new Notice(`${CANVAS_READ_ONLY_CHANGED_EVENT_NAME}: ${isReadOnly ? 'read-only' : 'editable'}`, NOTICE_DURATION_IN_MILLISECONDS);
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(CANVAS_NODE_EDITING_CHANGED_EVENT_NAME, (_leaf, nodeId, isEditing) => {
+      new Notice(`${CANVAS_NODE_EDITING_CHANGED_EVENT_NAME}: card ${nodeId} ${isEditing ? 'is being edited' : 'is no longer edited'}`, NOTICE_DURATION_IN_MILLISECONDS);
+    })
+  );
+  component.registerEvent(
+    app.workspace.on(CANVAS_TOOLBAR_RENDERED_EVENT_NAME, (_leaf, toolbarEl, selection) => {
+      const buttonEl = toolbarEl.createEl('button', { cls: 'clickable-icon' });
+      setIcon(buttonEl, 'lucide-info');
+      setTooltip(buttonEl, 'What is selected? (added by a listener)', { placement: 'top' });
+      buttonEl.addEventListener('click', () => {
+        const ids = [...selection.nodes, ...selection.edges].map((item) => item.id).join(', ');
+        new Notice(`Selected: ${ids}`);
+      });
+    })
+  );
+  component.load();
+  canvasEventListeningComponent = component;
+
+  new Notice('Listening. Now select, move or edit a card on the demo canvas.');
+}
+
+/**
+ * Drops the canvas event subscriptions. The toolbar button stays until Obsidian next rebuilds the toolbar.
+ *
+ * Manual equivalent: unloading the component that registered them, which a plugin gets for free when it is
+ * disabled.
+ */
+export function stopListeningToCanvasEvents(): void {
+  if (!canvasEventListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  canvasEventListeningComponent.unload();
+  canvasEventListeningComponent = null;
   new Notice('Stopped listening.');
 }
 

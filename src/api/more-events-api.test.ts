@@ -109,6 +109,6 @@ describe('the published contract', () => {
   });
 
   it('should publish a contract version independent of the plugin version', () => {
-    expect(PLUGIN_API_VERSION).toBe('1.6.0');
+    expect(PLUGIN_API_VERSION).toBe('1.7.0');
   });
 });
