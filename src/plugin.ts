@@ -44,6 +44,7 @@ import { WorkspaceMenuEventsComponent } from './context-menus/workspace/workspac
 import { NewFileReadyEventsComponent } from './files/new-file-ready-events-component.ts';
 import { CommunityPluginEventsComponent } from './plugin-lifecycle/community-plugin-events-component.ts';
 import { CorePluginEventsComponent } from './plugin-lifecycle/core-plugin-events-component.ts';
+import { TaskCheckboxEventsComponent } from './tasks/task-checkbox-events-component.ts';
 
 export class Plugin extends PluginBase {
   private moreEventsApi: MoreEventsApiImpl | null = null;
@@ -259,6 +260,12 @@ export class Plugin extends PluginBase {
 
     this.addChild(
       new NewFileReadyEventsComponent({
+        app: this.app
+      })
+    );
+
+    this.addChild(
+      new TaskCheckboxEventsComponent({
         app: this.app
       })
     );

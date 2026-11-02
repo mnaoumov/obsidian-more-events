@@ -59,6 +59,7 @@ import type {
   TabGroupMenuEventName,
   TableCellMenuEventName,
   TableHandleMenuEventName,
+  TaskCheckboxClickedEventName,
   VaultMenuEventName,
   WebViewerHistoryMenuEventName
 } from '../../api.d.ts';
@@ -141,6 +142,8 @@ export type {
   TableHandleAxis,
   TableHandleMenuEventName,
   TableHandleMenuItem,
+  TaskCheckboxClick,
+  TaskCheckboxClickedEventName,
   VaultMenuEventName,
   WebViewerHistoryMenuEventName,
   WebViewerHistoryMenuItem
@@ -333,6 +336,11 @@ export const TABLE_CELL_MENU_EVENT_NAME: TableCellMenuEventName = 'more-events:t
 export const TABLE_HANDLE_MENU_EVENT_NAME: TableHandleMenuEventName = 'more-events:table-handle-menu';
 
 /**
+ * Triggered on `app.workspace` after a task's checkbox was clicked and Obsidian wrote the toggled task, in Reading view or in the Live Preview editor.
+ */
+export const TASK_CHECKBOX_CLICKED_EVENT_NAME: TaskCheckboxClickedEventName = 'more-events:task-checkbox-clicked';
+
+/**
  * Triggered on `app.workspace` when the context menu of the vault name at the bottom of the left sidebar is about to open.
  */
 export const VAULT_MENU_EVENT_NAME: VaultMenuEventName = 'more-events:vault-menu';
@@ -353,7 +361,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * The version of the contract above — independent of the plugin's own version, so a consumer asks for
  * `'^1'` and keeps working across releases that change nothing it depends on.
  *
- * `1.7.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the events since `1.0.0`
+ * `1.8.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the events since `1.0.0`
  * were ADDED and nothing already published changed its meaning, so a consumer written against any
  * `1.x` compiles and runs unaltered. The payloads are declared additive-only in `api.d.ts` precisely so
  * this stays a minor.
@@ -369,9 +377,9 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * `markdown-properties-menu`, `canvas:node-menu`, `canvas:edge-menu` and `canvas:selection-menu`, and `1.5.0` added the
  * canvas selection toolbar's **Align**, **Line direction** and group background menus, and `1.6.0` added
  * `more-events:new-file-ready`, and `1.7.0` added the canvas events: the selection, content, read-only and card editing
- * changes, and the selection toolbar being rendered.
+ * changes, and the selection toolbar being rendered, and `1.8.0` added `more-events:task-checkbox-clicked`.
  */
-export const PLUGIN_API_VERSION = '1.7.0';
+export const PLUGIN_API_VERSION = '1.8.0';
 
 /**
  * The File Explorer vault-root context-menu event.

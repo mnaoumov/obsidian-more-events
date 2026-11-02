@@ -45,6 +45,7 @@ import {
   TAB_GROUP_MENU_EVENT_NAME,
   TABLE_CELL_MENU_EVENT_NAME,
   TABLE_HANDLE_MENU_EVENT_NAME,
+  TASK_CHECKBOX_CLICKED_EVENT_NAME,
   VAULT_MENU_EVENT_NAME,
   WEB_VIEWER_HISTORY_MENU_EVENT_NAME
 } from './more-events-api.ts';
@@ -60,6 +61,7 @@ describe('the published contract', () => {
     expect(FILE_EXPLORER_ROOT_MENU_EVENT_NAME).toBe('more-events:file-explorer-root-menu');
     expect(CORE_PLUGIN_ENABLED_EVENT_NAME).toBe('more-events:core-plugin-enabled');
     expect(NEW_FILE_READY_EVENT_NAME).toBe('more-events:new-file-ready');
+    expect(TASK_CHECKBOX_CLICKED_EVENT_NAME).toBe('more-events:task-checkbox-clicked');
     expect(CORE_PLUGIN_DISABLED_EVENT_NAME).toBe('more-events:core-plugin-disabled');
     expect(COMMUNITY_PLUGIN_ENABLED_EVENT_NAME).toBe('more-events:community-plugin-enabled');
     expect(COMMUNITY_PLUGIN_DISABLED_EVENT_NAME).toBe('more-events:community-plugin-disabled');
@@ -109,6 +111,6 @@ describe('the published contract', () => {
   });
 
   it('should publish a contract version independent of the plugin version', () => {
-    expect(PLUGIN_API_VERSION).toBe('1.7.0');
+    expect(PLUGIN_API_VERSION).toBe('1.8.0');
   });
 });

@@ -839,6 +839,52 @@ export interface TableHandleMenuItem {
 }
 
 /**
+ * One task checkbox click, as Obsidian wrote it to the note: the task's line and its status character before and
+ * after.
+ *
+ * Plain data, and additive only, like the other payloads in this file.
+ */
+export interface TaskCheckboxClick {
+  /**
+   * The task's status character after the click, between the `[` and the `]`: `x` for a task Obsidian checked, and a
+   * space for one it unchecked. Obsidian unchecks a task of any other status, such as `-` or `/`.
+   */
+  readonly char: string;
+
+  /**
+   * Whether the task is checked after the click: `char` is not a space.
+   */
+  readonly isChecked: boolean;
+
+  /**
+   * The task's line, counted from 0 as `Editor.getLine` counts it.
+   */
+  readonly line: number;
+
+  /**
+   * The task's whole line after the click, such as `- [x] Call the bank`.
+   */
+  readonly lineText: string;
+
+  /**
+   * The mode the Markdown view was in: `preview` for Reading view, `source` for the editor (Live Preview, where
+   * checkboxes are rendered).
+   */
+  readonly mode: MarkdownViewModeType;
+
+  /**
+   * The task's status character before the click.
+   */
+  readonly previousChar: string;
+}
+
+/**
+ * The name of the event triggered after a task's checkbox was clicked and Obsidian wrote the toggled task to the
+ * note, in Reading view or in the Live Preview editor.
+ */
+export type TaskCheckboxClickedEventName = 'more-events:task-checkbox-clicked';
+
+/**
  * The name of the event triggered when the context menu of the vault name at the bottom of the left sidebar is about
  * to open — the right-click on the vault name, which offers **Show in system explorer** (**Reveal in Finder** on
  * macOS) and **Copy path**. Desktop only: Obsidian shows the vault name there on the desktop app alone.
@@ -1593,6 +1639,23 @@ declare module 'obsidian' {
      */
     // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
     on(name: TableHandleMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, handle: TableHandleMenuItem) => unknown, context?: unknown): EventRef;
+
+    /**
+     * Subscribes to a task's checkbox being clicked, in Reading view as well as in the Live Preview editor.
+     *
+     * Triggered after Obsidian has toggled the task, once per click that changed the note: for a checkbox in a
+     * Markdown view's Reading view, a task's checkbox in its Live Preview editor, and a task inside a block Live
+     * Preview renders, such as a callout. The note's text already holds the new status, and the file is saved
+     * afterwards, as Obsidian always does. A checkbox in an embedded note or a hover popover writes another file and is
+     * not announced, nor is a task edited by typing, by a command or by another plugin.
+     *
+     * @param name - Should be `'more-events:task-checkbox-clicked'`.
+     * @param callback - The callback receiving the leaf holding the Markdown view, the note, and the click.
+     * @param context - The context passed as `this` to the `callback` function.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- A property member does not merge into an existing overload set. See above.
+    on(name: TaskCheckboxClickedEventName, callback: (leaf: WorkspaceLeaf, file: TFile, task: TaskCheckboxClick) => unknown, context?: unknown): EventRef;
 
     /**
      * Subscribes to the context menu of the vault name at the bottom of the left sidebar.
