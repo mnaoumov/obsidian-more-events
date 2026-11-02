@@ -11,10 +11,12 @@
 import type { ApiContract } from '@mnaoumov/typescript-lib/api-contract';
 
 import type {
+  AfterSaveEventName,
   AllPropertiesMenuEventName,
   BasesColumnMenuEventName,
   BasesKanbanColumnMenuEventName,
   BasesViewMenuEventName,
+  BeforeSaveEventName,
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
   CalloutMenuEventName,
@@ -31,6 +33,7 @@ import type {
   CanvasSelectionMenuEventName,
   CanvasToolbarRenderedEventName,
   CanvasViewMenuEventName,
+  CommandExecutedEventName,
   CommunityPluginDisabledEventName,
   CommunityPluginEnabledEventName,
   CommunityPluginMenuEventName,
@@ -41,6 +44,7 @@ import type {
   CssSnippetMenuEventName,
   ExternalImageMenuEventName,
   FileExplorerRootMenuEventName,
+  FrontmatterChangedEventName,
   HistoryMenuEventName,
   LeafMenuEventName,
   MarkdownPropertiesMenuEventName,
@@ -67,12 +71,14 @@ import type {
 import { MORE_EVENTS_API_CONTRACT } from '../../api-contract.ts';
 
 export type {
+  AfterSaveEventName,
   AllPropertiesMenuEventName,
   BasesColumnMenuEventName,
   BasesColumnMenuItem,
   BasesKanbanColumnMenuEventName,
   BasesKanbanColumnMenuItem,
   BasesViewMenuEventName,
+  BeforeSaveEventName,
   BookmarkMenuItem,
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
@@ -96,6 +102,7 @@ export type {
   CanvasSelectionMenuEventName,
   CanvasToolbarRenderedEventName,
   CanvasViewMenuEventName,
+  CommandExecutedEventName,
   CommunityPluginDisabledEventName,
   CommunityPluginEnabledEventName,
   CommunityPluginEventName,
@@ -109,10 +116,14 @@ export type {
   CorePluginSettingTabMenuEventName,
   CssSnippetMenuEventName,
   CssSnippetMenuItem,
+  ExecutedCommand,
   ExternalImageMenuEventName,
   ExternalImageMenuItem,
   FileExplorerRootMenuEventName,
   FileExplorerRootMenuSpot,
+  FileSaveChange,
+  FrontmatterChange,
+  FrontmatterChangedEventName,
   HistoryMenuDirection,
   HistoryMenuEventName,
   LeafMenuEventName,
@@ -378,8 +389,9 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * canvas selection toolbar's **Align**, **Line direction** and group background menus, and `1.6.0` added
  * `more-events:new-file-ready`, and `1.7.0` added the canvas events: the selection, content, read-only and card editing
  * changes, and the selection toolbar being rendered, and `1.8.0` added `more-events:task-checkbox-clicked`.
+ * `1.9.0` added before/after saves, command dispatch and indexed frontmatter diffs.
  */
-export const PLUGIN_API_VERSION = '1.8.0';
+export const PLUGIN_API_VERSION = '1.9.0';
 
 /**
  * The File Explorer vault-root context-menu event.
@@ -435,3 +447,20 @@ export const CANVAS_SELECTION_CHANGED_EVENT_NAME: CanvasSelectionChangedEventNam
  * Triggered on `app.workspace` after the toolbar above a canvas selection has been built.
  */
 export const CANVAS_TOOLBAR_RENDERED_EVENT_NAME: CanvasToolbarRenderedEventName = 'more-events:canvas-toolbar-rendered';
+
+/**
+Before a changed text-view snapshot is written.
+*/
+export const BEFORE_SAVE_EVENT_NAME: BeforeSaveEventName = 'more-events:before-save';
+/**
+After a changed text-view snapshot is successfully written.
+*/
+export const AFTER_SAVE_EVENT_NAME: AfterSaveEventName = 'more-events:after-save';
+/**
+After Obsidian accepts synchronous command dispatch.
+*/
+export const COMMAND_EXECUTED_EVENT_NAME: CommandExecutedEventName = 'more-events:command-executed';
+/**
+After the indexed frontmatter differs from its previous snapshot.
+*/
+export const FRONTMATTER_CHANGED_EVENT_NAME: FrontmatterChangedEventName = 'more-events:frontmatter-changed';

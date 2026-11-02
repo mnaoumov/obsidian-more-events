@@ -1704,3 +1704,51 @@ export function stopListeningToFileExplorerRootMenus(): void {
   rootMenuListeningComponent?.unload();
   rootMenuListeningComponent = null;
 }
+let fileChangesListener: Component | null = null;
+let commandsListener: Component | null = null;
+
+/** Watches actual saves and indexed frontmatter changes.
+ * @param app - The application.
+ */
+export function startListeningToFileChanges(app: App): void {
+  stopListeningToFileChanges();
+  const listener = new Component();
+  listener.load();
+  fileChangesListener = listener;
+  listener.registerEvent(app.workspace.on('more-events:before-save', (file) => {
+    new Notice(`Before save: ${file.path}`);
+  }));
+  listener.registerEvent(app.workspace.on('more-events:after-save', (file) => {
+    new Notice(`After save: ${file.path}`);
+  }));
+  listener.registerEvent(app.workspace.on('more-events:frontmatter-changed', (file, change) => {
+    new Notice(`${file.path}: ${JSON.stringify(change)}`);
+  }));
+  new Notice('Listening for saves and frontmatter changes');
+}
+
+/** Stops the file-change demonstration. */
+export function stopListeningToFileChanges(): void {
+  fileChangesListener?.unload();
+  fileChangesListener = null;
+}
+
+/** Watches synchronous command dispatch.
+ * @param app - The application.
+ */
+export function startListeningToCommands(app: App): void {
+  stopListeningToCommands();
+  const listener = new Component();
+  listener.load();
+  commandsListener = listener;
+  listener.registerEvent(app.workspace.on('more-events:command-executed', (command) => {
+    new Notice(`Command: ${command.id} (${command.name})`);
+  }));
+  new Notice('Listening for commands');
+}
+
+/** Stops the command demonstration. */
+export function stopListeningToCommands(): void {
+  commandsListener?.unload();
+  commandsListener = null;
+}

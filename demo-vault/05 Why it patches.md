@@ -25,3 +25,11 @@ The menus Obsidian already raises an undocumented event for are relayed, with no
 ## The URI action patch
 
 `more-events:new-file-ready` takes one more patch, on the `obsidian://` action handlers. Obsidian calls a handler and drops the promise it returns, so nothing says when `obsidian://new` has finished writing the note it created. `More Events` wraps each handler, the ones already registered and every one registered later, and holds a file created while one runs until its promise settles. The wrapper returns the handler's own result untouched. See [06 File events](<./06 File events.md>) for what the event promises.
+
+## Text-view saves and command dispatch
+
+`Vault.modify` is the shared text-write path used by manual saves, autosaves and plugin writes on both supported Obsidian builds. No event exposes its before-write moment. One patch brackets that routine and returns its original promise unchanged. A native `modify` event arrives after the file changed, and does not bracket the caller's write promise. Patching `TextFileView.writeData` would miss the public build, which has no such method; patching `TextFileView.save` would miss autosave callbacks already bound before this plugin loaded. See [06 File events](<./06 File events.md>).
+
+The command manager's `executeCommand` is the shared path for keyboard, palette and programmatic dispatch. It raises no event and drops asynchronous callback promises. One patch announces its successful synchronous return without invoking the callback again or changing that return value. See [09 Command events](<./09 Command events.md>).
+
+Frontmatter needs no patch: `metadataCache.changed` already announces indexing. Keeping independent snapshots supplies the old values and changed keys that the native event does not carry.

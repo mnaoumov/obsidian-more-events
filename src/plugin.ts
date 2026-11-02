@@ -12,6 +12,7 @@ import {
   PLUGIN_API_VERSION
 } from './api/more-events-api.ts';
 import { CanvasPatchComponent } from './canvas/canvas-patch-component.ts';
+import { CommandEventsComponent } from './commands/command-events-component.ts';
 import { AllPropertiesMenuEventsComponent } from './context-menus/all-properties/all-properties-menu-events-component.ts';
 import { BasesColumnMenuEventsComponent } from './context-menus/bases/bases-column-menu-events-component.ts';
 import { BasesKanbanColumnMenuEventsComponent } from './context-menus/bases/bases-kanban-column-menu-events-component.ts';
@@ -41,6 +42,8 @@ import { TableMenuEventsComponent } from './context-menus/table/table-menu-event
 import { VaultMenuEventsComponent } from './context-menus/vault/vault-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './context-menus/web-viewer-history/web-viewer-history-menu-events-component.ts';
 import { WorkspaceMenuEventsComponent } from './context-menus/workspace/workspace-menu-events-component.ts';
+import { FileSaveEventsComponent } from './files/file-save-events-component.ts';
+import { FrontmatterEventsComponent } from './files/frontmatter-events-component.ts';
 import { NewFileReadyEventsComponent } from './files/new-file-ready-events-component.ts';
 import { CommunityPluginEventsComponent } from './plugin-lifecycle/community-plugin-events-component.ts';
 import { CorePluginEventsComponent } from './plugin-lifecycle/core-plugin-events-component.ts';
@@ -79,6 +82,10 @@ export class Plugin extends PluginBase {
         }
       })
     );
+
+    this.addChild(new FileSaveEventsComponent({ app: this.app }));
+    this.addChild(new FrontmatterEventsComponent({ app: this.app }));
+    this.addChild(new CommandEventsComponent({ app: this.app }));
 
     const communityPluginEventsComponent = this.addChild(
       new CommunityPluginEventsComponent({

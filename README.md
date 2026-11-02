@@ -44,6 +44,7 @@ Every event fires on `app.workspace`.
 3. **File events**, for example `more-events:new-file-ready`, which fires once a new file holds its content, even when `obsidian://new` writes it after creating it: see [06 File events](<./demo-vault/06 File events.md>).
 4. **Canvas events**, for example `more-events:canvas-selection-changed`, and a hook to add a button to the toolbar above a canvas selection: see [07 Canvas events](<./demo-vault/07 Canvas events.md>).
 5. **Task events**: `more-events:task-checkbox-clicked`, which fires after a task's checkbox was clicked and Obsidian toggled the task, in Reading view as well as in Live Preview: see [08 Task events](<./demo-vault/08 Task events.md>).
+6. **Command events**, for example `more-events:command-executed`, after Obsidian dispatches a command: see [09 Command events](<./demo-vault/09 Command events.md>).
 
 ## See also
 

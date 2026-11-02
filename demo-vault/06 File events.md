@@ -2,9 +2,36 @@
 
 Obsidian fires `create` when a file is created, but it does not promise the file holds its content yet. `obsidian://new`, which Web Clipper and every `obsidian://new?content=...` link use, creates the note **empty**, fires `create`, and only then writes the content. A plugin that reads the note from `create`, as a template plugin does, reads an empty file and has to guess how long to wait.
 
-| Event                        | Fires once                                     | Payload |
+| Event | Fires once | Payload |
 | ---------------------------- | ---------------------------------------------- | ------- |
-| `more-events:new-file-ready` | a newly created file holds its initial content | `file`  |
+| `more-events:after-save` | a Vault.modify write succeeded | `file, change` |
+| `more-events:before-save` | a Vault.modify write is about to start | `file, change` |
+| `more-events:frontmatter-changed` | indexed YAML properties differ from the previous snapshot | `file, change` |
+| `more-events:new-file-ready` | a newly created file holds its initial content | `file` |
+
+## Saves and frontmatter
+
+The save pair covers text writes through `vault.modify`: manual saves, autosaves, saves when closing a text view, and writes by other plugins through that API. `change.content` is the exact text supplied to `vault.modify`. Clean text-view save requests are silent because Obsidian writes nothing. An explicit `vault.modify` call is announced even if its text is unchanged. A failed write has a before event and no after event. Unloading the plugin during a write suppresses its after event.
+
+The events carry the file rather than guessing which of its open views caused a write. These are synchronous observations, not cancellable or awaitable transformation hooks; changing the payload does not change the write. The before event runs after the caller captured its text. Metadata indexing may finish after the after event. Disk changes and other write APIs (`vault.process`, `vault.append`, binary operations and direct adapter writes) are outside this pair; they still produce frontmatter diffs when indexed.
+
+The frontmatter event carries `{ oldValues, newValues, changedKeys }`: independently copied indexed YAML properties and alphabetically sorted top-level keys that were added, removed or changed. Nested changes name their top-level property. Initial indexing establishes a baseline silently; body edits, YAML formatting and key reordering are silent. Removing the YAML produces an empty `newValues`. Renames retain the baseline and deletions drop it. Obsidian's deprecated `position` bookkeeping is excluded. Changes coalesced by Obsidian's indexer produce one diff between the snapshots it actually indexed.
+
+Start listening, then edit a note and save it manually or let autosave run. Change a property to see its old and new values in a notice:
+
+```code-button
+---
+caption: Listen for saves and frontmatter
+---
+require('/demoSetup.ts').startListeningToFileChanges(app);
+```
+
+```code-button
+---
+caption: Stop listening for file changes
+---
+require('/demoSetup.ts').stopListeningToFileChanges();
+```
 
 ## Watch it arrive
 
