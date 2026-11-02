@@ -44,10 +44,13 @@ import { WebViewerHistoryMenuEventsComponent } from './context-menus/web-viewer-
 import { WorkspaceMenuEventsComponent } from './context-menus/workspace/workspace-menu-events-component.ts';
 import { FileSaveEventsComponent } from './files/file-save-events-component.ts';
 import { FrontmatterEventsComponent } from './files/frontmatter-events-component.ts';
+import { IndexReadyEventsComponent } from './files/index-ready-events-component.ts';
 import { NewFileReadyEventsComponent } from './files/new-file-ready-events-component.ts';
 import { CommunityPluginEventsComponent } from './plugin-lifecycle/community-plugin-events-component.ts';
+import { CommunityPluginUninstalledEventsComponent } from './plugin-lifecycle/community-plugin-uninstalled-events-component.ts';
 import { CorePluginEventsComponent } from './plugin-lifecycle/core-plugin-events-component.ts';
 import { TaskCheckboxEventsComponent } from './tasks/task-checkbox-events-component.ts';
+import { WorkspaceEventsComponent } from './workspace/workspace-events-component.ts';
 
 export class Plugin extends PluginBase {
   private moreEventsApi: MoreEventsApiImpl | null = null;
@@ -83,6 +86,9 @@ export class Plugin extends PluginBase {
       })
     );
 
+    this.addChild(new WorkspaceEventsComponent({ app: this.app }));
+    this.addChild(new IndexReadyEventsComponent({ app: this.app }));
+    this.addChild(new CommunityPluginUninstalledEventsComponent({ app: this.app }));
     this.addChild(new FileSaveEventsComponent({ app: this.app }));
     this.addChild(new FrontmatterEventsComponent({ app: this.app }));
     this.addChild(new CommandEventsComponent({ app: this.app }));

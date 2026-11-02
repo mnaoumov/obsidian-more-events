@@ -12,6 +12,7 @@ import {
   setIcon,
   setTooltip
 } from 'obsidian';
+import { appendCodeBlock } from '@mnaoumov/obsidian-lib/html-element';
 import { watchPluginApi } from '@mnaoumov/obsidian-lib/plugin/plugin-api';
 
 /**
@@ -1637,7 +1638,7 @@ export async function toggleCanvasCorePlugin(app: App): Promise<void> {
 function createPluginNameFragment(prefix: string, pluginName: string, suffix: string): DocumentFragment {
   return createFragment((fragment) => {
     fragment.appendText(prefix);
-    fragment.createEl('code', { text: pluginName });
+    appendCodeBlock(fragment, pluginName);
     fragment.appendText(suffix);
   });
 }
@@ -1751,4 +1752,83 @@ export function startListeningToCommands(app: App): void {
 export function stopListeningToCommands(): void {
   commandsListener?.unload();
   commandsListener = null;
+}
+
+let workspaceListener: Component | null = null;
+
+/** Watches leaf, mode and preview transitions.
+ * @param app - The application.
+ */
+export function startListeningToWorkspaceEvents(app: App): void {
+  stopListeningToWorkspaceEvents();
+  const listener = new Component();
+  listener.load();
+  workspaceListener = listener;
+  listener.registerEvent(app.workspace.on('more-events:leaf-closed', (_leaf, file) => {
+    new Notice(`Closed tab: ${file?.path ?? 'no file'}`);
+  }));
+  listener.registerEvent(app.workspace.on('more-events:leaf-visibility-changed', (leaf, isVisible) => {
+    new Notice(`Tab ${leaf.id}: ${isVisible ? 'visible' : 'hidden'}`);
+  }));
+  listener.registerEvent(app.workspace.on('more-events:markdown-mode-changed', (_leaf, mode) => {
+    new Notice(`Markdown mode: ${mode}`);
+  }));
+  listener.registerEvent(app.workspace.on('more-events:markdown-preview-rendered', (_leaf, file) => {
+    new Notice(`Preview rendered: ${file.path}`);
+  }));
+  new Notice('Listening. Switch tabs, change Reading/editing mode, or close a tab.');
+}
+
+/** Stops the workspace demonstration. */
+export function stopListeningToWorkspaceEvents(): void {
+  workspaceListener?.unload();
+  workspaceListener = null;
+}
+
+/** Reloads the announcer with a readiness listener already registered.
+ * @param app - The application.
+ */
+export async function demonstrateIndexReadiness(app: App): Promise<void> {
+  const listener = new Component();
+  listener.load();
+  const ready = new Promise<void>((resolve) => {
+    listener.registerEvent(app.workspace.on('more-events:index-ready', () => {
+      new Notice('Metadata parsing and link resolution are ready.');
+      resolve();
+    }));
+  });
+  try {
+    await app.plugins.disablePlugin(PLUGIN_ID);
+    if (!await app.plugins.enablePlugin(PLUGIN_ID)) throw new Error('Could not reload More Events');
+    await ready;
+  } finally {
+    listener.unload();
+  }
+}
+
+/** Removes only the throwaway plugin this demo created, listening before the operation.
+ * @param app - The application.
+ */
+export async function uninstallDemoCommunityPlugin(app: App): Promise<void> {
+  await installDemoCommunityPlugin(app);
+  const listener = new Component();
+  listener.load();
+  const removed = new Promise<void>((resolve) => {
+    listener.registerEvent(app.workspace.on('more-events:community-plugin-uninstalled', (plugin) => {
+      if (plugin.communityPluginId === DEMO_COMMUNITY_PLUGIN_ID) {
+        new Notice(createPluginNameFragment('Uninstalled: ', plugin.communityPluginName, ''));
+        resolve();
+      }
+    }));
+  });
+  try {
+    // Let the native manifest refresh establish the installation before uninstalling it.
+    await new Promise<void>((resolve) => {
+      const ref = app.plugins.on('changed', () => { app.plugins.offref(ref); resolve(); });
+    });
+    await app.plugins.uninstallPlugin(DEMO_COMMUNITY_PLUGIN_ID);
+    await removed;
+  } finally {
+    listener.unload();
+  }
 }

@@ -45,6 +45,7 @@ Every event fires on `app.workspace`.
 4. **Canvas events**, for example `more-events:canvas-selection-changed`, and a hook to add a button to the toolbar above a canvas selection: see [07 Canvas events](<./demo-vault/07 Canvas events.md>).
 5. **Task events**: `more-events:task-checkbox-clicked`, which fires after a task's checkbox was clicked and Obsidian toggled the task, in Reading view as well as in Live Preview: see [08 Task events](<./demo-vault/08 Task events.md>).
 6. **Command events**, for example `more-events:command-executed`, after Obsidian dispatches a command: see [09 Command events](<./demo-vault/09 Command events.md>).
+7. **Workspace events**, for example `more-events:leaf-closed`, plus Reading-mode and preview completion signals: see [10 Workspace events](<./demo-vault/10 Workspace events.md>) and [11 Index readiness](<./demo-vault/11 Index readiness.md>).
 
 ## See also
 

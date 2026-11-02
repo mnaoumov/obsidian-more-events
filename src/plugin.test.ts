@@ -62,6 +62,33 @@ import { CorePluginEventsComponent } from './plugin-lifecycle/core-plugin-events
 import { Plugin } from './plugin.ts';
 import { TaskCheckboxEventsComponent } from './tasks/task-checkbox-events-component.ts';
 
+vi.mock('./workspace/workspace-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- The plugin constructs this stub.
+    WorkspaceEventsComponent: vi.fn(function componentStub() {
+      return new Component();
+    })
+  };
+});
+vi.mock('./files/index-ready-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- The plugin constructs this stub.
+    IndexReadyEventsComponent: vi.fn(function componentStub() {
+      return new Component();
+    })
+  };
+});
+vi.mock('./plugin-lifecycle/community-plugin-uninstalled-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- The plugin constructs this stub.
+    CommunityPluginUninstalledEventsComponent: vi.fn(function componentStub() {
+      return new Component();
+    })
+  };
+});
 vi.mock('./commands/command-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
