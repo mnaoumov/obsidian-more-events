@@ -1411,6 +1411,63 @@ export function stopListeningToNewFileReady(): void {
   new Notice('Stopped listening.');
 }
 
+const TASK_CHECKBOX_CLICKED_EVENT_NAME = 'more-events:task-checkbox-clicked';
+let taskCheckboxListeningComponent: Component | null = null;
+
+/**
+ * The click `more-events:task-checkbox-clicked` hands over, as far as the demo shows it.
+ */
+interface TaskCheckboxClickLike {
+  readonly char: string;
+  readonly line: number;
+  readonly lineText: string;
+  readonly mode: string;
+  readonly previousChar: string;
+}
+
+/**
+ * Subscribes to `more-events:task-checkbox-clicked` and shows a notice for every task checkbox clicked, until the
+ * stop button below.
+ *
+ * Manual equivalent: the same `on(...)` call from your own plugin's `onload`.
+ */
+export function startListeningToTaskCheckboxes(app: App): void {
+  if (taskCheckboxListeningComponent) {
+    new Notice('Already listening. Click a task checkbox.');
+    return;
+  }
+
+  const component = new Component();
+  component.registerEvent(
+    app.workspace.on(TASK_CHECKBOX_CLICKED_EVENT_NAME, (_leaf: WorkspaceLeaf, file: TFile, task: TaskCheckboxClickLike) => {
+      new Notice(
+        `${TASK_CHECKBOX_CLICKED_EVENT_NAME} (${task.mode}): ${file.path}, line ${String(task.line)}, [${task.previousChar}] -> [${task.char}]\n${task.lineText}`,
+        NOTICE_DURATION_IN_MILLISECONDS
+      );
+    })
+  );
+  component.load();
+  taskCheckboxListeningComponent = component;
+
+  new Notice('Listening. Now click a task checkbox, in Reading view or in Live Preview.');
+}
+
+/**
+ * Drops the task checkbox subscription.
+ *
+ * Manual equivalent: unloading the component that registered it, which a plugin gets for free when it is disabled.
+ */
+export function stopListeningToTaskCheckboxes(): void {
+  if (!taskCheckboxListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+
+  taskCheckboxListeningComponent.unload();
+  taskCheckboxListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+
 const CANVAS_CONTENT_CHANGED_EVENT_NAME = 'more-events:canvas-content-changed';
 const CANVAS_NODE_EDITING_CHANGED_EVENT_NAME = 'more-events:canvas-node-editing-changed';
 const CANVAS_READ_ONLY_CHANGED_EVENT_NAME = 'more-events:canvas-read-only-changed';

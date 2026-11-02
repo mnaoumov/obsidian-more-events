@@ -60,6 +60,7 @@ import { NewFileReadyEventsComponent } from './files/new-file-ready-events-compo
 import { CommunityPluginEventsComponent } from './plugin-lifecycle/community-plugin-events-component.ts';
 import { CorePluginEventsComponent } from './plugin-lifecycle/core-plugin-events-component.ts';
 import { Plugin } from './plugin.ts';
+import { TaskCheckboxEventsComponent } from './tasks/task-checkbox-events-component.ts';
 
 vi.mock('@mnaoumov/obsidian-lib/components/file-explorer-root-menu-component', async (importOriginal) => {
   const original = await importOriginal<typeof import('@mnaoumov/obsidian-lib/components/file-explorer-root-menu-component')>();
@@ -257,6 +258,16 @@ vi.mock('./files/new-file-ready-events-component.ts', async () => {
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     NewFileReadyEventsComponent: vi.fn(function newFileReadyEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./tasks/task-checkbox-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
+    TaskCheckboxEventsComponent: vi.fn(function taskCheckboxEventsComponentStub() {
       return new Component();
     })
   };
@@ -688,6 +699,18 @@ describe('Plugin', () => {
     await plugin.onload();
 
     const calls = vi.mocked(NewFileReadyEventsComponent).mock.calls;
+    expect(calls).toHaveLength(1);
+    expect(castTo<PluginEventsComponentConstructorParams>(calls[0]?.[0]).app).toBe(plugin.app);
+
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
+  it('should add the task checkbox events component with the app', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+
+    const calls = vi.mocked(TaskCheckboxEventsComponent).mock.calls;
     expect(calls).toHaveLength(1);
     expect(castTo<PluginEventsComponentConstructorParams>(calls[0]?.[0]).app).toBe(plugin.app);
 
