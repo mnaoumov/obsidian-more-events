@@ -38,6 +38,7 @@ import type {
   CommunityPluginEnabledEventName,
   CommunityPluginMenuEventName,
   CommunityPluginSettingTabMenuEventName,
+  CommunityPluginUninstalledEventName,
   CorePluginDisabledEventName,
   CorePluginEnabledEventName,
   CorePluginSettingTabMenuEventName,
@@ -46,7 +47,12 @@ import type {
   FileExplorerRootMenuEventName,
   FrontmatterChangedEventName,
   HistoryMenuEventName,
+  IndexReadyEventName,
+  LeafClosedEventName,
   LeafMenuEventName,
+  LeafVisibilityChangedEventName,
+  MarkdownModeChangedEventName,
+  MarkdownPreviewRenderedEventName,
   MarkdownPropertiesMenuEventName,
   MarkdownViewportMenuEventName,
   NewFileReadyEventName,
@@ -109,6 +115,7 @@ export type {
   CommunityPluginEventPayload,
   CommunityPluginMenuEventName,
   CommunityPluginSettingTabMenuEventName,
+  CommunityPluginUninstalledEventName,
   CorePluginDisabledEventName,
   CorePluginEnabledEventName,
   CorePluginEventName,
@@ -126,7 +133,12 @@ export type {
   FrontmatterChangedEventName,
   HistoryMenuDirection,
   HistoryMenuEventName,
+  IndexReadyEventName,
+  LeafClosedEventName,
   LeafMenuEventName,
+  LeafVisibilityChangedEventName,
+  MarkdownModeChangedEventName,
+  MarkdownPreviewRenderedEventName,
   MarkdownPropertiesMenuEventName,
   MarkdownViewportMenuEventName,
   MoreEventsApi,
@@ -391,7 +403,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * changes, and the selection toolbar being rendered, and `1.8.0` added `more-events:task-checkbox-clicked`.
  * `1.9.0` added before/after saves, command dispatch and indexed frontmatter diffs.
  */
-export const PLUGIN_API_VERSION = '1.9.0';
+export const PLUGIN_API_VERSION = '1.10.0';
 
 /**
  * The File Explorer vault-root context-menu event.
@@ -464,3 +476,28 @@ export const COMMAND_EXECUTED_EVENT_NAME: CommandExecutedEventName = 'more-event
 After the indexed frontmatter differs from its previous snapshot.
 */
 export const FRONTMATTER_CHANGED_EVENT_NAME: FrontmatterChangedEventName = 'more-events:frontmatter-changed';
+
+/**
+A detached workspace leaf.
+*/
+export const LEAF_CLOSED_EVENT_NAME: LeafClosedEventName = 'more-events:leaf-closed';
+/**
+Observed leaf visibility transition.
+*/
+export const LEAF_VISIBILITY_CHANGED_EVENT_NAME: LeafVisibilityChangedEventName = 'more-events:leaf-visibility-changed';
+/**
+A completed Reading/editing mode transition.
+*/
+export const MARKDOWN_MODE_CHANGED_EVENT_NAME: MarkdownModeChangedEventName = 'more-events:markdown-mode-changed';
+/**
+A completed Reading-view rendering pass.
+*/
+export const MARKDOWN_PREVIEW_RENDERED_EVENT_NAME: MarkdownPreviewRenderedEventName = 'more-events:markdown-preview-rendered';
+/**
+The first clean metadata index after this plugin load.
+*/
+export const INDEX_READY_EVENT_NAME: IndexReadyEventName = 'more-events:index-ready';
+/**
+An installed community plugin disappeared.
+*/
+export const COMMUNITY_PLUGIN_UNINSTALLED_EVENT_NAME: CommunityPluginUninstalledEventName = 'more-events:community-plugin-uninstalled';

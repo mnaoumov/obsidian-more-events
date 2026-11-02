@@ -1772,3 +1772,75 @@ declare module 'obsidian' {
     on(name: FrontmatterChangedEventName, callback: (file: TFile, change: FrontmatterChange) => unknown, context?: unknown): EventRef;
   }
 }
+
+/** A workspace leaf was detached. @since 1.10.0 */
+export type LeafClosedEventName = 'more-events:leaf-closed';
+/** Observed workspace visibility changed. @since 1.10.0 */
+export type LeafVisibilityChangedEventName = 'more-events:leaf-visibility-changed';
+/** Reading/editing mode changed. @since 1.10.0 */
+export type MarkdownModeChangedEventName = 'more-events:markdown-mode-changed';
+/** A Reading-view rendering pass finished. @since 1.10.0 */
+export type MarkdownPreviewRenderedEventName = 'more-events:markdown-preview-rendered';
+/** The first metadata index after plugin load is clean. @since 1.10.0 */
+export type IndexReadyEventName = 'more-events:index-ready';
+/** An installed community plugin disappeared. @since 1.10.0 */
+export type CommunityPluginUninstalledEventName = 'more-events:community-plugin-uninstalled';
+
+/** Identifies the installed plugin that was removed, even if it was disabled. */
+export interface CommunityPluginUninstalledPayload {
+  /** The removed manifest's id. */
+  readonly communityPluginId: string;
+  /** The display name captured before removal. */
+  readonly communityPluginName: string;
+}
+
+declare module 'obsidian' {
+  interface Workspace {
+    /**
+     * After a workspace leaf is detached. The leaf's view has already been cleared; use the captured file.
+     * A file is supplied for a FileView, or `null` for views without one. Closing a tab is independent of
+     * whether other tabs still show the same file. Moving a tab between groups is not a close.
+     * @since 1.10.0
+     */
+    on(name: LeafClosedEventName, callback: (leaf: WorkspaceLeaf, file: TFile | null) => unknown, context?: unknown): EventRef;
+    /**
+     * A leaf's `isVisible()` value changed at a native layout, active-leaf or resize notification.
+     * Newly observed visible leaves report `true`; existing leaves form a silent baseline on plugin load.
+     * Focus alone is not visibility, and an eventual close has its own event. Collapsed sidebars count
+     * according to Obsidian's own visibility test. This is sampled state, not every intermediate DOM change.
+     * @since 1.10.0
+     */
+    on(name: LeafVisibilityChangedEventName, callback: (leaf: WorkspaceLeaf, isVisible: boolean) => unknown, context?: unknown): EventRef;
+    /**
+     * After a Markdown view switches between `source` (editing) and `preview` (Reading).
+     * Does not distinguish Live Preview from Source mode, both of which are `source`.
+     * @since 1.10.0
+     */
+    on(name: MarkdownModeChangedEventName, callback: (leaf: WorkspaceLeaf, mode: 'source' | 'preview') => unknown, context?: unknown): EventRef;
+    /**
+     * After Obsidian completes a Reading-view render pass and its tracked post-processing promises.
+     * May repeat for the same content when the renderer runs again. Virtualized offscreen DOM, network
+     * images and untracked third-party work are not promised complete. Clearing a view is not a render.
+     * @since 1.10.0
+     */
+    on(name: MarkdownPreviewRenderedEventName, callback: (leaf: WorkspaceLeaf, file: TFile) => unknown, context?: unknown): EventRef;
+    /**
+     * Once per `More Events` load, when metadata parsing and link resolution first become idle.
+     * Also fires asynchronously when enabled after startup with an already-clean index. Subscribe before
+     * enabling the plugin to observe that case; this event is not replayed to later subscribers. It does
+     * not reconstruct changes made while Obsidian was closed or promise that files never change again.
+     * @since 1.10.0
+     */
+    on(name: IndexReadyEventName, callback: () => unknown, context?: unknown): EventRef;
+    /**
+     * An installed community plugin's manifest disappeared at the manager's debounced change signal.
+     * Includes native uninstall and a manifest refresh after external removal, including disabled plugins.
+     * Removal is confirmed asynchronously against its recorded plugin folder, avoiding the temporary empty
+     * manifest map during refresh. Unload or reinstallation cancels an outstanding confirmation.
+     * Disabling, failed removal and in-place updates do not remove the installed manifest and are silent.
+     * A remove/reinstall coalesced into one native signal is not observable here.
+     * @since 1.10.0
+     */
+    on(name: CommunityPluginUninstalledEventName, callback: (plugin: CommunityPluginUninstalledPayload) => unknown, context?: unknown): EventRef;
+  }
+}

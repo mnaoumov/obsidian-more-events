@@ -2,10 +2,10 @@
 
 Obsidian tells a plugin even less about community plugins than it does about core ones. There is a signal — `app.plugins` fires a `changed` event — but it carries **no payload at all**: not the plugin, not its id, not the direction, not who did it, and it is fired from enabling, disabling, the manifest load and the update check alike. This plugin watches that signal once, in one place, works out what actually moved, and re-publishes the result as two ordinary workspace events.
 
-| Event | Fires after | Payload |
-| --- | --- | --- |
+| Event                                   | Fires after                    | Payload                                                       |
+| --------------------------------------- | ------------------------------ | ------------------------------------------------------------- |
 | `more-events:community-plugin-disabled` | a community plugin is unloaded | `{ communityPluginId, communityPluginName, isUserInitiated }` |
-| `more-events:community-plugin-enabled` | a community plugin is loaded | `{ communityPluginId, communityPluginName, isUserInitiated }` |
+| `more-events:community-plugin-enabled`  | a community plugin is loaded   | `{ communityPluginId, communityPluginName, isUserInitiated }` |
 
 ## Watch them arrive
 
@@ -66,3 +66,24 @@ The toggle in **Settings -> Community plugins** reaches them through `enablePlug
 - **Nothing fires for the community plugins that were already loaded when `More Events` loaded.** Nothing changed, so nothing is announced. The starting state comes from the API instead — see [03 For plugin developers](<./03 For plugin developers.md>).
 - **They arrive in batches.** Obsidian debounces its signal, so several plugins moving at once produce one signal and therefore several events back to back. That is why the plugin diffs rather than trusting the signal to mean one change.
 - **They overlap with `@mnaoumov/obsidian-lib`.** That library broadcasts `obsidian-lib:plugin-loaded` and `obsidian-lib:plugin-unloaded` — but only for plugins built on it, which is a small and particular set. These two events cover **every** community plugin in the vault, including the ones that have never heard of that library. A plugin built on it will raise both, so subscribe to one of the two and not to both.
+
+## Installed plugin removal
+
+| Event                                      | Fires when                                                   | Payload                                      |
+| ------------------------------------------ | ------------------------------------------------------------ | -------------------------------------------- |
+| `more-events:community-plugin-uninstalled` | an installed manifest disappears at the native change signal | `{ communityPluginId, communityPluginName }` |
+
+Contract `1.10.0` distinguishes removal from disabling: a disabled plugin is still installed. Failed removal and in-place updates are silent. A manifest refresh after an external deletion also counts. The native signal is debounced; a remove/reinstall coalesced into one signal cannot be observed. No user-initiation flag is invented for this event.
+
+A missing manifest is confirmed asynchronously against its recorded plugin folder. Obsidian temporarily empties its manifest map during a refresh; a plugin whose folder still exists is retained in the baseline. Reinstallation or unloading the observer cancels a pending confirmation.
+
+This button installs the throwaway demo plugin if needed, listens for removal, and uninstalls only that fixture:
+
+```code-button
+---
+caption: Uninstall the demo plugin
+---
+await require('/demoSetup.ts').uninstallDemoCommunityPlugin(app);
+```
+
+Manual equivalent: subscribe to `more-events:community-plugin-uninstalled`, then uninstall the demo plugin from **Settings -> Community plugins**. The notice names the removed plugin.
