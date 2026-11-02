@@ -48,7 +48,7 @@ Every event fires on `app.workspace`.
 
 ## See also
 
-[My other Obsidian resources](https://github.com/mnaoumov/obsidian-resources)
+[My other Obsidian resources](https://mnaoumov.dev/obsidian/)
 
 No similar plugin was found when this was last searched for, on 2026-10-26.
 
