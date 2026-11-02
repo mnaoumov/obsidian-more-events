@@ -62,6 +62,33 @@ import { CorePluginEventsComponent } from './plugin-lifecycle/core-plugin-events
 import { Plugin } from './plugin.ts';
 import { TaskCheckboxEventsComponent } from './tasks/task-checkbox-events-component.ts';
 
+vi.mock('./commands/command-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- The plugin constructs this stub.
+    CommandEventsComponent: vi.fn(function componentStub() {
+      return new Component();
+    })
+  };
+});
+vi.mock('./files/file-save-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- The plugin constructs this stub.
+    FileSaveEventsComponent: vi.fn(function componentStub() {
+      return new Component();
+    })
+  };
+});
+vi.mock('./files/frontmatter-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- The plugin constructs this stub.
+    FrontmatterEventsComponent: vi.fn(function componentStub() {
+      return new Component();
+    })
+  };
+});
 vi.mock('@mnaoumov/obsidian-lib/components/file-explorer-root-menu-component', async (importOriginal) => {
   const original = await importOriginal<typeof import('@mnaoumov/obsidian-lib/components/file-explorer-root-menu-component')>();
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');

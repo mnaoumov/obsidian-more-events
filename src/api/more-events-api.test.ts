@@ -5,10 +5,12 @@ import {
 } from 'vitest';
 
 import {
+  AFTER_SAVE_EVENT_NAME,
   ALL_PROPERTIES_MENU_EVENT_NAME,
   BASES_COLUMN_MENU_EVENT_NAME,
   BASES_KANBAN_COLUMN_MENU_EVENT_NAME,
   BASES_VIEW_MENU_EVENT_NAME,
+  BEFORE_SAVE_EVENT_NAME,
   BOOKMARKS_MENU_EVENT_NAME,
   BOOKMARKS_VIEW_MENU_EVENT_NAME,
   CALLOUT_MENU_EVENT_NAME,
@@ -17,6 +19,7 @@ import {
   CANVAS_NODE_MENU_EVENT_NAME,
   CANVAS_SELECTION_MENU_EVENT_NAME,
   CANVAS_VIEW_MENU_EVENT_NAME,
+  COMMAND_EXECUTED_EVENT_NAME,
   COMMUNITY_PLUGIN_DISABLED_EVENT_NAME,
   COMMUNITY_PLUGIN_ENABLED_EVENT_NAME,
   COMMUNITY_PLUGIN_MENU_EVENT_NAME,
@@ -27,6 +30,7 @@ import {
   CSS_SNIPPET_MENU_EVENT_NAME,
   EXTERNAL_IMAGE_MENU_EVENT_NAME,
   FILE_EXPLORER_ROOT_MENU_EVENT_NAME,
+  FRONTMATTER_CHANGED_EVENT_NAME,
   HISTORY_MENU_EVENT_NAME,
   LEAF_MENU_EVENT_NAME,
   MARKDOWN_PROPERTIES_MENU_EVENT_NAME,
@@ -58,6 +62,10 @@ import {
  */
 describe('the published contract', () => {
   it('should keep the event names it published', () => {
+    expect(AFTER_SAVE_EVENT_NAME).toBe('more-events:after-save');
+    expect(BEFORE_SAVE_EVENT_NAME).toBe('more-events:before-save');
+    expect(COMMAND_EXECUTED_EVENT_NAME).toBe('more-events:command-executed');
+    expect(FRONTMATTER_CHANGED_EVENT_NAME).toBe('more-events:frontmatter-changed');
     expect(FILE_EXPLORER_ROOT_MENU_EVENT_NAME).toBe('more-events:file-explorer-root-menu');
     expect(CORE_PLUGIN_ENABLED_EVENT_NAME).toBe('more-events:core-plugin-enabled');
     expect(NEW_FILE_READY_EVENT_NAME).toBe('more-events:new-file-ready');
@@ -111,6 +119,6 @@ describe('the published contract', () => {
   });
 
   it('should publish a contract version independent of the plugin version', () => {
-    expect(PLUGIN_API_VERSION).toBe('1.8.0');
+    expect(PLUGIN_API_VERSION).toBe('1.9.0');
   });
 });

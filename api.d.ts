@@ -1687,3 +1687,88 @@ declare module 'obsidian' {
     on(name: WebViewerHistoryMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf, historyItem: WebViewerHistoryMenuItem) => unknown, context?: unknown): EventRef;
   }
 }
+
+/** The text supplied to a Vault.modify save. */
+export interface FileSaveChange {
+  /** The snapshot being written; changing this object does not change the write. */
+  readonly content: string;
+}
+
+/** The command accepted by Obsidian's synchronous dispatcher. */
+export interface ExecutedCommand {
+  /** The globally qualified command id. */
+  readonly id: string;
+  /** The display name at dispatch time. */
+  readonly name: string;
+}
+
+/** A diff of indexed YAML properties, excluding Obsidian's deprecated position bookkeeping. */
+export interface FrontmatterChange {
+  /** Added, removed or changed top-level property names, sorted alphabetically. */
+  readonly changedKeys: readonly string[];
+  /** Independent copies of the new indexed properties. An absent property has no key. */
+  readonly newValues: Readonly<Record<string, unknown>>;
+  /** Independent copies of the previous indexed properties. */
+  readonly oldValues: Readonly<Record<string, unknown>>;
+}
+
+/** Before a Vault.modify write. */
+export type BeforeSaveEventName = 'more-events:before-save';
+/** After that Vault.modify write succeeds. */
+export type AfterSaveEventName = 'more-events:after-save';
+/** After synchronous command dispatch returns successfully. */
+export type CommandExecutedEventName = 'more-events:command-executed';
+/** After already-indexed frontmatter changes. */
+export type FrontmatterChangedEventName = 'more-events:frontmatter-changed';
+
+declare module 'obsidian' {
+  interface Workspace {
+    /**
+     * Observes a Vault.modify call immediately before its write starts. Includes manual saves,
+     * autosaves, saves when closing a view and plugin calls to vault.modify. Clean text-view saves are silent.
+     * This is a synchronous observation, not a cancellable, mutable or awaitable transformation hook.
+     *
+     * @param name - The before-save event name.
+     * @param callback - Receives the file and a copy of the supplied text.
+     * @param context - The callback's `this` value.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- Augments an existing overload set.
+    on(name: BeforeSaveEventName, callback: (file: TFile, change: FileSaveChange) => unknown, context?: unknown): EventRef;
+    /**
+     * Observes a successful Vault.modify write. A failed write has a before event and no after event.
+     * Unloading this plugin during a write suppresses its after event. Metadata indexing may finish later.
+     *
+     * @param name - The after-save event name.
+     * @param callback - Receives the file and a copy of the supplied text.
+     * @param context - The callback's `this` value.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- Augments an existing overload set.
+    on(name: AfterSaveEventName, callback: (file: TFile, change: FileSaveChange) => unknown, context?: unknown): EventRef;
+    /**
+     * Observes successful synchronous command dispatch. Includes keyboard, palette and executeCommandById
+     * calls. Obsidian does not await asynchronous callbacks, and its success result does not guarantee that
+     * a checkCallback performed an action. Direct calls to a command's callback bypass the dispatcher.
+     *
+     * @param name - The command event name.
+     * @param callback - Receives a plain copy of the command id and name.
+     * @param context - The callback's `this` value.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- Augments an existing overload set.
+    on(name: CommandExecutedEventName, callback: (command: ExecutedCommand) => unknown, context?: unknown): EventRef;
+    /**
+     * Observes a semantic change between consecutive indexed frontmatter snapshots. Initial indexing establishes
+     * a baseline and is silent. Body edits and YAML key reordering are silent; nested changes name their top-level
+     * key. Removing all properties produces an empty newValues object. Rename retains the baseline; delete drops it.
+     *
+     * @param name - The frontmatter event name.
+     * @param callback - Receives the file and independently copied old/new values and changed keys.
+     * @param context - The callback's `this` value.
+     * @returns The event reference.
+     */
+    // eslint-disable-next-line @typescript-eslint/method-signature-style -- Augments an existing overload set.
+    on(name: FrontmatterChangedEventName, callback: (file: TFile, change: FrontmatterChange) => unknown, context?: unknown): EventRef;
+  }
+}
