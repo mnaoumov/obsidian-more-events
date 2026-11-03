@@ -22,3 +22,5 @@ If you are reading it as a plugin developer, this vault is the documentation. Ev
 
 - [10 Workspace events](<./10 Workspace events.md>)
 - [11 Index readiness](<./11 Index readiness.md>)
+
+- [12 Configuration events](<./12 Configuration events.md>)

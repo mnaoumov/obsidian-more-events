@@ -30,3 +30,9 @@ await require('/demoSetup.ts').demonstrateIndexReadiness(app);
 ```
 
 Manual equivalent: subscribe from a separate plugin, then disable and enable `More Events` in **Settings -> Community plugins**. A notice confirms that metadata parsing and link resolution are ready.
+
+## Comparing a persisted baseline
+
+Consumers can compare their own last completed snapshot after `more-events:index-ready`, then save the new baseline only after comparison completes. Keep the baseline per device if the goal is changes unseen by that device. Treat a missing, corrupt or incompatible baseline as a first scan, not a vault full of changes.
+
+A size/mtime snapshot can miss timestamp-preserving edits. A content hash can identify different final bytes, but cannot recover intermediate edits, their order, attribution or rename identity. `More Events` stores no offline file history and does not replay changes made while it was absent.
