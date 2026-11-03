@@ -506,7 +506,11 @@ export const INDEX_READY_EVENT_NAME: IndexReadyEventName = 'more-events:index-re
 An installed community plugin disappeared.
 */
 export const COMMUNITY_PLUGIN_UNINSTALLED_EVENT_NAME: CommunityPluginUninstalledEventName = 'more-events:community-plugin-uninstalled';
-/** A native vault configuration key changed. */
+/**
+A native vault configuration key changed.
+*/
 export const CONFIG_CHANGED_EVENT_NAME: ConfigChangedEventName = 'more-events:config-changed';
-/** Before an internal link request is resolved by its destination leaf. */
+/**
+Before an internal link request is resolved by its destination leaf.
+*/
 export const BEFORE_LINK_OPEN_EVENT_NAME: BeforeLinkOpenEventName = 'more-events:before-link-open';

@@ -39,3 +39,9 @@ Frontmatter needs no patch: `metadataCache.changed` already announces indexing. 
 One workspace component observes three distinct seams: detaching a leaf, completing a Markdown mode switch, and completing a Reading-view rendering pass. None raises a native subscribable event. A debounced layout diff can miss a leaf opened and closed between notifications, and the detached leaf has already lost its old view. The close hook captures its file before calling through. The mode hook observes the original promise without replacing it. The preview hook follows Obsidian's tracked post-processing promises and excludes the separate callback caused by clearing a preview. See [10 Workspace events](<./10 Workspace events.md>) for the guarantees and limits.
 
 Leaf visibility, index readiness and installed-plugin removal need no patch. Native workspace notifications supply visibility snapshots, the metadata cache supplies its clean callback, and the plugin manager's change signal supplies an installed-manifest diff. See [11 Index readiness](<./11 Index readiness.md>) and [02 Community plugin events](<./02 Community plugin events.md>).
+
+## Internal link requests
+
+`Workspace.openLinkText` delegates to `WorkspaceLeaf.openLinkText`, which resolves the target and may create a missing file before opening it. Neither path raises a notification before those effects. One patch on the leaf method covers both paths once, announces the original link text and source path, and returns the original promise unchanged. The notification cannot cancel or redirect the request. See [10 Workspace events](<./10 Workspace events.md>).
+
+Configuration changes need no patch: the vault already emits the changed key after updating its in-memory configuration. See [12 Configuration events](<./12 Configuration events.md>).

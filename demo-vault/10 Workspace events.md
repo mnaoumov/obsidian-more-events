@@ -4,7 +4,7 @@
 
 | Event                                   | Fires when                                                                                      | Arguments         |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------- | ----------------- |
-| `more-events:before-link-open` | an attached leaf is about to resolve and open internal link text | `leaf, request` |
+| `more-events:before-link-open`          | an attached leaf is about to resolve and open internal link text                                | `leaf, request`   |
 | `more-events:leaf-closed`               | a workspace leaf has detached                                                                   | `leaf, file`      |
 | `more-events:leaf-visibility-changed`   | Obsidian reports a layout, active leaf or resize notification and the leaf's visibility differs | `leaf, isVisible` |
 | `more-events:markdown-mode-changed`     | a Markdown view finishes switching Reading/editing mode                                         | `leaf, mode`      |

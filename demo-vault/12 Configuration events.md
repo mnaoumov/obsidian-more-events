@@ -2,8 +2,8 @@
 
 `More Events` relays native vault configuration changes on `app.workspace`, without patching Obsidian.
 
-| Event                        | Fires when                              | Arguments |
-| ---------------------------- | --------------------------------------- | --------- |
+| Event                        | Fires when                               | Arguments |
+| ---------------------------- | ---------------------------------------- | --------- |
 | `more-events:config-changed` | a native vault configuration key changes | `key`     |
 
 Available in contract `1.11.0`.

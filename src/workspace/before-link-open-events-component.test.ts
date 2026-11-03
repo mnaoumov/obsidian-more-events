@@ -16,12 +16,12 @@ describe('BeforeLinkOpenEventsComponent', () => {
   it('should announce before navigation, preserve arguments and promise, exclude foreign leaves and restore on unload', async () => {
     const order: string[] = [];
     const result = noopAsync();
-    const original = WorkspaceLeaf.prototype.openLinkText;
     const fallback = vi.fn(() => {
       order.push('open');
       return result;
     });
-    WorkspaceLeaf.prototype.openLinkText = fallback;
+    const original = Object.getOwnPropertyDescriptor(WorkspaceLeaf.prototype, 'openLinkText');
+    Object.defineProperty(WorkspaceLeaf.prototype, 'openLinkText', { configurable: true, value: fallback, writable: true });
     const leaf = castTo<WorkspaceLeaf>(Object.create(WorkspaceLeaf.prototype));
     const foreignLeaf = castTo<WorkspaceLeaf>(Object.create(WorkspaceLeaf.prototype));
     const trigger = vi.fn(() => {
@@ -52,7 +52,11 @@ describe('BeforeLinkOpenEventsComponent', () => {
       expect(trigger).toHaveBeenCalledTimes(1);
     } finally {
       component.unload();
-      WorkspaceLeaf.prototype.openLinkText = original;
+      if (original) {
+        Object.defineProperty(WorkspaceLeaf.prototype, 'openLinkText', original);
+      } else {
+        Reflect.deleteProperty(WorkspaceLeaf.prototype, 'openLinkText');
+      }
     }
   });
 });
