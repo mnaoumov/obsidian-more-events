@@ -4,12 +4,13 @@
 
 | Event                                   | Fires when                                                                                      | Arguments         |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------- | ----------------- |
+| `more-events:before-link-open`          | an attached leaf is about to resolve and open internal link text                                | `leaf, request`   |
 | `more-events:leaf-closed`               | a workspace leaf has detached                                                                   | `leaf, file`      |
 | `more-events:leaf-visibility-changed`   | Obsidian reports a layout, active leaf or resize notification and the leaf's visibility differs | `leaf, isVisible` |
 | `more-events:markdown-mode-changed`     | a Markdown view finishes switching Reading/editing mode                                         | `leaf, mode`      |
 | `more-events:markdown-preview-rendered` | a Reading-view renderer finishes a pass and its tracked post-processing promises                | `leaf, file`      |
 
-These events are available in contract `1.10.0`.
+The link request event is available in contract `1.11.0`; the other events in `1.10.0`.
 
 ## What each event means
 
@@ -56,3 +57,15 @@ require('/demoSetup.ts').stopListeningToWorkspaceEvents();
 ```
 
 Manual equivalent: unload the listening component.
+
+## Before opening an internal link
+
+`more-events:before-link-open` carries the destination `leaf` and a plain `{ linktext, sourcePath }` request. It fires before resolution and before a missing file can be created, for `Workspace.openLinkText` and direct `WorkspaceLeaf.openLinkText` calls. Try the listen button above, then follow [Index readiness](<./11 Index readiness.md>).
+
+This is a synchronous notification of a request, without cancellation or a success guarantee. Editing the payload cannot redirect the request. External URLs, embeds, direct `openFile` calls and leaves outside the workspace are outside its scope.
+
+## Layout loading and persistence
+
+Use Obsidian's public `workspace.onLayoutReady` for initial layout loading. Late subscribers run immediately; it is not a persisted-workspace change history.
+
+There is no successful workspace-save event here. Native `saveLayout` returns without writing before layout readiness and catches write errors without reporting them. A fulfilled promise therefore cannot prove a successful save. Watching the workspace JSON file also cannot distinguish this process's saves from Sync or another writer.

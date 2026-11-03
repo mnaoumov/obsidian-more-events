@@ -1776,6 +1776,9 @@ export function startListeningToWorkspaceEvents(app: App): void {
   listener.registerEvent(app.workspace.on('more-events:markdown-preview-rendered', (_leaf, file) => {
     new Notice(`Preview rendered: ${file.path}`);
   }));
+  listener.registerEvent(app.workspace.on('more-events:before-link-open', (_leaf, request) => {
+    new Notice(`Before link: ${request.linktext} from ${request.sourcePath}`);
+  }));
   new Notice('Listening. Switch tabs, change Reading/editing mode, or close a tab.');
 }
 
@@ -1830,5 +1833,23 @@ export async function uninstallDemoCommunityPlugin(app: App): Promise<void> {
     await removed;
   } finally {
     listener.unload();
+  }
+}
+
+/** Demonstrates the key-specific configuration relay without retaining a setting change.
+ * @param app - The application.
+ */
+export function demonstrateConfigChange(app: App): void {
+  const previous = app.vault.getConfig('readableLineLength');
+  const ref = app.workspace.on('more-events:config-changed', (key) => {
+    if (key === 'readableLineLength') {
+      new Notice(`Config changed: ${key}`);
+    }
+  });
+  try {
+    app.vault.setConfig('readableLineLength', !previous);
+  } finally {
+    app.workspace.offref(ref);
+    app.vault.setConfig('readableLineLength', previous);
   }
 }

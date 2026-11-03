@@ -16,6 +16,7 @@ import type {
   BasesColumnMenuEventName,
   BasesKanbanColumnMenuEventName,
   BasesViewMenuEventName,
+  BeforeLinkOpenEventName,
   BeforeSaveEventName,
   BookmarksMenuEventName,
   BookmarksViewMenuEventName,
@@ -39,6 +40,7 @@ import type {
   CommunityPluginMenuEventName,
   CommunityPluginSettingTabMenuEventName,
   CommunityPluginUninstalledEventName,
+  ConfigChangedEventName,
   CorePluginDisabledEventName,
   CorePluginEnabledEventName,
   CorePluginSettingTabMenuEventName,
@@ -84,6 +86,7 @@ export type {
   BasesKanbanColumnMenuEventName,
   BasesKanbanColumnMenuItem,
   BasesViewMenuEventName,
+  BeforeLinkOpenEventName,
   BeforeSaveEventName,
   BookmarkMenuItem,
   BookmarksMenuEventName,
@@ -116,6 +119,7 @@ export type {
   CommunityPluginMenuEventName,
   CommunityPluginSettingTabMenuEventName,
   CommunityPluginUninstalledEventName,
+  ConfigChangedEventName,
   CorePluginDisabledEventName,
   CorePluginEnabledEventName,
   CorePluginEventName,
@@ -137,6 +141,7 @@ export type {
   LeafClosedEventName,
   LeafMenuEventName,
   LeafVisibilityChangedEventName,
+  LinkOpenRequest,
   MarkdownModeChangedEventName,
   MarkdownPreviewRenderedEventName,
   MarkdownPropertiesMenuEventName,
@@ -403,7 +408,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * changes, and the selection toolbar being rendered, and `1.8.0` added `more-events:task-checkbox-clicked`.
  * `1.9.0` added before/after saves, command dispatch and indexed frontmatter diffs.
  */
-export const PLUGIN_API_VERSION = '1.10.0';
+export const PLUGIN_API_VERSION = '1.11.0';
 
 /**
  * The File Explorer vault-root context-menu event.
@@ -501,3 +506,11 @@ export const INDEX_READY_EVENT_NAME: IndexReadyEventName = 'more-events:index-re
 An installed community plugin disappeared.
 */
 export const COMMUNITY_PLUGIN_UNINSTALLED_EVENT_NAME: CommunityPluginUninstalledEventName = 'more-events:community-plugin-uninstalled';
+/**
+A native vault configuration key changed.
+*/
+export const CONFIG_CHANGED_EVENT_NAME: ConfigChangedEventName = 'more-events:config-changed';
+/**
+Before an internal link request is resolved by its destination leaf.
+*/
+export const BEFORE_LINK_OPEN_EVENT_NAME: BeforeLinkOpenEventName = 'more-events:before-link-open';

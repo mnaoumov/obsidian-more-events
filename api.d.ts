@@ -1844,3 +1844,36 @@ declare module 'obsidian' {
     on(name: CommunityPluginUninstalledEventName, callback: (plugin: CommunityPluginUninstalledPayload) => unknown, context?: unknown): EventRef;
   }
 }
+
+/** A native vault configuration key changed. @since 1.11.0 */
+export type ConfigChangedEventName = 'more-events:config-changed';
+/** Before a workspace leaf resolves internal link text. @since 1.11.0 */
+export type BeforeLinkOpenEventName = 'more-events:before-link-open';
+
+/** Plain snapshot of an internal-link opening request. */
+export interface LinkOpenRequest {
+  /** Original link text, including any heading or block subpath. */
+  readonly linktext: string;
+  /** Source path used for relative link resolution. */
+  readonly sourcePath: string;
+}
+
+declare module 'obsidian' {
+  interface Workspace {
+    /**
+     * Relays Vault.config-changed synchronously after the in-memory configuration changes.
+     * Includes native external app.json reloads; not arbitrary plugin data, CSS or other config files.
+     * The key is open-ended. Read the current value through the vault; persistence may still be pending.
+     * No replay or initial snapshot. @since 1.11.0
+     */
+    on(name: ConfigChangedEventName, callback: (key: string) => unknown, context?: unknown): EventRef;
+    /**
+     * Before an attached leaf's openLinkText resolves, creates or opens an internal target.
+     * Includes Workspace.openLinkText, which delegates to that method, and direct leaf calls.
+     * This is a request notification, not a veto or a success signal. No external URLs, embeds,
+     * direct openFile calls or detached leaves. The payload is copied; changing it cannot redirect navigation.
+     * @since 1.11.0
+     */
+    on(name: BeforeLinkOpenEventName, callback: (leaf: WorkspaceLeaf, request: LinkOpenRequest) => unknown, context?: unknown): EventRef;
+  }
+}

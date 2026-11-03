@@ -47,6 +47,8 @@ Every event fires on `app.workspace`.
 6. **Command events**, for example `more-events:command-executed`, after Obsidian dispatches a command: see [09 Command events](<./demo-vault/09 Command events.md>).
 7. **Workspace events**, for example `more-events:leaf-closed`, plus Reading-mode and preview completion signals: see [10 Workspace events](<./demo-vault/10 Workspace events.md>) and [11 Index readiness](<./demo-vault/11 Index readiness.md>).
 
+8. **Configuration events**, for example `more-events:config-changed`, naming the native vault configuration key: see [12 Configuration events](<./demo-vault/12 Configuration events.md>).
+
 ## See also
 
 [My other Obsidian resources](https://mnaoumov.dev/obsidian/)
@@ -77,7 +79,7 @@ this.registerEvent(
 );
 ```
 
-For the current state, and to know whether `More Events` is installed at all, take the API through the registry. The contract is **`1.5.0`** and moves independently of the plugin's own version, so ask for a range.
+For the current state, and to know whether `More Events` is installed at all, take the API through the registry. The contract is **`1.11.0`** and moves independently of the plugin's own version, so ask for a range.
 
 Beside `api.d.ts`, [`api-contract.ts`](./api-contract.ts) holds the API's contract, `MORE_EVENTS_API_CONTRACT`: for every method, a schema over its arguments and a schema over what it returns. Copy it next to `api.d.ts` and pass it as the `contract`, so both sides check the same definition. It imports from one package besides `./api.d.ts`, [`@mnaoumov/typescript-lib`](https://www.npmjs.com/package/@mnaoumov/typescript-lib) (`1.3.0` or later). More in [03 For plugin developers](<./demo-vault/03 For plugin developers.md>).
 

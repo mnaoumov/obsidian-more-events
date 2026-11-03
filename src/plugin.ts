@@ -13,6 +13,7 @@ import {
 } from './api/more-events-api.ts';
 import { CanvasPatchComponent } from './canvas/canvas-patch-component.ts';
 import { CommandEventsComponent } from './commands/command-events-component.ts';
+import { ConfigEventsComponent } from './config/config-events-component.ts';
 import { AllPropertiesMenuEventsComponent } from './context-menus/all-properties/all-properties-menu-events-component.ts';
 import { BasesColumnMenuEventsComponent } from './context-menus/bases/bases-column-menu-events-component.ts';
 import { BasesKanbanColumnMenuEventsComponent } from './context-menus/bases/bases-kanban-column-menu-events-component.ts';
@@ -50,6 +51,7 @@ import { CommunityPluginEventsComponent } from './plugin-lifecycle/community-plu
 import { CommunityPluginUninstalledEventsComponent } from './plugin-lifecycle/community-plugin-uninstalled-events-component.ts';
 import { CorePluginEventsComponent } from './plugin-lifecycle/core-plugin-events-component.ts';
 import { TaskCheckboxEventsComponent } from './tasks/task-checkbox-events-component.ts';
+import { BeforeLinkOpenEventsComponent } from './workspace/before-link-open-events-component.ts';
 import { WorkspaceEventsComponent } from './workspace/workspace-events-component.ts';
 
 export class Plugin extends PluginBase {
@@ -86,6 +88,8 @@ export class Plugin extends PluginBase {
       })
     );
 
+    this.addChild(new ConfigEventsComponent({ app: this.app }));
+    this.addChild(new BeforeLinkOpenEventsComponent({ app: this.app }));
     this.addChild(new WorkspaceEventsComponent({ app: this.app }));
     this.addChild(new IndexReadyEventsComponent({ app: this.app }));
     this.addChild(new CommunityPluginUninstalledEventsComponent({ app: this.app }));
