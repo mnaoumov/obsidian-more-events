@@ -47,9 +47,31 @@ const DEMO_VAULT_TEST_FILES = 'src/**/*.demo-vault.integration.test.ts';
  */
 const DEMO_VAULT_TIMEOUT_IN_MILLISECONDS = 600_000;
 
+/**
+ * The suites that need an Obsidian account: the core **Sync** and **Publish** menus exist only in a vault connected to
+ * a remote vault and a site. They open a person's signed-in profile and test vault themselves (named by the
+ * `MORE_EVENTS_ACCOUNT_PROFILE` and `MORE_EVENTS_ACCOUNT_VAULT` environment variables), so this project has no
+ * temporary-vault setup, runs one file at a time because two instances on one profile corrupt it, and matches none of
+ * the standard globs: `npm run test:integration` never collects it, and only `npm run test:integration:desktop-account`
+ * runs it.
+ */
+const DESKTOP_ACCOUNT_TEST_FILES = 'src/**/*.desktop-account.integration.test.ts';
+
+const DESKTOP_ACCOUNT_TIMEOUT_IN_MILLISECONDS = 180_000;
+
 export const config = defineObsidianPluginVitestConfig({
   customProjects(context: ObsidianPluginVitestConfigContext): TestProjectConfiguration[] {
     return [
+      {
+        test: {
+          environment: 'node',
+          fileParallelism: false,
+          hookTimeout: DESKTOP_ACCOUNT_TIMEOUT_IN_MILLISECONDS,
+          include: [DESKTOP_ACCOUNT_TEST_FILES],
+          name: 'integration-tests:desktop-account',
+          testTimeout: DESKTOP_ACCOUNT_TIMEOUT_IN_MILLISECONDS
+        }
+      },
       {
         test: {
           ...context.desktop,

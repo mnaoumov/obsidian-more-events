@@ -65,9 +65,12 @@ import type {
   PdfThumbnailMenuEventName,
   PropertyMenuEventName,
   PropertyValueMenuEventName,
+  PublishFileMenuEventName,
   RibbonMenuEventName,
   SearchResultsMenuEventName,
   SidebarToggleMenuEventName,
+  SyncFilesMenuEventName,
+  SyncStatusMenuEventName,
   TabGroupMenuEventName,
   TableCellMenuEventName,
   TableHandleMenuEventName,
@@ -158,11 +161,17 @@ export type {
   PropertyMenuItem,
   PropertyValueMenuEventName,
   PropertyValueMenuItem,
+  PublishChangeType,
+  PublishFileMenuEventName,
+  PublishFileMenuItem,
   RibbonMenuEventName,
   RibbonSide,
   SearchResultsMenuEventName,
   SidebarSide,
   SidebarToggleMenuEventName,
+  SyncFilesMenuEventName,
+  SyncStatus,
+  SyncStatusMenuEventName,
   TabGroupMenuEventName,
   TableCellMenuEventName,
   TableCellMenuItem,
@@ -406,9 +415,10 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * canvas selection toolbar's **Align**, **Line direction** and group background menus, and `1.6.0` added
  * `more-events:new-file-ready`, and `1.7.0` added the canvas events: the selection, content, read-only and card editing
  * changes, and the selection toolbar being rendered, and `1.8.0` added `more-events:task-checkbox-clicked`.
- * `1.9.0` added before/after saves, command dispatch and indexed frontmatter diffs.
+ * `1.9.0` added before/after saves, command dispatch and indexed frontmatter diffs. `1.12.0` added the **Sync** status
+ * menu, the **Sync history** view's multi-selection menu and the **Publish changes** dialog's file row menu.
  */
-export const PLUGIN_API_VERSION = '1.11.0';
+export const PLUGIN_API_VERSION = '1.12.0';
 
 /**
  * The File Explorer vault-root context-menu event.
@@ -514,3 +524,15 @@ export const CONFIG_CHANGED_EVENT_NAME: ConfigChangedEventName = 'more-events:co
 Before an internal link request is resolved by its destination leaf.
 */
 export const BEFORE_LINK_OPEN_EVENT_NAME: BeforeLinkOpenEventName = 'more-events:before-link-open';
+/**
+The **Sync** status icon's menu.
+*/
+export const SYNC_STATUS_MENU_EVENT_NAME: SyncStatusMenuEventName = 'more-events:sync-status-menu';
+/**
+The **Sync history** view's menu for several selected files.
+*/
+export const SYNC_FILES_MENU_EVENT_NAME: SyncFilesMenuEventName = 'more-events:sync-files-menu';
+/**
+The menu of a file row in the **Publish changes** dialog.
+*/
+export const PUBLISH_FILE_MENU_EVENT_NAME: PublishFileMenuEventName = 'more-events:publish-file-menu';

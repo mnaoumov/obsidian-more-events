@@ -36,9 +36,12 @@ import { PdfToolbarMenuEventsComponent } from './context-menus/pdf/pdf-toolbar-m
 import { PluginSettingTabMenuEventsComponent } from './context-menus/plugin-setting-tab/plugin-setting-tab-menu-events-component.ts';
 import { PropertyMenuEventsComponent } from './context-menus/property/property-menu-events-component.ts';
 import { PropertyValueMenuEventsComponent } from './context-menus/property/property-value-menu-events-component.ts';
+import { PublishFileMenuEventsComponent } from './context-menus/publish/publish-file-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './context-menus/ribbon/ribbon-menu-events-component.ts';
 import { SearchMenuEventsComponent } from './context-menus/search/search-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './context-menus/sidebar-toggle/sidebar-toggle-menu-events-component.ts';
+import { SyncFilesMenuEventsComponent } from './context-menus/sync/sync-files-menu-events-component.ts';
+import { SyncStatusMenuEventsComponent } from './context-menus/sync/sync-status-menu-events-component.ts';
 import { TableMenuEventsComponent } from './context-menus/table/table-menu-events-component.ts';
 import { VaultMenuEventsComponent } from './context-menus/vault/vault-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './context-menus/web-viewer-history/web-viewer-history-menu-events-component.ts';
@@ -239,6 +242,12 @@ export class Plugin extends PluginBase {
       })
     );
 
+    const syncStatusMenuEventsComponent = this.addChild(new SyncStatusMenuEventsComponent({ app: this.app }));
+
+    const syncFilesMenuEventsComponent = this.addChild(new SyncFilesMenuEventsComponent({ app: this.app }));
+
+    const publishFileMenuEventsComponent = this.addChild(new PublishFileMenuEventsComponent({ app: this.app }));
+
     const historyMenuEventsComponent = this.addChild(
       new HistoryMenuEventsComponent({
         app: this.app
@@ -305,7 +314,10 @@ export class Plugin extends PluginBase {
           pdfOutlineMenuEventsComponent,
           pdfPageMenuEventsComponent,
           basesKanbanColumnMenuEventsComponent,
-          vaultMenuEventsComponent
+          vaultMenuEventsComponent,
+          syncStatusMenuEventsComponent,
+          syncFilesMenuEventsComponent,
+          publishFileMenuEventsComponent
         ],
         menuAnnouncers: [
           bookmarksMenuEventsComponent,
@@ -323,7 +335,8 @@ export class Plugin extends PluginBase {
           communityPluginMenuEventsComponent,
           basesViewMenuEventsComponent,
           pdfToolbarMenuEventsComponent,
-          canvasToolbarMenuEventsComponent
+          canvasToolbarMenuEventsComponent,
+          syncStatusMenuEventsComponent
         ]
       })
     );

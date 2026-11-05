@@ -49,9 +49,12 @@ import { PdfToolbarMenuEventsComponent } from './context-menus/pdf/pdf-toolbar-m
 import { PluginSettingTabMenuEventsComponent } from './context-menus/plugin-setting-tab/plugin-setting-tab-menu-events-component.ts';
 import { PropertyMenuEventsComponent } from './context-menus/property/property-menu-events-component.ts';
 import { PropertyValueMenuEventsComponent } from './context-menus/property/property-value-menu-events-component.ts';
+import { PublishFileMenuEventsComponent } from './context-menus/publish/publish-file-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './context-menus/ribbon/ribbon-menu-events-component.ts';
 import { SearchMenuEventsComponent } from './context-menus/search/search-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './context-menus/sidebar-toggle/sidebar-toggle-menu-events-component.ts';
+import { SyncFilesMenuEventsComponent } from './context-menus/sync/sync-files-menu-events-component.ts';
+import { SyncStatusMenuEventsComponent } from './context-menus/sync/sync-status-menu-events-component.ts';
 import { TableMenuEventsComponent } from './context-menus/table/table-menu-events-component.ts';
 import { VaultMenuEventsComponent } from './context-menus/vault/vault-menu-events-component.ts';
 import { WebViewerHistoryMenuEventsComponent } from './context-menus/web-viewer-history/web-viewer-history-menu-events-component.ts';
@@ -272,6 +275,36 @@ vi.mock('./context-menus/history/history-menu-events-component.ts', async () => 
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A `function` form is required so vitest can `new` the stub (an arrow throws), and the body must return a fresh real Component.
     HistoryMenuEventsComponent: vi.fn(function historyMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./context-menus/sync/sync-status-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A constructible stub must return a fresh real Component, as in the other component mocks.
+    SyncStatusMenuEventsComponent: vi.fn(function syncStatusMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./context-menus/sync/sync-files-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A constructible stub must return a fresh real Component, as in the other component mocks.
+    SyncFilesMenuEventsComponent: vi.fn(function syncFilesMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./context-menus/publish/publish-file-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A constructible stub must return a fresh real Component, as in the other component mocks.
+    PublishFileMenuEventsComponent: vi.fn(function publishFileMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -629,7 +662,10 @@ describe('Plugin', () => {
       vi.mocked(PdfOutlineMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(PdfPageMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(BasesKanbanColumnMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(VaultMenuEventsComponent).mock.results[0]?.value
+      vi.mocked(VaultMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(SyncStatusMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(SyncFilesMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(PublishFileMenuEventsComponent).mock.results[0]?.value
     ]);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
@@ -783,7 +819,8 @@ describe('Plugin', () => {
       vi.mocked(CommunityPluginMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(BasesViewMenuEventsComponent).mock.results[0]?.value,
       vi.mocked(PdfToolbarMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(CanvasToolbarMenuEventsComponent).mock.results[0]?.value
+      vi.mocked(CanvasToolbarMenuEventsComponent).mock.results[0]?.value,
+      vi.mocked(SyncStatusMenuEventsComponent).mock.results[0]?.value
     ]);
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
@@ -852,6 +889,19 @@ describe('Plugin', () => {
     await plugin.onload();
     expect(vi.mocked(CanvasToolbarMenuEventsComponent)).toHaveBeenCalledExactlyOnceWith({ app });
     expect(vi.mocked(MenuPatchComponent).mock.calls[0]?.[0].positionedMenuAnnouncers).toContain(getFirstInstance(CanvasToolbarMenuEventsComponent));
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
+  it('should register the Sync and Publish menu announcers with the app, the Sync status one as both deferred and positioned', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+    for (const component of [SyncStatusMenuEventsComponent, SyncFilesMenuEventsComponent, PublishFileMenuEventsComponent]) {
+      expect(vi.mocked(component)).toHaveBeenCalledExactlyOnceWith({ app });
+    }
+    const menuPatchParams = vi.mocked(MenuPatchComponent).mock.calls[0]?.[0];
+    expect(menuPatchParams?.positionedMenuAnnouncers).toContain(getFirstInstance(SyncStatusMenuEventsComponent));
+    expect(menuPatchParams?.deferredMenuAnnouncers).toContain(getFirstInstance(SyncStatusMenuEventsComponent));
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();
   });
