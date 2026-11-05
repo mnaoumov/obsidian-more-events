@@ -21,19 +21,19 @@ describe('CommandEventsComponent', () => {
   });
   it.each([true, false])('should preserve dispatch and announce only a successful return (%s)', (success) => {
     const command: Command = { id: 'alpha:bravo', name: 'Bravo' };
-    const executeCommand = vi.fn((_command: Command) => success);
+    const didExecuteCommandMock = vi.fn((_command: Command) => success);
     const trigger = vi.fn();
-    const commands = { executeCommand };
+    const commands = { executeCommand: didExecuteCommandMock };
     const component = new CommandEventsComponent({ app: castTo<App>({ commands, workspace: { trigger } }) });
     component.load();
     try {
       expect(commands.executeCommand(command)).toBe(success);
-      expect(executeCommand).toHaveBeenCalledExactlyOnceWith(command);
-      expect(executeCommand.mock.contexts[0]).toBe(commands);
+      expect(didExecuteCommandMock).toHaveBeenCalledExactlyOnceWith(command);
+      expect(didExecuteCommandMock.mock.contexts[0]).toBe(commands);
       expect(trigger.mock.calls).toEqual(success ? [['more-events:command-executed', { id: 'alpha:bravo', name: 'Bravo' }]] : []);
     } finally {
       component.unload();
     }
-    expect(commands.executeCommand).toBe(executeCommand);
+    expect(commands.executeCommand).toBe(didExecuteCommandMock);
   });
 });

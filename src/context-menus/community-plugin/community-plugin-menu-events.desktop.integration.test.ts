@@ -46,7 +46,7 @@ interface MenuRecord {
  */
 describe('Community plugin menu events', () => {
   it('should let a listener add an item to a community plugin\'s settings row menu', { timeout: TEST_TIMEOUT_IN_MS }, async () => {
-    const record = await openCommunityPluginMenu('more-events', 'row');
+    const record = await openCommunityPluginMenu('row');
 
     expect(record.communityPluginIds).toEqual(['more-events']);
     expect(record.shownItemTitles).toContain('Added by a listener');
@@ -55,7 +55,7 @@ describe('Community plugin menu events', () => {
   });
 
   it('should let a listener add an item to the menu of a community plugin\'s More options button', { timeout: TEST_TIMEOUT_IN_MS }, async () => {
-    const record = await openCommunityPluginMenu('more-events', 'more-options');
+    const record = await openCommunityPluginMenu('more-options');
 
     expect(record.communityPluginIds).toEqual(['more-events']);
     expect(record.shownItemTitles).toContain('Added by a listener');
@@ -64,14 +64,13 @@ describe('Community plugin menu events', () => {
 });
 
 /**
- * Opens **Settings -> Community plugins**, right-clicks a plugin's row or clicks its **More options** button with a
+ * Opens **Settings -> Community plugins**, right-clicks `More Events`' own row or clicks its **More options** button with a
  * trusted click, and records what the listener saw and what the menu on screen showed.
  *
- * @param communityPluginId - The plugin whose row to open the menu of.
  * @param menuOpener - Where to open the menu from.
  * @returns What happened.
  */
-async function openCommunityPluginMenu(communityPluginId: string, menuOpener: MenuOpener): Promise<MenuRecord> {
+async function openCommunityPluginMenu(menuOpener: MenuOpener): Promise<MenuRecord> {
   return await evalInObsidian({
     async callback({
       app,
@@ -136,7 +135,7 @@ async function openCommunityPluginMenu(communityPluginId: string, menuOpener: Me
     },
     input: {
       COMMUNITY_PLUGIN_MENU_EVENT_NAME,
-      communityPluginId,
+      communityPluginId: 'more-events',
       MENU_OPENER: menuOpener
     },
     vaultPath: getTemporaryVault().path

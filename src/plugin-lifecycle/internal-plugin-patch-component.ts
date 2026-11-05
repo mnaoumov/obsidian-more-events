@@ -28,12 +28,6 @@ export interface InternalPluginPatchComponentConstructorParams {
 }
 
 /**
- * A core plugin read generically — the shape every entry of `app.internalPlugins.plugins` has, with the
- * per-plugin instance type widened away because nothing here looks inside one.
- */
-type CorePlugin = InternalPlugin<InternalPluginInstance<unknown>>;
-
-/**
  * Recovers the `isEnabledByUser` / `isDisabledByUser` argument Obsidian takes and then throws away.
  *
  * `InternalPlugin.prototype.enable(isEnabledByUser)` and `.disable(isDisabledByUser)` are where every core
@@ -72,6 +66,12 @@ export class InternalPluginPatchComponent extends MonkeyAroundComponent {
   public override onload(): void {
     super.onload();
 
+    /**
+     * A core plugin read generically — the shape every entry of `app.internalPlugins.plugins` has, with the
+     * per-plugin instance type widened away because nothing here looks inside one.
+     */
+    type CorePlugin = InternalPlugin<InternalPluginInstance<unknown>>;
+
     /*
      * `InternalPluginNamePluginsMapping` is a mapped type with one concrete plugin type per known id and no
      * index signature, so `Object.values` over it infers `unknown`. Widening to the base shape is what the
@@ -96,10 +96,10 @@ export class InternalPluginPatchComponent extends MonkeyAroundComponent {
       methodName: 'enable',
       patchHandler: ({
         fallback,
-        originalArguments: [isEnabledByUser],
+        originalArguments: [isEnabledByUser = false],
         originalThis
       }) => {
-        this.userInitiationRecorder.recordUserInitiation(originalThis.instance.id, isEnabledByUser ?? false);
+        this.userInitiationRecorder.recordUserInitiation(originalThis.instance.id, isEnabledByUser);
         return fallback();
       }
     });
@@ -109,10 +109,10 @@ export class InternalPluginPatchComponent extends MonkeyAroundComponent {
       methodName: 'disable',
       patchHandler: ({
         fallback,
-        originalArguments: [isDisabledByUser],
+        originalArguments: [isDisabledByUser = false],
         originalThis
       }) => {
-        this.userInitiationRecorder.recordUserInitiation(originalThis.instance.id, isDisabledByUser ?? false);
+        this.userInitiationRecorder.recordUserInitiation(originalThis.instance.id, isDisabledByUser);
         fallback();
       }
     });

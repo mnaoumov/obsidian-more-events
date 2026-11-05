@@ -14,12 +14,6 @@ import { InternalPluginPatchComponent } from './internal-plugin-patch-component.
 import { PluginEventsComponentBase } from './plugin-events-component-base.ts';
 
 /**
- * A core plugin read generically — the shape every entry of `app.internalPlugins.plugins` has, with the
- * per-plugin instance type widened away because this component never looks inside one.
- */
-type CorePlugin = InternalPlugin<InternalPluginInstance<unknown>>;
-
-/**
  * Turns Obsidian's own coarse core-plugin signal into the two named events this plugin publishes.
  *
  * Obsidian already triggers `change` on `app.internalPlugins` at the end of both `InternalPlugin.enable()`
@@ -78,6 +72,12 @@ export class CorePluginEventsComponent extends PluginEventsComponentBase {
    * @returns The display name of every enabled core plugin, keyed by its id.
    */
   protected override readEnabledPlugins(): Map<string, string> {
+    /**
+     * A core plugin read generically — the shape every entry of `app.internalPlugins.plugins` has, with the
+     * per-plugin instance type widened away because this component never looks inside one.
+     */
+    type CorePlugin = InternalPlugin<InternalPluginInstance<unknown>>;
+
     const enabledCorePluginNamesById = new Map<string, string>();
 
     /*

@@ -24,14 +24,14 @@ describe('CommunityPluginUninstalledEventsComponent', () => {
     const pending = new Promise<boolean>((resolve) => {
       finish = resolve;
     });
-    const exists = vi.fn(() => pending);
+    const doesExistMock = vi.fn(() => pending);
     const trigger = vi.fn();
-    const component = new CommunityPluginUninstalledEventsComponent({ app: castTo<App>({ plugins, vault: { adapter: { exists } }, workspace: { trigger } }) });
+    const component = new CommunityPluginUninstalledEventsComponent({ app: castTo<App>({ plugins, vault: { adapter: { exists: doesExistMock } }, workspace: { trigger } }) });
     component.load();
     delete manifests['alpha'];
     delete manifests['unknown'];
     plugins.trigger('changed');
-    expect(exists).toHaveBeenCalledExactlyOnceWith('plugins/alpha');
+    expect(doesExistMock).toHaveBeenCalledExactlyOnceWith('plugins/alpha');
     if (mode === 'unload') {
       component.unload();
     } else {
@@ -52,9 +52,9 @@ describe('CommunityPluginUninstalledEventsComponent', () => {
     const manifests: App['plugins']['manifests'] = { alpha: manifest };
     const plugins = Object.assign(new Events(), { manifests });
     let hasDirectory = true;
-    const exists = vi.fn(() => Promise.resolve(hasDirectory));
+    const doesExistMock = vi.fn(() => Promise.resolve(hasDirectory));
     const trigger = vi.fn();
-    const component = new CommunityPluginUninstalledEventsComponent({ app: castTo<App>({ plugins, vault: { adapter: { exists } }, workspace: { trigger } }) });
+    const component = new CommunityPluginUninstalledEventsComponent({ app: castTo<App>({ plugins, vault: { adapter: { exists: doesExistMock } }, workspace: { trigger } }) });
     component.load();
     try {
       delete manifests['alpha'];
