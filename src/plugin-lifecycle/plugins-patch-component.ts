@@ -78,9 +78,9 @@ export class PluginsPatchComponent extends MonkeyAroundComponent {
       methodName: 'enablePlugin',
       patchHandler: ({
         fallback,
-        originalArguments: [id, isUserEnabled]
+        originalArguments: [id, isUserEnabled = false]
       }) => {
-        this.userInitiationRecorder.recordUserInitiation(id, isUserEnabled ?? false);
+        this.userInitiationRecorder.recordUserInitiation(id, isUserEnabled);
         return fallback();
       }
     });
@@ -90,9 +90,9 @@ export class PluginsPatchComponent extends MonkeyAroundComponent {
       methodName: 'disablePlugin',
       patchHandler: ({
         fallback,
-        originalArguments: [id, isUserDisabled]
+        originalArguments: [id, isUserDisabled = false]
       }) => {
-        this.userInitiationRecorder.recordUserInitiation(id, isUserDisabled ?? false);
+        this.userInitiationRecorder.recordUserInitiation(id, isUserDisabled);
         return fallback();
       }
     });

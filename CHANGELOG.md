@@ -7,7 +7,7 @@
 - docs: add issue-filing instructions for AI agents
 - chore(github): give the bug form the field ids bug-report links prefill
 - build(deps): override re2js to ^2.9.1 for GHSA-gg6h-894w-4m9c
-- build(deps): bump typescript-dev-toolkit to ^5.2.0
+- build(deps): bump `typescript-dev-toolkit` to ^5.2.0
 - build(deps): bump @mnaoumov/typescript-dev-toolkit to ^5.1.0
 - test: stabilize the property value menu desktop suite
 - feat: publish canvas selection toolbar menu events
@@ -15,7 +15,7 @@
 
 ## 1.3.0
 
-- chore(deps): cap integration emulator cores with obsidian-integration-testing 17.7.1
+- chore(deps): cap integration emulator cores with `obsidian-integration-testing` 17.7.1
 - refactor: name patched plugin lifecycle arguments
 - fix(deps): resolve KaTeX and Moment audit findings
 - chore: adopt readonly interface members
@@ -53,27 +53,27 @@
 
 ## 1.1.1
 
-- test(demo-vault): require `CodeScript Toolkit` 15.0.0, the first to serve obsidian-lib 6
-- build(deps): move to obsidian-lib 6 and off the dropped obsidian-dev-utils names
+- test(demo-vault): require `CodeScript Toolkit` 15.0.0, the first to serve `obsidian-lib` 6
+- build(deps): move to `obsidian-lib` 6 and off the dropped `obsidian-dev-utils` names
 - docs: shorten the debugging section
 - fix(demo-vault): load the demo setup helpers from @mnaoumov/obsidian-lib
 - docs(readme): lead the Debugging section with `Advanced Debug Mode`
 - build(deps): float brace-expansion, sharp and fast-uri past their advisories
 - docs: mark plugin names as code
-- build(deps): merge taking obsidian-lib 4.3.0 and its validation debug switch
-- test(api-contract): verify the contract with verifyApiContract from typescript-lib 1.5.0
-- refactor(api-contract): merge building the contract guards from typescript-lib
+- build(deps): merge taking `obsidian-lib` 4.3.0 and its validation debug switch
+- test(api-contract): verify the contract with verifyApiContract from `typescript-lib` 1.5.0
+- refactor(api-contract): merge building the contract guards from `typescript-lib`
 - chore(github): point questions to Discussions from the new-issue page
 - ci: merge attesting release assets through the toolkit's reusable workflow
 - docs: record the 1.1.0 release in AGENTS.md
 
 ## 1.1.0
 
-- refactor: merge moving off obsidian-dev-utils onto the @mnaoumov packages
+- refactor: merge moving off `obsidian-dev-utils` onto the @mnaoumov packages
 - refactor(api): merge building api-contract.ts on @mnaoumov/typescript-lib/api-contract
 - feat(api): merge the copyable api-contract.ts with full schemas
 - docs: merge marking plugin names as code
-- test: merge using the obsidian-typings declarations of Obsidian internals
+- test: merge using the `obsidian-typings` declarations of Obsidian internals
 - docs: merge the community directory listing links
 
 ## 1.0.1
@@ -81,17 +81,17 @@
 - test(screenshots): merge applying the dark theme through applyObsidianTheme
 - test(screenshots): merge dropping the local caret blur
 - fix(screenshots): merge blurring the Settings search box before desktop frames
-- build(deps): merge the obsidian-integration-testing 17 float
-- build(deps): merge the obsidian-test-mocks ^7.0.0 float
+- build(deps): merge the `obsidian-integration-testing` 17 float
+- build(deps): merge the `obsidian-test-mocks` ^7.0.0 float
 - refactor(patches): merge the patch against app.plugins own typings
-- build(deps): merge the obsidian-integration-testing override removal
+- build(deps): merge the `obsidian-integration-testing` override removal
 - docs(agents): merge the 1.0.0 release record
 
 ## 1.0.0
 
 - fix(test): merge the headless demo-vault toolkit install
 - fix(deps): restore the lockfile's missing resolved and integrity fields
-- fix(deps): override the obsidian-integration-testing peer so npm can resolve the tree
+- fix(deps): override the `obsidian-integration-testing` peer so `npm` can resolve the tree
 - fix(deps): float devalue to 5.9.4, clearing GHSA-9rgm-9g3h-6x36
 - docs(metadata): describe the whole plugin, not its first set of events
 - feat(events): say whether the user did it, as isUserInitiated on both payloads

@@ -57,15 +57,16 @@ export class CommunityPluginUninstalledEventsComponent extends Component {
     // Fix this pass's candidates before awaiting, so another refresh cannot extend it indefinitely.
     const candidates = [...this.installed];
     for (const [communityPluginId, snapshot] of candidates) {
-      if (Object.hasOwn(this.app.plugins.manifests, communityPluginId) || !snapshot.directory) {
-        continue;
-      }
-      // loadManifests clears its map BEFORE asynchronous reads. A concurrent change is not removal.
-      if (await this.app.vault.adapter.exists(snapshot.directory)) {
-        continue;
-      }
-      // Another signal may have reinstalled it, announced it, or unloaded us during the filesystem read.
-      if (!this.isActive || this.installed.get(communityPluginId) !== snapshot || Object.hasOwn(this.app.plugins.manifests, communityPluginId)) {
+      if (
+        Object.hasOwn(this.app.plugins.manifests, communityPluginId)
+        || !snapshot.directory
+        // loadManifests clears its map BEFORE asynchronous reads. A concurrent change is not removal.
+        || await this.app.vault.adapter.exists(snapshot.directory)
+        // Another signal may have reinstalled it, announced it, or unloaded us during the filesystem read.
+        || !this.isActive
+        || this.installed.get(communityPluginId) !== snapshot
+        || Object.hasOwn(this.app.plugins.manifests, communityPluginId)
+      ) {
         continue;
       }
       this.installed.delete(communityPluginId);

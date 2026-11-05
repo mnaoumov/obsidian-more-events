@@ -73,7 +73,7 @@ describe('CommunityPluginEventsComponent', () => {
      * reaches back into the emitter to unregister, so a `vi.fn()` `on` would make the unload test vacuous.
      */
     pluginsEvents = Events.create__();
-    seedOnRawTarget(pluginsEvents, 'plugins', communityPlugins);
+    seedPluginsOnRawTarget(pluginsEvents, communityPlugins);
 
     /*
      * The component patches `enablePlugin` / `disablePlugin` on the manager's PROTOTYPE, so the fixture has
@@ -88,11 +88,11 @@ describe('CommunityPluginEventsComponent', () => {
      */
     const pluginsRawTarget = rawTargetOf(pluginsEvents);
     const pluginManagerPrototype = castTo<AppOriginal['plugins']>(Object.create(getPrototypeOf(pluginsRawTarget)));
-    Reflect.set(pluginManagerPrototype, 'enablePlugin', enablePlugin);
+    Reflect.set(pluginManagerPrototype, 'enablePlugin', didEnablePlugin);
     Reflect.set(pluginManagerPrototype, 'disablePlugin', disablePlugin);
     Object.setPrototypeOf(pluginsRawTarget, pluginManagerPrototype);
 
-    seedOnRawTarget(app, 'plugins', pluginsEvents.asOriginalType__());
+    seedPluginsOnRawTarget(app, pluginsEvents.asOriginalType__());
     pluginManager = app.plugins;
   });
 
@@ -312,29 +312,29 @@ describe('CommunityPluginEventsComponent', () => {
 
   it('should uninstall its patch once it has unloaded', () => {
     const component = loadComponent();
-    const patchedEnablePlugin = pluginManager.enablePlugin;
+    const patchedMethods = { enablePlugin: pluginManager.enablePlugin };
 
     component.unload();
     loadedComponents.pop();
 
     // `app.plugins` and its prototype outlive this plugin, so a patch left on either would keep recording
     // into a component nothing reads any more.
-    expect(pluginManager.enablePlugin).not.toBe(patchedEnablePlugin);
+    expect(pluginManager.enablePlugin).not.toBe(patchedMethods.enablePlugin);
   });
 
-  function disablePlugin(communityPluginId: string, isUserDisabled?: boolean): Promise<void> {
+  function disablePlugin(communityPluginId: string, isUserDisabled = false): Promise<void> {
     const communityPlugin = communityPlugins[communityPluginId];
     if (!communityPlugin) {
       return noopAsync();
     }
 
-    communityPlugin._userDisabled = isUserDisabled ?? false;
+    communityPlugin._userDisabled = isUserDisabled;
     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Obsidian itself deletes the entry in `unloadPlugin`, and the whole point of this fixture is to be that record.
     delete communityPlugins[communityPluginId];
     return noopAsync();
   }
 
-  function enablePlugin(communityPluginId: string): Promise<boolean> {
+  function didEnablePlugin(communityPluginId: string): Promise<boolean> {
     communityPlugins[communityPluginId] ??= createCommunityPlugin(communityPluginId);
 
     return Promise.resolve(true);
@@ -361,6 +361,6 @@ function rawTargetOf(strictProxiedObject: object): object {
   return castTo<object | undefined>(Reflect.get(strictProxiedObject, STRICT_PROXY_TARGET_SYMBOL)) ?? strictProxiedObject;
 }
 
-function seedOnRawTarget(strictProxiedObject: object, key: string, value: unknown): void {
-  Reflect.set(rawTargetOf(strictProxiedObject), key, value);
+function seedPluginsOnRawTarget(strictProxiedObject: object, value: unknown): void {
+  Reflect.set(rawTargetOf(strictProxiedObject), 'plugins', value);
 }

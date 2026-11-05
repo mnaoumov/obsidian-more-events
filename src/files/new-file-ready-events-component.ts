@@ -135,11 +135,8 @@ export class NewFileReadyEventsComponent extends MonkeyAroundComponent {
     }
 
     for (const file of run) {
-      if (this.isHeld(file)) {
-        continue;
-      }
-      // Deleted while it was held: there is nothing left to announce.
-      if (this.app.vault.getAbstractFileByPath(file.path) !== file) {
+      // A file deleted while it was held has nothing left to announce.
+      if (this.isHeld(file) || this.app.vault.getAbstractFileByPath(file.path) !== file) {
         continue;
       }
       this.announce(file);
