@@ -46,9 +46,12 @@ Each event fires just before the menu opens, after Obsidian has added its own it
 | `more-events:pdf-thumbnail-menu`                | a page thumbnail in a PDF's sidebar                                                 | `leaf`, `pageNumber`                 |
 | `more-events:property-menu`                     | a property's icon                                                                   | `leaf`, `property`                   |
 | `more-events:property-value-menu`               | a value of a list or tags property                                                  | `leaf`, `value`                      |
+| `more-events:publish-file-menu`                 | a file in the **Publish changes** dialog                                            | `item`                               |
 | `more-events:ribbon-menu`                       | the ribbon's empty area                                                             | `side`                               |
 | `more-events:search-results-menu`               | the **Search** view's result count (*relay*)                                        | `searchView`                         |
 | `more-events:sidebar-toggle-menu`               | a sidebar's toggle button                                                           | `side`                               |
+| `more-events:sync-files-menu`                   | several files selected in the **Sync history** view (desktop)                       | `paths`                              |
+| `more-events:sync-status-menu`                  | the **Sync** status icon (a click or a right-click)                                 | `status`                             |
 | `more-events:tab-group-menu`                    | a tab group's tab list chevron (*relay*)                                            | `tabGroup`                           |
 | `more-events:table-cell-menu`                   | a Live Preview table cell                                                           | `leaf`, `cell`                       |
 | `more-events:table-handle-menu`                 | a Live Preview table's row or column drag handle                                    | `leaf`, `handle`                     |
@@ -411,6 +414,20 @@ caption: Stop listening to the note margin, Properties and Search menus
 require('/demoSetup.ts').stopListeningToNoteAndSearchMenus();
 ```
 
+## The Sync and Publish ones
+
+These three need an Obsidian account. Their menus exist only in a vault connected to **Sync** or to a **Publish** site, so this demo vault has no button for them:
+
+1. `more-events:sync-status-menu` fires when the **Sync** status icon is clicked or right-clicked: the icon in the status bar on desktop, or in the right sidebar's header on mobile. It hands over the state the icon shows, from the **Sync** plugin itself: `synced`, `syncing`, `paused`, `error`, `disconnected` or `uninitialized`.
+2. `more-events:sync-files-menu` fires when you right-click a file in the **Sync history** view while several files are selected there (Alt+click selects them). It hands over the selected files' paths. A single file's menu is Obsidian's own `file-menu`, so it is left to that.
+3. `more-events:publish-file-menu` fires when you right-click a file in the **Publish changes** dialog. It hands over the file's path and how it differs from the site: `new`, `changed`, `deleted` or `to-delete`. Obsidian asks the Publish server for the site's address before it shows this menu, so it opens a moment after the click.
+
+```ts
+this.registerEvent(this.app.workspace.on('more-events:sync-status-menu', (menu, status) => {
+  menu.addItem((item) => item.setTitle(`Sync is ${status}`));
+}));
+```
+
 ## What the events promise
 
 - **They fire before the menu opens**, after Obsidian has added its own items, so an item you add appears in the menu.
@@ -422,7 +439,7 @@ require('/demoSetup.ts').stopListeningToNoteAndSearchMenus();
 
 Obsidian already raises an event for the bookmark menu, `bookmarks:bookmarks-menu`, for the tab and tab group menus, `leaf-menu` and `tab-group-menu`, for the note margin, Properties and Search results menus, `markdown-viewport-menu`, `markdown-properties-menu` and `search:results-menu`, and for the canvas node, connection, selection and connection drop menus, `canvas:node-menu`, `canvas:edge-menu`, `canvas:selection-menu` and `canvas:node-connection-drop-menu`, but documents and types them nowhere. `More Events` relays them under names it keeps stable, so a plugin that listens here keeps working if Obsidian renames its own.
 
-The vault name menu, the back and forward history menus, the bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu, the CSS snippet menu, the external image menu, the board column menu and the canvas selection toolbar's **Align**, **Line direction** and group background menus raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
+The vault name menu, the back and forward history menus, the bookmarks empty-area menu, the canvas background menu, the ribbon menu, the **All properties** menu, the History menu, the PDF thumbnail, outline and page menus, the sidebar toggle menu, the community plugin menu, the callout menu, the plugin settings tab menus, the table cell and drag handle menus, the property value menu, the Bases column header menu, a property's own menu, the CSS snippet menu, the external image menu, the board column menu, the canvas selection toolbar's **Align**, **Line direction** and group background menus, the **Sync** status and history menus and the **Publish changes** file menu raise nothing at all. `More Events` recognizes each as it is about to be shown, through one patch on `Menu`, and every later menu that fires no event goes through that same patch.
 
 ## Try the File Explorer root menu
 

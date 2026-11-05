@@ -43,9 +43,12 @@ import {
   PLUGIN_API_VERSION,
   PROPERTY_MENU_EVENT_NAME,
   PROPERTY_VALUE_MENU_EVENT_NAME,
+  PUBLISH_FILE_MENU_EVENT_NAME,
   RIBBON_MENU_EVENT_NAME,
   SEARCH_RESULTS_MENU_EVENT_NAME,
   SIDEBAR_TOGGLE_MENU_EVENT_NAME,
+  SYNC_FILES_MENU_EVENT_NAME,
+  SYNC_STATUS_MENU_EVENT_NAME,
   TAB_GROUP_MENU_EVENT_NAME,
   TABLE_CELL_MENU_EVENT_NAME,
   TABLE_HANDLE_MENU_EVENT_NAME,
@@ -107,6 +110,9 @@ describe('the published contract', () => {
     expect(CANVAS_EDGE_MENU_EVENT_NAME).toBe('more-events:canvas-edge-menu');
     expect(CANVAS_SELECTION_MENU_EVENT_NAME).toBe('more-events:canvas-selection-menu');
     expect(CANVAS_NODE_CONNECTION_DROP_MENU_EVENT_NAME).toBe('more-events:canvas-node-connection-drop-menu');
+    expect(SYNC_STATUS_MENU_EVENT_NAME).toBe('more-events:sync-status-menu');
+    expect(SYNC_FILES_MENU_EVENT_NAME).toBe('more-events:sync-files-menu');
+    expect(PUBLISH_FILE_MENU_EVENT_NAME).toBe('more-events:publish-file-menu');
   });
 
   it('should declare every member of the api in the contract', () => {
@@ -119,6 +125,6 @@ describe('the published contract', () => {
   });
 
   it('should publish a contract version independent of the plugin version', () => {
-    expect(PLUGIN_API_VERSION).toBe('1.11.0');
+    expect(PLUGIN_API_VERSION).toBe('1.12.0');
   });
 });

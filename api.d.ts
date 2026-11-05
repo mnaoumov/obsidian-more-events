@@ -1877,3 +1877,64 @@ declare module 'obsidian' {
     on(name: BeforeLinkOpenEventName, callback: (leaf: WorkspaceLeaf, request: LinkOpenRequest) => unknown, context?: unknown): EventRef;
   }
 }
+
+/** The **Sync** status icon's menu is about to open. @since 1.12.0 */
+export type SyncStatusMenuEventName = 'more-events:sync-status-menu';
+/** The **Sync history** view's menu for several selected files is about to open. @since 1.12.0 */
+export type SyncFilesMenuEventName = 'more-events:sync-files-menu';
+/** The menu of a file row in the **Publish changes** dialog is about to open. @since 1.12.0 */
+export type PublishFileMenuEventName = 'more-events:publish-file-menu';
+
+/**
+ * What the core **Sync** plugin reports about the vault when its status menu opens, from its own `getStatus()`.
+ *
+ * - `uninitialized`: Sync has not finished loading.
+ * - `disconnected`: the vault is not connected to a remote vault.
+ * - `error`: the last sync failed, or a file is waiting to be retried.
+ * - `paused`: syncing is paused.
+ * - `syncing`: a sync is under way.
+ * - `synced`: everything is synced.
+ */
+export type SyncStatus = 'disconnected' | 'error' | 'paused' | 'synced' | 'syncing' | 'uninitialized';
+
+/**
+ * How a file in the **Publish changes** dialog differs from the published site.
+ *
+ * - `new`: in the vault, not on the site.
+ * - `changed`: on both, with different content.
+ * - `deleted`: on the site, no longer in the vault.
+ * - `to-delete`: on both, unchanged (listed so that it can be unpublished).
+ */
+export type PublishChangeType = 'changed' | 'deleted' | 'new' | 'to-delete';
+
+/** A file row in the **Publish changes** dialog, as plain data. */
+export interface PublishFileMenuItem {
+  /** The vault path of the file. */
+  readonly path: string;
+  /** How the file differs from the published site. */
+  readonly type: PublishChangeType;
+}
+
+declare module 'obsidian' {
+  interface Workspace {
+    /**
+     * The status icon of the core **Sync** plugin is clicked or right-clicked: the icon in the status bar on desktop,
+     * in the right sidebar's header on mobile. Obsidian fires nothing for this menu.
+     * @since 1.12.0
+     */
+    on(name: SyncStatusMenuEventName, callback: (menu: Menu, status: SyncStatus) => unknown, context?: unknown): EventRef;
+    /**
+     * A file is right-clicked in the **Sync history** view while it is one of several selected files. A single file's
+     * menu already fires Obsidian's public `file-menu` (through `handleLinkContextMenu`), so it is not announced here.
+     * The paths are the selected files', in selection order. Desktop only.
+     * @since 1.12.0
+     */
+    on(name: SyncFilesMenuEventName, callback: (menu: Menu, paths: string[]) => unknown, context?: unknown): EventRef;
+    /**
+     * A file row is right-clicked in the **Publish changes** dialog of the core **Publish** plugin. Obsidian fires
+     * nothing for this menu, and shows it only after it has asked the Publish server for the site's address.
+     * @since 1.12.0
+     */
+    on(name: PublishFileMenuEventName, callback: (menu: Menu, item: PublishFileMenuItem) => unknown, context?: unknown): EventRef;
+  }
+}
