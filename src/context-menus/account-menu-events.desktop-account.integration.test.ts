@@ -3,6 +3,7 @@ import type {
   SyncPluginInstance
 } from '@obsidian-typings/obsidian-public-latest';
 import type {
+  EventRef,
   Menu,
   View
 } from 'obsidian';
@@ -30,6 +31,7 @@ import {
 import {
   PUBLISH_FILE_MENU_EVENT_NAME,
   SYNC_FILES_MENU_EVENT_NAME,
+  SYNC_STATUS_CHANGED_EVENT_NAME,
   SYNC_STATUS_MENU_EVENT_NAME
 } from '../api/more-events-api.ts';
 
@@ -55,6 +57,7 @@ const PLUGIN_ID = 'more-events';
 const TEST_TIMEOUT_IN_MS = 180_000;
 const SYNC_NOTE_PATHS = ['more-events-sync-a.md', 'more-events-sync-b.md'];
 const PUBLISH_NOTE_PATH = 'more-events-publish.md';
+const SYNC_STATUS_NOTE_PATH = 'more-events-sync-status.md';
 
 interface MenuRecord {
   /**
@@ -99,6 +102,22 @@ interface PublishTestSection {
   readonly files: Record<string, TestTreeItem | undefined>;
 }
 
+/**
+ * What a pause and a resume of Sync announced.
+ */
+interface SyncPauseRecord {
+  readonly afterResume: SyncTransition[];
+  readonly whilePaused: SyncTransition[];
+}
+
+/**
+ * What a disable and a re-enable of the **Sync** core plugin announced.
+ */
+interface SyncReloadRecord {
+  readonly afterEnable: SyncTransition[];
+  readonly whileDisabled: SyncTransition[];
+}
+
 interface SyncStatusRecord extends MenuRecord {
   /**
    * What the **Sync** plugin's own `getStatus()` answered when the menu opened.
@@ -111,8 +130,12 @@ interface SyncStatusRecord extends MenuRecord {
  */
 // TODO: Drop these members once `obsidian-typings` declares them on `SyncPluginInstance`.
 interface SyncTestPluginInstance extends SyncPluginInstance {
+  readonly getPause: () => boolean;
   readonly getStatus: () => string;
+  readonly offref: (eventRef: EventRef) => void;
+  readonly on: (name: 'status-change', callback: () => unknown) => EventRef;
   readonly serverFiles: Record<string, SyncTestServerFile | undefined>;
+  readonly setPause: (isPaused: boolean) => void;
   readonly statusIconEl: HTMLElement | null;
 }
 
@@ -241,7 +264,7 @@ describe('Sync and Publish menu events', () => {
             timeoutInMilliseconds: 60_000
           });
         },
-        input: { notePaths: [...SYNC_NOTE_PATHS, PUBLISH_NOTE_PATH], pluginId: PLUGIN_ID }
+        input: { notePaths: [...SYNC_NOTE_PATHS, PUBLISH_NOTE_PATH, SYNC_STATUS_NOTE_PATH], pluginId: PLUGIN_ID }
       });
     } finally {
       await connection.dispose();
@@ -290,7 +313,51 @@ describe('Sync and Publish menu events', () => {
     expect(record.shownItemTitles).toContain('Added by a listener');
     expect(record.shownItemTitles).toContain('Open file');
   });
+
+  it('should announce Sync going busy and back to idle when a note is written', { timeout: TEST_TIMEOUT_IN_MS }, async () => {
+    const transitions = await writeNoteAndRecordSyncTransitions();
+
+    expect(transitions).toContainEqual(['syncing', 'synced']);
+    expect(transitions.at(-1)).toEqual(['synced', 'syncing']);
+    expectChained(transitions);
+  });
+
+  it('should announce Sync being paused and resumed', { timeout: TEST_TIMEOUT_IN_MS }, async () => {
+    const record = await pauseAndResumeSync();
+
+    expect(record.whilePaused).toEqual([['paused', 'synced']]);
+    expect(record.afterResume[0]).toEqual(['synced', 'paused']);
+    expectChained([...record.whilePaused, ...record.afterResume]);
+  });
+
+  it('should announce nothing while the Sync core plugin is disabled, and announce again once it is enabled', { timeout: TEST_TIMEOUT_IN_MS }, async () => {
+    const record = await reloadSyncCorePlugin();
+
+    expect(record.whileDisabled).toEqual([]);
+    expect(record.afterEnable).toContainEqual(['syncing', 'synced']);
+    expect(record.afterEnable.at(-1)).toEqual(['synced', 'syncing']);
+    expectChained(record.afterEnable);
+  });
 });
+
+/**
+ * A `more-events:sync-status-changed` call: the status, then the previous one.
+ */
+type SyncTransition = [status: string, previousStatus: string];
+
+/**
+ * Asserts that every transition is a real change, and starts where the previous one ended.
+ *
+ * @param transitions - The transitions, in order.
+ */
+function expectChained(transitions: SyncTransition[]): void {
+  for (const [index, [status, previousStatus]] of transitions.entries()) {
+    expect(status).not.toBe(previousStatus);
+    if (index > 0) {
+      expect(previousStatus).toBe(transitions[index - 1]?.[0]);
+    }
+  }
+}
 
 /**
  * Returns the connection the suite opened.
@@ -351,6 +418,110 @@ async function openSyncStatusMenu(button: 'left' | 'right'): Promise<SyncStatusR
       }
     },
     input: { button, SYNC_STATUS_MENU_EVENT_NAME }
+  });
+}
+
+/**
+ * Pauses Sync and resumes it, through the plugin's own `setPause`, which the **Pause** toggle in its settings calls.
+ *
+ * @returns The transitions announced while paused, and after the resume until Sync has synced once.
+ */
+async function pauseAndResumeSync(): Promise<SyncPauseRecord> {
+  return await getConnection().evalInObsidian({
+    async callback({ app, lib, SYNC_STATUS_CHANGED_EVENT_NAME: eventName }): Promise<SyncPauseRecord> {
+      const { waitUntil } = lib;
+      // Below the CDP command timeout, so that a missing announcement fails on the assertion rather than the transport.
+      const WAIT_TIMEOUT_IN_MS = 20_000;
+      const sync = app.internalPlugins.getEnabledPluginById('sync') as null | SyncTestPluginInstance;
+      if (!sync) {
+        throw new Error('The Sync core plugin is not enabled');
+      }
+      await waitUntil({ message: 'Sync to be idle', predicate: () => sync.getStatus() === 'synced', timeoutInMilliseconds: WAIT_TIMEOUT_IN_MS });
+
+      let transitions: SyncTransition[] = [];
+      const eventRef = app.workspace.on(eventName, (status, previousStatus) => {
+        transitions.push([status, previousStatus]);
+      });
+      // Obsidian's own signal says when to stop waiting, so the wait never depends on the event under test.
+      let hasNativeSyncStarted = false;
+      const nativeRef = sync.on('status-change', () => {
+        hasNativeSyncStarted ||= sync.getStatus() === 'syncing';
+      });
+      try {
+        sync.setPause(true);
+        await sleep(2000);
+        const whilePaused = transitions;
+        transitions = [];
+        hasNativeSyncStarted = false;
+        sync.setPause(false);
+        await waitUntil({
+          message: 'Sync to sync once after the resume',
+          predicate: () => hasNativeSyncStarted && sync.getStatus() === 'synced',
+          timeoutInMilliseconds: WAIT_TIMEOUT_IN_MS
+        });
+        return { afterResume: transitions, whilePaused };
+      } finally {
+        app.workspace.offref(eventRef);
+        sync.offref(nativeRef);
+        if (sync.getPause()) {
+          sync.setPause(false);
+        }
+      }
+    },
+    input: { SYNC_STATUS_CHANGED_EVENT_NAME }
+  });
+}
+
+/**
+ * Disables the **Sync** core plugin, waits, and enables it again, the way the **Core plugins** toggle does without
+ * the user flag.
+ *
+ * @returns The transitions announced while disabled, and after the enable until Sync has synced once.
+ */
+async function reloadSyncCorePlugin(): Promise<SyncReloadRecord> {
+  return await getConnection().evalInObsidian({
+    async callback({ app, lib, SYNC_STATUS_CHANGED_EVENT_NAME: eventName }): Promise<SyncReloadRecord> {
+      const { waitUntil } = lib;
+      // Below the CDP command timeout, so that a missing announcement fails on the assertion rather than the transport.
+      const WAIT_TIMEOUT_IN_MS = 20_000;
+      const wrapper = app.internalPlugins.getPluginById('sync');
+      const sync = app.internalPlugins.getEnabledPluginById('sync') as null | SyncTestPluginInstance;
+      if (!wrapper || !sync) {
+        throw new Error('The Sync core plugin is not enabled');
+      }
+      await waitUntil({ message: 'Sync to be idle', predicate: () => sync.getStatus() === 'synced', timeoutInMilliseconds: WAIT_TIMEOUT_IN_MS });
+
+      let transitions: SyncTransition[] = [];
+      const eventRef = app.workspace.on(eventName, (status, previousStatus) => {
+        transitions.push([status, previousStatus]);
+      });
+      // The instance is the same object across the reload, so this listener sees both sides of it.
+      let hasNativeSyncStarted = false;
+      const nativeRef = sync.on('status-change', () => {
+        hasNativeSyncStarted ||= wrapper.enabled && sync.getStatus() === 'syncing';
+      });
+      try {
+        wrapper.disable(false);
+        await sleep(3000);
+        const whileDisabled = transitions;
+        transitions = [];
+        hasNativeSyncStarted = false;
+        await wrapper.enable(false);
+        await waitUntil({
+          message: 'Sync to sync once after the enable',
+          predicate: () => hasNativeSyncStarted && sync.getStatus() === 'synced',
+          timeoutInMilliseconds: WAIT_TIMEOUT_IN_MS
+        });
+        return { afterEnable: transitions, whileDisabled };
+      } finally {
+        app.workspace.offref(eventRef);
+        sync.offref(nativeRef);
+        if (!wrapper.enabled) {
+          await wrapper.enable(false);
+        }
+      }
+    },
+    input: { SYNC_STATUS_CHANGED_EVENT_NAME }
   });
 }
 
@@ -492,5 +663,53 @@ async function rightClickSyncSelection(): Promise<MenuRecord> {
       }
     },
     input: { notePaths: SYNC_NOTE_PATHS, SYNC_FILES_MENU_EVENT_NAME }
+  });
+}
+
+/**
+ * Writes a note and waits until Sync has uploaded it and gone idle.
+ *
+ * @returns The transitions announced from the write until then.
+ */
+async function writeNoteAndRecordSyncTransitions(): Promise<SyncTransition[]> {
+  return await getConnection().evalInObsidian({
+    async callback({ app, lib, notePath, SYNC_STATUS_CHANGED_EVENT_NAME: eventName }): Promise<SyncTransition[]> {
+      const { waitUntil } = lib;
+      // Below the CDP command timeout, so that a missing announcement fails on the assertion rather than the transport.
+      const WAIT_TIMEOUT_IN_MS = 20_000;
+      const sync = app.internalPlugins.getEnabledPluginById('sync') as null | SyncTestPluginInstance;
+      if (!sync) {
+        throw new Error('The Sync core plugin is not enabled');
+      }
+      await waitUntil({ message: 'Sync to be idle', predicate: () => sync.getStatus() === 'synced', timeoutInMilliseconds: WAIT_TIMEOUT_IN_MS });
+
+      const transitions: SyncTransition[] = [];
+      const eventRef = app.workspace.on(eventName, (status, previousStatus) => {
+        transitions.push([status, previousStatus]);
+      });
+      let hasNativeSyncStarted = false;
+      const nativeRef = sync.on('status-change', () => {
+        hasNativeSyncStarted ||= sync.getStatus() === 'syncing';
+      });
+      try {
+        const content = `Written by the More Events account suite at ${String(Date.now())}`;
+        const file = app.vault.getFileByPath(notePath);
+        if (file) {
+          await app.vault.modify(file, content);
+        } else {
+          await app.vault.create(notePath, content);
+        }
+        await waitUntil({
+          message: 'Sync to upload the note and go idle',
+          predicate: () => hasNativeSyncStarted && sync.getStatus() === 'synced' && sync.serverFiles[notePath] !== undefined && !sync.serverFiles[notePath].deleted,
+          timeoutInMilliseconds: WAIT_TIMEOUT_IN_MS
+        });
+        return transitions;
+      } finally {
+        app.workspace.offref(eventRef);
+        sync.offref(nativeRef);
+      }
+    },
+    input: { notePath: SYNC_STATUS_NOTE_PATH, SYNC_STATUS_CHANGED_EVENT_NAME }
   });
 }

@@ -53,6 +53,7 @@ import { NewFileReadyEventsComponent } from './files/new-file-ready-events-compo
 import { CommunityPluginEventsComponent } from './plugin-lifecycle/community-plugin-events-component.ts';
 import { CommunityPluginUninstalledEventsComponent } from './plugin-lifecycle/community-plugin-uninstalled-events-component.ts';
 import { CorePluginEventsComponent } from './plugin-lifecycle/core-plugin-events-component.ts';
+import { SyncStatusEventsComponent } from './sync/sync-status-events-component.ts';
 import { TaskCheckboxEventsComponent } from './tasks/task-checkbox-events-component.ts';
 import { BeforeLinkOpenEventsComponent } from './workspace/before-link-open-events-component.ts';
 import { WorkspaceEventsComponent } from './workspace/workspace-events-component.ts';
@@ -99,6 +100,7 @@ export class Plugin extends PluginBase {
     this.addChild(new FileSaveEventsComponent({ app: this.app }));
     this.addChild(new FrontmatterEventsComponent({ app: this.app }));
     this.addChild(new CommandEventsComponent({ app: this.app }));
+    this.addChild(new SyncStatusEventsComponent({ app: this.app }));
 
     const communityPluginEventsComponent = this.addChild(
       new CommunityPluginEventsComponent({
