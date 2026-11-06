@@ -70,6 +70,7 @@ import type {
   SearchResultsMenuEventName,
   SidebarToggleMenuEventName,
   SyncFilesMenuEventName,
+  SyncStatusChangedEventName,
   SyncStatusMenuEventName,
   TabGroupMenuEventName,
   TableCellMenuEventName,
@@ -171,6 +172,7 @@ export type {
   SidebarToggleMenuEventName,
   SyncFilesMenuEventName,
   SyncStatus,
+  SyncStatusChangedEventName,
   SyncStatusMenuEventName,
   TabGroupMenuEventName,
   TableCellMenuEventName,
@@ -416,9 +418,9 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * `more-events:new-file-ready`, and `1.7.0` added the canvas events: the selection, content, read-only and card editing
  * changes, and the selection toolbar being rendered, and `1.8.0` added `more-events:task-checkbox-clicked`.
  * `1.9.0` added before/after saves, command dispatch and indexed frontmatter diffs. `1.12.0` added the **Sync** status
- * menu, the **Sync history** view's multi-selection menu and the **Publish changes** dialog's file row menu.
+ * menu, the **Sync history** view's multi-selection menu and the **Publish changes** dialog's file row menu. 1.13.0`n * added more-events:sync-status-changed.
  */
-export const PLUGIN_API_VERSION = '1.12.0';
+export const PLUGIN_API_VERSION = '1.13.0';
 
 /**
  * The File Explorer vault-root context-menu event.
@@ -536,3 +538,7 @@ export const SYNC_FILES_MENU_EVENT_NAME: SyncFilesMenuEventName = 'more-events:s
 The menu of a file row in the **Publish changes** dialog.
 */
 export const PUBLISH_FILE_MENU_EVENT_NAME: PublishFileMenuEventName = 'more-events:publish-file-menu';
+/**
+A change of the core **Sync** plugin's state.
+*/
+export const SYNC_STATUS_CHANGED_EVENT_NAME: SyncStatusChangedEventName = 'more-events:sync-status-changed';

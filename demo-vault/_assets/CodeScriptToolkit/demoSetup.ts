@@ -1853,3 +1853,46 @@ export function demonstrateConfigChange(app: App): void {
     app.vault.setConfig('readableLineLength', previous);
   }
 }
+
+/**
+ * The subscription the Sync listen button creates, kept so the stop button can find it again.
+ */
+let syncStatusListeningComponent: Component | null = null;
+
+/**
+ * Shows the core **Sync** plugin's current state, then announces every change of it in a notice.
+ *
+ * @param app - The application.
+ */
+export function startListeningToSyncStatus(app: App): void {
+  if (syncStatusListeningComponent) {
+    new Notice('Already listening. Edit a note, or pause Sync in Settings -> Sync.');
+    return;
+  }
+  const sync = app.internalPlugins.getEnabledPluginById('sync') as unknown as null | { getStatus(): string };
+  const component = new Component();
+  component.load();
+  component.registerEvent(app.workspace.on('more-events:sync-status-changed', (status, previousStatus) => {
+    new Notice(`Sync: ${previousStatus} -> ${status}`, NOTICE_DURATION_IN_MILLISECONDS);
+  }));
+  syncStatusListeningComponent = component;
+  new Notice(
+    sync
+      ? `Listening. Sync is ${sync.getStatus()} now. Edit a note, or pause Sync in Settings -> Sync.`
+      : 'Listening. The Sync core plugin is not enabled in this vault, so nothing will arrive until it is.',
+    NOTICE_DURATION_IN_MILLISECONDS
+  );
+}
+
+/**
+ * Removes the listener {@link startListeningToSyncStatus} added.
+ */
+export function stopListeningToSyncStatus(): void {
+  if (!syncStatusListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+  syncStatusListeningComponent.unload();
+  syncStatusListeningComponent = null;
+  new Notice('Stopped listening.');
+}

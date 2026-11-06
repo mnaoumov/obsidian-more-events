@@ -1938,3 +1938,19 @@ declare module 'obsidian' {
     on(name: PublishFileMenuEventName, callback: (menu: Menu, item: PublishFileMenuItem) => unknown, context?: unknown): EventRef;
   }
 }
+
+/** The core **Sync** plugin's state changed. @since 1.13.0 */
+export type SyncStatusChangedEventName = 'more-events:sync-status-changed';
+
+declare module 'obsidian' {
+  interface Workspace {
+    /**
+     * The core **Sync** plugin's own `getStatus()` answers something else than it did last time. `syncing` to `synced`
+     * is the vault going idle; Obsidian's progress lines (uploading, downloading, comparing a file) are not
+     * announced, only the six states. Nothing is announced while the plugin is disabled, and a re-enable is announced
+     * from its next real transition. No initial snapshot: read the current state from the plugin when you subscribe.
+     * @since 1.13.0
+     */
+    on(name: SyncStatusChangedEventName, callback: (status: SyncStatus, previousStatus: SyncStatus) => unknown, context?: unknown): EventRef;
+  }
+}

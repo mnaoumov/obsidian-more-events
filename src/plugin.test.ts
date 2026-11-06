@@ -101,6 +101,15 @@ vi.mock('./commands/command-events-component.ts', async () => {
     })
   };
 });
+vi.mock('./sync/sync-status-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- The plugin constructs this stub.
+    SyncStatusEventsComponent: vi.fn(function componentStub() {
+      return new Component();
+    })
+  };
+});
 vi.mock('./files/file-save-events-component.ts', async () => {
   const { Component } = await vi.importActual<ObsidianModule>('obsidian');
   return {
