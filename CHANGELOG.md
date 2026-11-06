@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## 1.5.0
+
+This release has 8 new features, 1 fix and 2 documentation changes. 2 maintenance commits (tests, build, CI, refactoring, dependencies) are not listed.
+
+### New
+
+- **sync:** publish the Sync state event
+- **context-menus:** publish the Sync status, Sync history and Publish file menus
+- publish configuration and before-link events
+- publish workspace, index and uninstall events
+- publish save, command and frontmatter events
+- add the more-events:task-checkbox-clicked event
+- add the canvas selection, content, read-only, card editing and toolbar events
+- add the more-events:new-file-ready event
+
+### Fixed
+
+- **deps:** clear the glob cancellation advisory with a glob 14 override
+
+### Documentation
+
+- make issue attachments optional and strongly encouraged
+- link to the Obsidian resources page
+
 ## 1.4.0
 
 - docs(readme): point bug reports at the Report a bug command
