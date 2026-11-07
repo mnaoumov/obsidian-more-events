@@ -29,6 +29,7 @@ import { ExternalImageMenuEventsComponent } from './context-menus/external-image
 import { HistoryMenuEventsComponent } from './context-menus/history/history-menu-events-component.ts';
 import { MarkdownMenuEventsComponent } from './context-menus/markdown/markdown-menu-events-component.ts';
 import { MenuPatchComponent } from './context-menus/menu-patch-component.ts';
+import { TabSwitcherMenuEventsComponent } from './context-menus/mobile/tab-switcher-menu-events-component.ts';
 import { PdfOutlineMenuEventsComponent } from './context-menus/pdf/pdf-outline-menu-events-component.ts';
 import { PdfPageMenuEventsComponent } from './context-menus/pdf/pdf-page-menu-events-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './context-menus/pdf/pdf-thumbnail-menu-events-component.ts';
@@ -39,6 +40,7 @@ import { PropertyValueMenuEventsComponent } from './context-menus/property/prope
 import { PublishFileMenuEventsComponent } from './context-menus/publish/publish-file-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './context-menus/ribbon/ribbon-menu-events-component.ts';
 import { SearchMenuEventsComponent } from './context-menus/search/search-menu-events-component.ts';
+import { ShareMenuEventsComponent } from './context-menus/share/share-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './context-menus/sidebar-toggle/sidebar-toggle-menu-events-component.ts';
 import { SyncFilesMenuEventsComponent } from './context-menus/sync/sync-files-menu-events-component.ts';
 import { SyncStatusMenuEventsComponent } from './context-menus/sync/sync-status-menu-events-component.ts';
@@ -250,6 +252,10 @@ export class Plugin extends PluginBase {
 
     const publishFileMenuEventsComponent = this.addChild(new PublishFileMenuEventsComponent({ app: this.app }));
 
+    const tabSwitcherMenuEventsComponent = this.addChild(new TabSwitcherMenuEventsComponent({ app: this.app }));
+
+    this.addChild(new ShareMenuEventsComponent({ app: this.app }));
+
     const historyMenuEventsComponent = this.addChild(
       new HistoryMenuEventsComponent({
         app: this.app
@@ -319,7 +325,8 @@ export class Plugin extends PluginBase {
           vaultMenuEventsComponent,
           syncStatusMenuEventsComponent,
           syncFilesMenuEventsComponent,
-          publishFileMenuEventsComponent
+          publishFileMenuEventsComponent,
+          tabSwitcherMenuEventsComponent
         ],
         menuAnnouncers: [
           bookmarksMenuEventsComponent,

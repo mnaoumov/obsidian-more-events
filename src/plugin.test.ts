@@ -42,6 +42,7 @@ import { ExternalImageMenuEventsComponent } from './context-menus/external-image
 import { HistoryMenuEventsComponent } from './context-menus/history/history-menu-events-component.ts';
 import { MarkdownMenuEventsComponent } from './context-menus/markdown/markdown-menu-events-component.ts';
 import { MenuPatchComponent } from './context-menus/menu-patch-component.ts';
+import { TabSwitcherMenuEventsComponent } from './context-menus/mobile/tab-switcher-menu-events-component.ts';
 import { PdfOutlineMenuEventsComponent } from './context-menus/pdf/pdf-outline-menu-events-component.ts';
 import { PdfPageMenuEventsComponent } from './context-menus/pdf/pdf-page-menu-events-component.ts';
 import { PdfThumbnailMenuEventsComponent } from './context-menus/pdf/pdf-thumbnail-menu-events-component.ts';
@@ -52,6 +53,7 @@ import { PropertyValueMenuEventsComponent } from './context-menus/property/prope
 import { PublishFileMenuEventsComponent } from './context-menus/publish/publish-file-menu-events-component.ts';
 import { RibbonMenuEventsComponent } from './context-menus/ribbon/ribbon-menu-events-component.ts';
 import { SearchMenuEventsComponent } from './context-menus/search/search-menu-events-component.ts';
+import { ShareMenuEventsComponent } from './context-menus/share/share-menu-events-component.ts';
 import { SidebarToggleMenuEventsComponent } from './context-menus/sidebar-toggle/sidebar-toggle-menu-events-component.ts';
 import { SyncFilesMenuEventsComponent } from './context-menus/sync/sync-files-menu-events-component.ts';
 import { SyncStatusMenuEventsComponent } from './context-menus/sync/sync-status-menu-events-component.ts';
@@ -314,6 +316,26 @@ vi.mock('./context-menus/publish/publish-file-menu-events-component.ts', async (
   return {
     // eslint-disable-next-line prefer-arrow-callback -- A constructible stub must return a fresh real Component, as in the other component mocks.
     PublishFileMenuEventsComponent: vi.fn(function publishFileMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./context-menus/mobile/tab-switcher-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A constructible stub must return a fresh real Component, as in the other component mocks.
+    TabSwitcherMenuEventsComponent: vi.fn(function tabSwitcherMenuEventsComponentStub() {
+      return new Component();
+    })
+  };
+});
+
+vi.mock('./context-menus/share/share-menu-events-component.ts', async () => {
+  const { Component } = await vi.importActual<ObsidianModule>('obsidian');
+  return {
+    // eslint-disable-next-line prefer-arrow-callback -- A constructible stub must return a fresh real Component, as in the other component mocks.
+    ShareMenuEventsComponent: vi.fn(function shareMenuEventsComponentStub() {
       return new Component();
     })
   };
@@ -659,23 +681,24 @@ describe('Plugin', () => {
     expect(pluginSettingTabCalls).toHaveLength(1);
     expect(castTo<PluginEventsComponentConstructorParams>(pluginSettingTabCalls[0]?.[0]).app).toBe(plugin.app);
     expect(vi.mocked(MenuPatchComponent).mock.calls[0]?.[0].deferredMenuAnnouncers).toEqual([
-      vi.mocked(SidebarToggleMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(CommunityPluginMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(CalloutMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(PluginSettingTabMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(ExternalImageMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(TableMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(PropertyValueMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(BasesColumnMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(CssSnippetMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(PdfOutlineMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(PdfPageMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(BasesKanbanColumnMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(VaultMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(SyncStatusMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(SyncFilesMenuEventsComponent).mock.results[0]?.value,
-      vi.mocked(PublishFileMenuEventsComponent).mock.results[0]?.value
-    ]);
+      SidebarToggleMenuEventsComponent,
+      CommunityPluginMenuEventsComponent,
+      CalloutMenuEventsComponent,
+      PluginSettingTabMenuEventsComponent,
+      ExternalImageMenuEventsComponent,
+      TableMenuEventsComponent,
+      PropertyValueMenuEventsComponent,
+      BasesColumnMenuEventsComponent,
+      CssSnippetMenuEventsComponent,
+      PdfOutlineMenuEventsComponent,
+      PdfPageMenuEventsComponent,
+      BasesKanbanColumnMenuEventsComponent,
+      VaultMenuEventsComponent,
+      SyncStatusMenuEventsComponent,
+      SyncFilesMenuEventsComponent,
+      PublishFileMenuEventsComponent,
+      TabSwitcherMenuEventsComponent
+    ].map((componentClass) => getFirstInstance(componentClass)));
 
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();
@@ -911,6 +934,16 @@ describe('Plugin', () => {
     const menuPatchParams = vi.mocked(MenuPatchComponent).mock.calls[0]?.[0];
     expect(menuPatchParams?.positionedMenuAnnouncers).toContain(getFirstInstance(SyncStatusMenuEventsComponent));
     expect(menuPatchParams?.deferredMenuAnnouncers).toContain(getFirstInstance(SyncStatusMenuEventsComponent));
+    castTo<LoadedFlagHolder>(plugin).loaded__ = true;
+    plugin.unload();
+  });
+
+  it('should register the mobile tab switcher announcer as deferred, and the share-sheet relays, with the app', async () => {
+    const plugin = new Plugin(app, manifest);
+    await plugin.onload();
+    expect(vi.mocked(TabSwitcherMenuEventsComponent)).toHaveBeenCalledExactlyOnceWith({ app });
+    expect(vi.mocked(ShareMenuEventsComponent)).toHaveBeenCalledExactlyOnceWith({ app });
+    expect(vi.mocked(MenuPatchComponent).mock.calls[0]?.[0].deferredMenuAnnouncers).toContain(getFirstInstance(TabSwitcherMenuEventsComponent));
     castTo<LoadedFlagHolder>(plugin).loaded__ = true;
     plugin.unload();
   });

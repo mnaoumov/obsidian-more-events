@@ -47,12 +47,15 @@ Each event fires just before the menu opens, after Obsidian has added its own it
 | `more-events:property-menu`                     | a property's icon                                                                   | `leaf`, `property`                   |
 | `more-events:property-value-menu`               | a value of a list or tags property                                                  | `leaf`, `value`                      |
 | `more-events:publish-file-menu`                 | a file in the **Publish changes** dialog                                            | `item`                               |
+| `more-events:receive-files-menu`                | files shared to Obsidian, once imported (mobile, *relay*)                           | `files`                              |
+| `more-events:receive-text-menu`                 | text shared to Obsidian (mobile, *relay*)                                           | `text`                               |
 | `more-events:ribbon-menu`                       | the ribbon's empty area                                                             | `side`                               |
 | `more-events:search-results-menu`               | the **Search** view's result count (*relay*)                                        | `searchView`                         |
 | `more-events:sidebar-toggle-menu`               | a sidebar's toggle button                                                           | `side`                               |
 | `more-events:sync-files-menu`                   | several files selected in the **Sync history** view (desktop)                       | `paths`                              |
 | `more-events:sync-status-menu`                  | the **Sync** status icon (a click or a right-click)                                 | `status`                             |
 | `more-events:tab-group-menu`                    | a tab group's tab list chevron (*relay*)                                            | `tabGroup`                           |
+| `more-events:tab-switcher-menu`                 | the mobile navigation bar's tab button (mobile)                                     | `leaf`                               |
 | `more-events:table-cell-menu`                   | a Live Preview table cell                                                           | `leaf`, `cell`                       |
 | `more-events:table-handle-menu`                 | a Live Preview table's row or column drag handle                                    | `leaf`, `handle`                     |
 | `more-events:vault-menu`                        | the vault name in the left sidebar (desktop)                                        | nothing                              |
@@ -425,6 +428,20 @@ These three need an Obsidian account. Their menus exist only in a vault connecte
 ```ts
 this.registerEvent(this.app.workspace.on('more-events:sync-status-menu', (menu, status) => {
   menu.addItem((item) => item.setTitle(`Sync is ${status}`));
+}));
+```
+
+## The mobile ones
+
+These three exist only in the mobile app, so this demo vault has no button for them:
+
+1. `more-events:tab-switcher-menu` fires when you long-press the tab button in the navigation bar at the bottom of the screen. Its menu holds **New tab**, **Undo close tab** and the items that close tabs, and it hands over the leaf those items act on, the most recently active one (`null` when there is none). The same menu also opens from the chevron inside the tab switcher, on a tap; that one is not announced, because nothing tells it apart from any other menu.
+2. `more-events:receive-text-menu` fires when you share text to Obsidian from another app. It hands over the shared text. Obsidian adds **Add text to file** and **Choose a file...** to this menu, and **Daily notes** adds **Today's daily note**.
+3. `more-events:receive-files-menu` fires when you share files to Obsidian from another app, after you tap **Import into vault**: the menu that confirms the import. It hands over the vault files the import created.
+
+```ts
+this.registerEvent(this.app.workspace.on('more-events:receive-text-menu', (menu, text) => {
+  menu.addItem((item) => item.setTitle(`Save "${text.slice(0, 20)}" as a new note`));
 }));
 ```
 
