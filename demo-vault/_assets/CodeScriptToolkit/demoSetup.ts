@@ -9,6 +9,7 @@ import type {
 import {
   Component,
   Notice,
+  Platform,
   setIcon,
   setTooltip
 } from 'obsidian';
@@ -1894,5 +1895,55 @@ export function stopListeningToSyncStatus(): void {
   }
   syncStatusListeningComponent.unload();
   syncStatusListeningComponent = null;
+  new Notice('Stopped listening.');
+}
+/**
+ * The subscription the mobile keyboard listen button creates, kept so the stop button can find it again.
+ */
+let mobileKeyboardListeningComponent: Component | null = null;
+
+/**
+ * Announces every mobile keyboard event in a notice.
+ *
+ * @param app - The application.
+ */
+export function startListeningToMobileKeyboard(app: App): void {
+  if (mobileKeyboardListeningComponent) {
+    new Notice('Already listening. Tap into a note to raise the keyboard.');
+    return;
+  }
+  const component = new Component();
+  component.load();
+  component.registerEvent(app.workspace.on('more-events:mobile-keyboard-will-show', ({ keyboardHeight }) => {
+    new Notice(`Keyboard will show: ${String(keyboardHeight)} px`, NOTICE_DURATION_IN_MILLISECONDS);
+  }));
+  component.registerEvent(app.workspace.on('more-events:mobile-keyboard-shown', ({ hasPhysicalKeyboard, keyboardHeight }) => {
+    new Notice(`Keyboard shown: ${String(keyboardHeight)} px${hasPhysicalKeyboard ? ', hardware keyboard attached' : ''}`, NOTICE_DURATION_IN_MILLISECONDS);
+  }));
+  component.registerEvent(app.workspace.on('more-events:mobile-keyboard-will-hide', () => {
+    new Notice('Keyboard animating while up', NOTICE_DURATION_IN_MILLISECONDS);
+  }));
+  component.registerEvent(app.workspace.on('more-events:mobile-keyboard-hidden', () => {
+    new Notice('Keyboard hidden', NOTICE_DURATION_IN_MILLISECONDS);
+  }));
+  mobileKeyboardListeningComponent = component;
+  new Notice(
+    Platform.isMobileApp
+      ? 'Listening. Tap into a note to raise the keyboard.'
+      : 'Listening. These events come from the mobile app, so nothing arrives on desktop.',
+    NOTICE_DURATION_IN_MILLISECONDS
+  );
+}
+
+/**
+ * Removes the listener {@link startListeningToMobileKeyboard} added.
+ */
+export function stopListeningToMobileKeyboard(): void {
+  if (!mobileKeyboardListeningComponent) {
+    new Notice('Not listening.');
+    return;
+  }
+  mobileKeyboardListeningComponent.unload();
+  mobileKeyboardListeningComponent = null;
   new Notice('Stopped listening.');
 }

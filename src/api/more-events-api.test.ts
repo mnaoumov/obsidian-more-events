@@ -35,6 +35,10 @@ import {
   LEAF_MENU_EVENT_NAME,
   MARKDOWN_PROPERTIES_MENU_EVENT_NAME,
   MARKDOWN_VIEWPORT_MENU_EVENT_NAME,
+  MOBILE_KEYBOARD_HIDDEN_EVENT_NAME,
+  MOBILE_KEYBOARD_SHOWN_EVENT_NAME,
+  MOBILE_KEYBOARD_WILL_HIDE_EVENT_NAME,
+  MOBILE_KEYBOARD_WILL_SHOW_EVENT_NAME,
   NEW_FILE_READY_EVENT_NAME,
   PDF_OUTLINE_MENU_EVENT_NAME,
   PDF_PAGE_MENU_EVENT_NAME,
@@ -121,6 +125,10 @@ describe('the published contract', () => {
     expect(TAB_SWITCHER_MENU_EVENT_NAME).toBe('more-events:tab-switcher-menu');
     expect(RECEIVE_TEXT_MENU_EVENT_NAME).toBe('more-events:receive-text-menu');
     expect(RECEIVE_FILES_MENU_EVENT_NAME).toBe('more-events:receive-files-menu');
+    expect(MOBILE_KEYBOARD_WILL_SHOW_EVENT_NAME).toBe('more-events:mobile-keyboard-will-show');
+    expect(MOBILE_KEYBOARD_SHOWN_EVENT_NAME).toBe('more-events:mobile-keyboard-shown');
+    expect(MOBILE_KEYBOARD_WILL_HIDE_EVENT_NAME).toBe('more-events:mobile-keyboard-will-hide');
+    expect(MOBILE_KEYBOARD_HIDDEN_EVENT_NAME).toBe('more-events:mobile-keyboard-hidden');
   });
 
   it('should declare every member of the api in the contract', () => {
@@ -133,6 +141,6 @@ describe('the published contract', () => {
   });
 
   it('should publish a contract version independent of the plugin version', () => {
-    expect(PLUGIN_API_VERSION).toBe('1.14.0');
+    expect(PLUGIN_API_VERSION).toBe('1.15.0');
   });
 });
