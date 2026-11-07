@@ -25,3 +25,4 @@ If you are reading it as a plugin developer, this vault is the documentation. Ev
 
 - [12 Configuration events](<./12 Configuration events.md>)
 - [13 Sync events](<./13 Sync events.md>)
+- [14 Mobile keyboard events](<./14 Mobile keyboard events.md>)

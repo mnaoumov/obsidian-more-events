@@ -49,6 +49,7 @@ Every event fires on `app.workspace`.
 
 8. **Configuration events**, for example `more-events:config-changed`, naming the native vault configuration key: see [12 Configuration events](<./demo-vault/12 Configuration events.md>).
 9. **Sync events**: `more-events:sync-status-changed`, for example `syncing` to `synced` when the vault goes idle: see [13 Sync events](<./demo-vault/13 Sync events.md>).
+10. **Mobile keyboard events**, for example `more-events:mobile-keyboard-shown` with the keyboard's height, once the on-screen keyboard is up: see [14 Mobile keyboard events](<./demo-vault/14 Mobile keyboard events.md>).
 
 ## See also
 
@@ -80,7 +81,7 @@ this.registerEvent(
 );
 ```
 
-For the current state, and to know whether `More Events` is installed at all, take the API through the registry. The contract is **`1.13.0`** and moves independently of the plugin's own version, so ask for a range.
+For the current state, and to know whether `More Events` is installed at all, take the API through the registry. The contract is **`1.15.0`** and moves independently of the plugin's own version, so ask for a range.
 
 Beside `api.d.ts`, [`api-contract.ts`](./api-contract.ts) holds the API's contract, `MORE_EVENTS_API_CONTRACT`: for every method, a schema over its arguments and a schema over what it returns. Copy it next to `api.d.ts` and pass it as the `contract`, so both sides check the same definition. It imports from one package besides `./api.d.ts`, [`@mnaoumov/typescript-lib`](https://www.npmjs.com/package/@mnaoumov/typescript-lib) (`1.3.0` or later). More in [03 For plugin developers](<./demo-vault/03 For plugin developers.md>).
 

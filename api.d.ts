@@ -1962,6 +1962,25 @@ export type ReceiveTextMenuEventName = 'more-events:receive-text-menu';
 /** The menu Obsidian shows once files shared to it from another app are imported is about to open. Mobile only. @since 1.14.0 */
 export type ReceiveFilesMenuEventName = 'more-events:receive-files-menu';
 
+/** The mobile app's keyboard starts animating in. @since 1.15.0 */
+export type MobileKeyboardWillShowEventName = 'more-events:mobile-keyboard-will-show';
+/** The mobile app's keyboard finished animating, and is up. @since 1.15.0 */
+export type MobileKeyboardShownEventName = 'more-events:mobile-keyboard-shown';
+/** The mobile app's keyboard starts animating while it is up. @since 1.15.0 */
+export type MobileKeyboardWillHideEventName = 'more-events:mobile-keyboard-will-hide';
+/** The mobile app's keyboard finished animating, and is down. @since 1.15.0 */
+export type MobileKeyboardHiddenEventName = 'more-events:mobile-keyboard-hidden';
+
+/** What the mobile app's native keyboard notification reported, as plain data. */
+export interface MobileKeyboardState {
+  /** Whether a hardware keyboard is attached. Obsidian treats the on-screen keyboard as not shown when one is. */
+  readonly hasPhysicalKeyboard: boolean;
+  /** The keyboard's height in CSS pixels: the target height for a will-show, the final one for a shown, and 0 for a hide. */
+  readonly keyboardHeight: number;
+  /** The height of the app's window in CSS pixels. */
+  readonly screenHeight: number;
+}
+
 declare module 'obsidian' {
   interface Workspace {
     /**
@@ -1985,5 +2004,33 @@ declare module 'obsidian' {
      * @since 1.14.0
      */
     on(name: ReceiveFilesMenuEventName, callback: (menu: Menu, files: TFile[]) => unknown, context?: unknown): EventRef;
+    /**
+     * The keyboard's insets animation starts towards a visible keyboard. A notice, not proof: the animation can still be
+     * interrupted, so read the final state from {@link MobileKeyboardShownEventName}. Mobile only; nothing fires on desktop.
+     * Relays Obsidian's native `keyboardWillShow` window event.
+     * @since 1.15.0
+     */
+    on(name: MobileKeyboardWillShowEventName, callback: (state: MobileKeyboardState) => unknown, context?: unknown): EventRef;
+    /**
+     * The keyboard's insets animation ended with the keyboard visible. This is the event that says the keyboard is up,
+     * including after a keyboard that was already up changed its height. Mobile only.
+     * Relays Obsidian's native `keyboardDidShow` window event.
+     * @since 1.15.0
+     */
+    on(name: MobileKeyboardShownEventName, callback: (state: MobileKeyboardState) => unknown, context?: unknown): EventRef;
+    /**
+     * A keyboard insets animation starts while the keyboard is up. On Android this is ALSO raised when a keyboard that is
+     * up only changes its height, and is then followed by a will-show and a shown rather than a hidden, so it is a notice,
+     * never proof the keyboard is going away. The height is 0. Mobile only.
+     * Relays Obsidian's native `keyboardWillHide` window event.
+     * @since 1.15.0
+     */
+    on(name: MobileKeyboardWillHideEventName, callback: (state: MobileKeyboardState) => unknown, context?: unknown): EventRef;
+    /**
+     * The keyboard's insets animation ended with the keyboard gone. The height is 0. Mobile only.
+     * Relays Obsidian's native `keyboardDidHide` window event.
+     * @since 1.15.0
+     */
+    on(name: MobileKeyboardHiddenEventName, callback: (state: MobileKeyboardState) => unknown, context?: unknown): EventRef;
   }
 }

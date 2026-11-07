@@ -57,6 +57,10 @@ import type {
   MarkdownPreviewRenderedEventName,
   MarkdownPropertiesMenuEventName,
   MarkdownViewportMenuEventName,
+  MobileKeyboardHiddenEventName,
+  MobileKeyboardShownEventName,
+  MobileKeyboardWillHideEventName,
+  MobileKeyboardWillShowEventName,
   NewFileReadyEventName,
   PdfDisplayMenuEventName,
   PdfOutlineMenuEventName,
@@ -153,6 +157,11 @@ export type {
   MarkdownPreviewRenderedEventName,
   MarkdownPropertiesMenuEventName,
   MarkdownViewportMenuEventName,
+  MobileKeyboardHiddenEventName,
+  MobileKeyboardShownEventName,
+  MobileKeyboardState,
+  MobileKeyboardWillHideEventName,
+  MobileKeyboardWillShowEventName,
   MoreEventsApi,
   NewFileReadyEventName,
   PdfDisplayMenuEventName,
@@ -406,7 +415,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * The version of the contract above — independent of the plugin's own version, so a consumer asks for
  * `'^1'` and keeps working across releases that change nothing it depends on.
  *
- * `1.14.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the events since `1.0.0`
+ * `1.15.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the events since `1.0.0`
  * were ADDED and nothing already published changed its meaning, so a consumer written against any
  * `1.x` compiles and runs unaltered. The payloads are declared additive-only in `api.d.ts` precisely so
  * this stays a minor.
@@ -426,9 +435,10 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * `1.9.0` added before/after saves, command dispatch and indexed frontmatter diffs. `1.12.0` added the **Sync** status
  * menu, the **Sync history** view's multi-selection menu and the **Publish changes** dialog's file row menu. `1.13.0`
  * added `more-events:sync-status-changed`, and `1.14.0` added the mobile navigation bar's tab button menu and the
- * relays of Obsidian's own share-sheet menus, `receive-text-menu` and `receive-files-menu`.
+ * relays of Obsidian's own share-sheet menus, `receive-text-menu` and `receive-files-menu`, and `1.15.0` added the four
+ * mobile keyboard events.
  */
-export const PLUGIN_API_VERSION = '1.14.0';
+export const PLUGIN_API_VERSION = '1.15.0';
 
 /**
  * The File Explorer vault-root context-menu event.
@@ -562,3 +572,19 @@ export const RECEIVE_TEXT_MENU_EVENT_NAME: ReceiveTextMenuEventName = 'more-even
 The menu for files shared to Obsidian from another app, once imported.
 */
 export const RECEIVE_FILES_MENU_EVENT_NAME: ReceiveFilesMenuEventName = 'more-events:receive-files-menu';
+/**
+The mobile keyboard starts animating in.
+*/
+export const MOBILE_KEYBOARD_WILL_SHOW_EVENT_NAME: MobileKeyboardWillShowEventName = 'more-events:mobile-keyboard-will-show';
+/**
+The mobile keyboard is up.
+*/
+export const MOBILE_KEYBOARD_SHOWN_EVENT_NAME: MobileKeyboardShownEventName = 'more-events:mobile-keyboard-shown';
+/**
+A mobile keyboard animation starts while it is up.
+*/
+export const MOBILE_KEYBOARD_WILL_HIDE_EVENT_NAME: MobileKeyboardWillHideEventName = 'more-events:mobile-keyboard-will-hide';
+/**
+The mobile keyboard is down.
+*/
+export const MOBILE_KEYBOARD_HIDDEN_EVENT_NAME: MobileKeyboardHiddenEventName = 'more-events:mobile-keyboard-hidden';

@@ -52,6 +52,7 @@ import { FileSaveEventsComponent } from './files/file-save-events-component.ts';
 import { FrontmatterEventsComponent } from './files/frontmatter-events-component.ts';
 import { IndexReadyEventsComponent } from './files/index-ready-events-component.ts';
 import { NewFileReadyEventsComponent } from './files/new-file-ready-events-component.ts';
+import { MobileKeyboardEventsComponent } from './mobile-keyboard/mobile-keyboard-events-component.ts';
 import { CommunityPluginEventsComponent } from './plugin-lifecycle/community-plugin-events-component.ts';
 import { CommunityPluginUninstalledEventsComponent } from './plugin-lifecycle/community-plugin-uninstalled-events-component.ts';
 import { CorePluginEventsComponent } from './plugin-lifecycle/core-plugin-events-component.ts';
@@ -103,6 +104,7 @@ export class Plugin extends PluginBase {
     this.addChild(new FrontmatterEventsComponent({ app: this.app }));
     this.addChild(new CommandEventsComponent({ app: this.app }));
     this.addChild(new SyncStatusEventsComponent({ app: this.app }));
+    this.addChild(new MobileKeyboardEventsComponent({ app: this.app, win: window }));
 
     const communityPluginEventsComponent = this.addChild(
       new CommunityPluginEventsComponent({
