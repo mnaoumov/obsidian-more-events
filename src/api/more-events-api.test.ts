@@ -44,6 +44,8 @@ import {
   PROPERTY_MENU_EVENT_NAME,
   PROPERTY_VALUE_MENU_EVENT_NAME,
   PUBLISH_FILE_MENU_EVENT_NAME,
+  RECEIVE_FILES_MENU_EVENT_NAME,
+  RECEIVE_TEXT_MENU_EVENT_NAME,
   RIBBON_MENU_EVENT_NAME,
   SEARCH_RESULTS_MENU_EVENT_NAME,
   SIDEBAR_TOGGLE_MENU_EVENT_NAME,
@@ -51,6 +53,7 @@ import {
   SYNC_STATUS_CHANGED_EVENT_NAME,
   SYNC_STATUS_MENU_EVENT_NAME,
   TAB_GROUP_MENU_EVENT_NAME,
+  TAB_SWITCHER_MENU_EVENT_NAME,
   TABLE_CELL_MENU_EVENT_NAME,
   TABLE_HANDLE_MENU_EVENT_NAME,
   TASK_CHECKBOX_CLICKED_EVENT_NAME,
@@ -115,6 +118,9 @@ describe('the published contract', () => {
     expect(SYNC_FILES_MENU_EVENT_NAME).toBe('more-events:sync-files-menu');
     expect(PUBLISH_FILE_MENU_EVENT_NAME).toBe('more-events:publish-file-menu');
     expect(SYNC_STATUS_CHANGED_EVENT_NAME).toBe('more-events:sync-status-changed');
+    expect(TAB_SWITCHER_MENU_EVENT_NAME).toBe('more-events:tab-switcher-menu');
+    expect(RECEIVE_TEXT_MENU_EVENT_NAME).toBe('more-events:receive-text-menu');
+    expect(RECEIVE_FILES_MENU_EVENT_NAME).toBe('more-events:receive-files-menu');
   });
 
   it('should declare every member of the api in the contract', () => {
@@ -127,6 +133,6 @@ describe('the published contract', () => {
   });
 
   it('should publish a contract version independent of the plugin version', () => {
-    expect(PLUGIN_API_VERSION).toBe('1.13.0');
+    expect(PLUGIN_API_VERSION).toBe('1.14.0');
   });
 });

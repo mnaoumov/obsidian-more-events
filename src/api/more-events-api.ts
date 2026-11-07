@@ -66,6 +66,8 @@ import type {
   PropertyMenuEventName,
   PropertyValueMenuEventName,
   PublishFileMenuEventName,
+  ReceiveFilesMenuEventName,
+  ReceiveTextMenuEventName,
   RibbonMenuEventName,
   SearchResultsMenuEventName,
   SidebarToggleMenuEventName,
@@ -75,6 +77,7 @@ import type {
   TabGroupMenuEventName,
   TableCellMenuEventName,
   TableHandleMenuEventName,
+  TabSwitcherMenuEventName,
   TaskCheckboxClickedEventName,
   VaultMenuEventName,
   WebViewerHistoryMenuEventName
@@ -165,6 +168,8 @@ export type {
   PublishChangeType,
   PublishFileMenuEventName,
   PublishFileMenuItem,
+  ReceiveFilesMenuEventName,
+  ReceiveTextMenuEventName,
   RibbonMenuEventName,
   RibbonSide,
   SearchResultsMenuEventName,
@@ -181,6 +186,7 @@ export type {
   TableHandleAxis,
   TableHandleMenuEventName,
   TableHandleMenuItem,
+  TabSwitcherMenuEventName,
   TaskCheckboxClick,
   TaskCheckboxClickedEventName,
   VaultMenuEventName,
@@ -400,7 +406,7 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * The version of the contract above — independent of the plugin's own version, so a consumer asks for
  * `'^1'` and keeps working across releases that change nothing it depends on.
  *
- * `1.8.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the events since `1.0.0`
+ * `1.14.0` rather than `2.0.0`, for the same reason every earlier step was a minor: the events since `1.0.0`
  * were ADDED and nothing already published changed its meaning, so a consumer written against any
  * `1.x` compiles and runs unaltered. The payloads are declared additive-only in `api.d.ts` precisely so
  * this stays a minor.
@@ -418,9 +424,11 @@ export const PLUGIN_API_CONTRACT: ApiContract = MORE_EVENTS_API_CONTRACT;
  * `more-events:new-file-ready`, and `1.7.0` added the canvas events: the selection, content, read-only and card editing
  * changes, and the selection toolbar being rendered, and `1.8.0` added `more-events:task-checkbox-clicked`.
  * `1.9.0` added before/after saves, command dispatch and indexed frontmatter diffs. `1.12.0` added the **Sync** status
- * menu, the **Sync history** view's multi-selection menu and the **Publish changes** dialog's file row menu. 1.13.0`n * added more-events:sync-status-changed.
+ * menu, the **Sync history** view's multi-selection menu and the **Publish changes** dialog's file row menu. `1.13.0`
+ * added `more-events:sync-status-changed`, and `1.14.0` added the mobile navigation bar's tab button menu and the
+ * relays of Obsidian's own share-sheet menus, `receive-text-menu` and `receive-files-menu`.
  */
-export const PLUGIN_API_VERSION = '1.13.0';
+export const PLUGIN_API_VERSION = '1.14.0';
 
 /**
  * The File Explorer vault-root context-menu event.
@@ -542,3 +550,15 @@ export const PUBLISH_FILE_MENU_EVENT_NAME: PublishFileMenuEventName = 'more-even
 A change of the core **Sync** plugin's state.
 */
 export const SYNC_STATUS_CHANGED_EVENT_NAME: SyncStatusChangedEventName = 'more-events:sync-status-changed';
+/**
+The mobile navigation bar's tab button menu.
+*/
+export const TAB_SWITCHER_MENU_EVENT_NAME: TabSwitcherMenuEventName = 'more-events:tab-switcher-menu';
+/**
+The menu for text shared to Obsidian from another app.
+*/
+export const RECEIVE_TEXT_MENU_EVENT_NAME: ReceiveTextMenuEventName = 'more-events:receive-text-menu';
+/**
+The menu for files shared to Obsidian from another app, once imported.
+*/
+export const RECEIVE_FILES_MENU_EVENT_NAME: ReceiveFilesMenuEventName = 'more-events:receive-files-menu';

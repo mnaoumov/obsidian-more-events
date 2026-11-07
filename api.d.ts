@@ -1954,3 +1954,36 @@ declare module 'obsidian' {
     on(name: SyncStatusChangedEventName, callback: (status: SyncStatus, previousStatus: SyncStatus) => unknown, context?: unknown): EventRef;
   }
 }
+
+/** The mobile navigation bar's tab button menu is about to open. Mobile only. @since 1.14.0 */
+export type TabSwitcherMenuEventName = 'more-events:tab-switcher-menu';
+/** The menu Obsidian shows for text shared to it from another app is about to open. Mobile only. @since 1.14.0 */
+export type ReceiveTextMenuEventName = 'more-events:receive-text-menu';
+/** The menu Obsidian shows once files shared to it from another app are imported is about to open. Mobile only. @since 1.14.0 */
+export type ReceiveFilesMenuEventName = 'more-events:receive-files-menu';
+
+declare module 'obsidian' {
+  interface Workspace {
+    /**
+     * The tab button of the mobile navigation bar is long-pressed. Its menu holds **New tab**, **Undo close tab** and
+     * the close items, and acts on the most recently active leaf, which is passed, `null` when there is none; the
+     * leaves its **Close N tabs** item closes are that leaf's unpinned siblings in `leaf.parent`. Obsidian fires nothing for this menu. The same menu opened from the chevron button
+     * inside the tab switcher is not announced: it opens on a click, anchored to nothing.
+     * @since 1.14.0
+     */
+    on(name: TabSwitcherMenuEventName, callback: (menu: Menu, leaf: WorkspaceLeaf | null) => unknown, context?: unknown): EventRef;
+    /**
+     * Text is shared to Obsidian from another app through the operating system's share sheet. A relay of Obsidian's
+     * own `receive-text-menu`; the text is exactly what the other app shared.
+     * @since 1.14.0
+     */
+    on(name: ReceiveTextMenuEventName, callback: (menu: Menu, text: string) => unknown, context?: unknown): EventRef;
+    /**
+     * Files shared to Obsidian from another app have been imported into the vault, after **Import into vault** in
+     * the menu shown for them. A relay of Obsidian's own `receive-files-menu`; the files are the vault files the
+     * import created, in the order they were shared.
+     * @since 1.14.0
+     */
+    on(name: ReceiveFilesMenuEventName, callback: (menu: Menu, files: TFile[]) => unknown, context?: unknown): EventRef;
+  }
+}
