@@ -253,28 +253,6 @@ async function longPressTabButton(): Promise<TabMenuRecord> {
  * @returns What happened.
  */
 async function readShareRecord(): Promise<ShareRecord> {
-  try {
-    return await readShareRecordOnce();
-  } catch (error) {
-    /*
-     * A share intent brings the app's activity back to the front, and once in three runs on 2026-11-07 the next
-     * `evalInObsidian` failed in the harness's own namespace bootstrap, before this suite's closure ran, with
-     * `no such window: target window already closed`: the WebView handle Appium held had gone stale. Nothing in the
-     * app was touched by then, so one more read is safe, and any other error is not retried.
-     */
-    if (!String(error).includes('no such window')) {
-      throw error;
-    }
-    return await readShareRecordOnce();
-  }
-}
-
-/**
- * One attempt of {@link readShareRecord}.
- *
- * @returns What happened.
- */
-async function readShareRecordOnce(): Promise<ShareRecord> {
   return await evalInObsidian({
     async callback({
       app,
