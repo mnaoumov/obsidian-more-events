@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 1.6.0
+
+This release has 2 new features and 2 documentation changes. 1 maintenance commit (tests, build, CI, refactoring, dependencies) is not listed.
+
+### New
+
+- **mobile-keyboard:** publish the mobile keyboard events
+- **context-menus:** publish the mobile tab button and share-sheet menus
+
+### Documentation
+
+- **changelog:** regroup the published release notes for readers
+- record the 1.5.0 release in AGENTS.md
+
 ## 1.5.0
 
 This release has 8 new features, 1 fix and 2 documentation changes. 2 maintenance commits (tests, build, CI, refactoring, dependencies) are not listed.
